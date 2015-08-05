@@ -1,0 +1,7 @@
+db.sqlite3
+*settings.py
+moveon/migrations
+__pycache__
+.project
+.pydevproject
+.settings

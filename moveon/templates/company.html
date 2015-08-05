@@ -1,0 +1,24 @@
+{% extends "index.html" %}
+{% load color_filters %}
+
+{% block content %}
+    <h1>{{ company.name }} ({{ company.code }})</h1>
+    <img src="{{ company.logo }}" />
+    <a href="{{ company.url }}">Go to home page</a>
+    
+    {% if lines %}
+        <h2>Lines</h2>
+    {% else %}
+        <p>This company has no lines</p>
+    {% endif %}
+    
+    {% for line in lines %}
+    
+    <a href="/moveon/companies/{{ company.code }}/lines/{{ line.code }}"
+        style="color: {{ line.colour | text_color_from_background }}">
+        <div style="background-color: {{ line.colour }}">
+            {{ line.code }} - {{ line.name }} ({{ line.transport }} line)
+        </div>
+    </a>
+    {% endfor %}
+{% endblock %}

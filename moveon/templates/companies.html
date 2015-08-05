@@ -1,0 +1,19 @@
+{% extends "index.html" %}
+
+{% block head %}
+    <script>
+        function goToCompany() {
+            var widget = document.getElementById("company-selector");
+            var company = widget.options[widget.selectedIndex].value;
+            window.location = "/moveon/companies/" + company;
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <select id="company-selector" onchange="goToCompany()">
+        {% for company in companies %}
+        <option value="{{ company.code }}">{{ company.name }}</option>
+        {% endfor %}
+    </select> 
+{% endblock %}
