@@ -83,7 +83,7 @@ class Stretch(models.Model):
     route = models.ForeignKey(Route)
     time_table = models.ManyToManyField(TimeTable)
 
-class RoutePoint():
+class RoutePoint(models.Model):
     node = models.ForeignKey(Node)
     stretch = models.ForeignKey(Stretch)
     order = models.IntegerField()
