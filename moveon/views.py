@@ -8,7 +8,7 @@ from .models import Company, Line
 
 def index(request):
     client = osm_client.OSMClient()
-    node = client.getOsmNodeInfo('669638944')
+    node = client.get_osm_node_info('669638944')
     return HttpResponse(node)
     #return HttpResponse("Hello, world. You're at the moveon index.")
 

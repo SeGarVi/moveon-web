@@ -70,7 +70,7 @@ class Station(Place):
     def save(self, *args, **kwargs):
         if self.osm_id is not None:
             client = OSMClient()
-            node = client.getOsmNodeInfo(str(self.osm_id))
+            node = client.get_osm_node_info(str(self.osm_id))
             self.longitude = node.getLongidude()
             self.latitude = node.getLatitude()
             self.name = node.getName()
