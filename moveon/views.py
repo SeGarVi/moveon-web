@@ -3,14 +3,10 @@ from django.template import RequestContext, loader
 
 from django.shortcuts import get_object_or_404
 
-from osm import osm_client
 from .models import Company, Line
 
 def index(request):
-    client = osm_client.OSMClient()
-    node = client.get_osm_node_info('669638944')
-    return HttpResponse(node)
-    #return HttpResponse("Hello, world. You're at the moveon index.")
+    return HttpResponse("Hello, world. You're at the moveon index.")
 
 def companies(request):
     companies = Company.objects.order_by('name')
