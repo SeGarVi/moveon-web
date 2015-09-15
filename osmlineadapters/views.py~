@@ -1,0 +1,46 @@
+from django.http import HttpResponse
+from django.template import RequestContext, loader
+from django.core.cache import cache
+from django.views.decorators.csrf import csrf_exempt
+from django.core.cache.backends import locmem
+
+import json
+
+
+@csrf_exempt
+def newline(request, company_id):
+    print('newline called')
+    if request.method == 'GET':
+        template = loader.get_template('new_line.html')
+        return HttpResponse(template.render())
+    elif request.method == 'POST':
+        print('POST newline called')
+        json_request = json.loads(request.body.decode("utf-8"))
+        osm_line_id = json_request['osmline']['id']
+        
+        print('Trying to get info for {0}'.format(osm_line_id))
+        
+        adapter_path = "osmlineadapters.adapters.{0}.osm_line".format(company_id)
+        mod = __import__(adapter_path, fromlist=['OSMLine'])
+        class_ = getattr(mod, 'OSMLine') 
+        instance = class_(osm_line_id)#Parallelize this
+        cache.set(osm_line_id, json.dumps(instance.line))
+        print(locmem._caches)
+        return HttpResponse('ok')
+
+def newlinedetail(request, company_id, osm_line_id, manager=None):
+    if request.method == "GET":
+        print(locmem._caches)
+        line = json.loads(cache.get(osm_line_id))
+        if line:
+            template = loader.get_template('new_line_detail.html')
+            context = RequestContext(
+                request, {
+                    'line': line,
+                }
+            )
+            return HttpResponse(template.render(context))
+        else:
+            return HttpResponse("Line not retrieved yet")
+    elif request.method == "POST":
+        storeindb

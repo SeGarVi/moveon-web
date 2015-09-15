@@ -1,5 +1,5 @@
-from moveon.adapters.tests.osm_line_test import OSMLineTest
-from moveon.adapters.concrete.emt_palma.static.osm_line import OSMLine
+from osmlineadapters.tests.osm_line_test import OSMLineTest
+from osmlineadapters.adapters.emt_palma.osm_line import OSMLine
 
 class EMTPalmaOSMLineTest(OSMLineTest):
     def setUp(self):

@@ -1,7 +1,7 @@
 import logging
 
 from osmapi import OsmApi
-from moveon.adapters.osm_line import AbstractOSMLine
+from osmlineadapters.osm_line import AbstractOSMLine
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +17,7 @@ class OSMLine(AbstractOSMLine):
     def _get_line_from_osm(self, line_code):
         self.osmline = self.osmapi.RelationGet(line_code)
         logger.info('Getting line {0} info'.format(self.osmline['tag']['name']))
+        print('Getting line {0} info'.format(self.osmline['tag']['name']))
         
         self.line['osmid'] = self.osmline['id']
         self.line['company'] = 'emt-palma'

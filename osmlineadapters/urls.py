@@ -13,15 +13,11 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
-from django.conf.urls import include,url
+from django.conf.urls import  url
 
 from . import views
 
 urlpatterns = [
-    url(r'^osmlines/(?P<company_id>.+)/', include('osmlineadapters.urls')),
-    url(r'^companies/(?P<company_id>.+)/lines/(?P<line_id>.+)', views.line, name='line'),
-    url(r'^companies/(?P<company_id>.+)/stations/(?P<station_id>.+)', views.station, name='stations'),
-    url(r'^companies/(?P<company_id>.+)', views.company, name='company'),
-    url(r'^companies/', views.companies, name='companies'),
-    url(r'^', views.index)
+    url(r'^(?P<osm_line_id>.+)', views.newlinedetail, name='newlinedetail'),
+    url(r'^', views.newline),
 ]
