@@ -1,0 +1,3 @@
+#Manager to store the OSM line data
+OSMLINEMANAGERMODULE=
+OSMLINEMANAGERCLASS=
