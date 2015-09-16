@@ -18,7 +18,7 @@ class OSMLineManager(models.Manager):
         self._create_default_stretches()
         self._save_route_points()
     
-    def _save_line(self)
+    def _save_line(self):
         companymanager = CompanyManager()
         company = companymanager.get_by_id(self.osmline['company'])
         
@@ -47,7 +47,7 @@ class OSMLineManager(models.Manager):
         self.line.stations = self.stations.values()
         self.line.save()
     
-    def _save_nodes(self)
+    def _save_nodes(self):
         nodemanager = NodeManager()
         
         for osmnode in self.osmline['route_points']:
@@ -70,7 +70,7 @@ class OSMLineManager(models.Manager):
             self.routes.append(route)
     
     def _create_default_stretches(self):
-        for route in self.routes
+        for route in self.routes:
             stretch = Stretch()
             stretch.route = route
             stretch.save()
@@ -78,7 +78,7 @@ class OSMLineManager(models.Manager):
     
     def _save_route_points(self):
         for osmroute in self.osmline['routes']:
-            for osmroutepoint in osmroute['route_points']
+            for osmroutepoint in osmroute['route_points']:
                 routepoint = RoutePoint.from_osm_adapter_data(osmroutepoint)
                 routepoint.node = self.nodes[osmroutepoint['node_id']]
                 routepoint.node = self.stretches[osmroute['osmid']]
@@ -96,18 +96,6 @@ class StationManager(models.Manager):
     def get_by_id(self, station_id):
         return self.get(id = station_id)
 
-class LineManager(models.Manager):
-   
-class RouteManager(models.Manager):
-
-class TimeManager(models.Manager):
-
-class TimeTableManager(models.Manager):
-
 class NodeManager(models.Manager):
     def get_by_id(self, station_id):
         return self.get(id = station_id)
-
-class StretchManager(models.Manager):
-
-class RoutePointManager(models.Manager):
