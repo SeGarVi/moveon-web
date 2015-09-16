@@ -25,9 +25,25 @@ class Station(models.Model):
     adapted = models.BooleanField()
     shelter = models.BooleanField()
     bench = models.BooleanField()
-            
+    
     def __str__(self):
         return self.name
+    
+    @classmethod
+    def from_osm_adapter_data(cls, osmstation):
+        station = Station()
+        
+        station.osmid = osmstation['osmid']
+        station.latitude = osmstation['latitude']
+        station.longitude = osmstation['longitude']
+        station.osmid = osmstation['code']
+        station.osmid = osmstation['name']
+        station.osmid = osmstation['available']
+        station.osmid = osmstation.get('adapted')
+        station.osmid = osmstation.get('shelter')
+        station.osmid = osmstation.get('bench')
+        
+        return station
 
 class Line(models.Model):
     osmid = models.IntegerField(primary_key=True, unique=True)
@@ -40,7 +56,18 @@ class Line(models.Model):
     
     def __str__(self):
         return self.code + ' ' + self.name
-   
+    
+    @classmethod
+    def from_osm_adapter_data(cls, osmline):
+        line = Line()
+        
+        line.osmid = osmline['osmid']
+        line.code = osmline['code']
+        line.name = osmline['name']
+        line.colour = osmline['colour']
+        
+        return line
+
 class Route(models.Model):
     osmid = models.IntegerField(primary_key=True, unique=True)
     line = models.ForeignKey(Line)
@@ -50,6 +77,17 @@ class Route(models.Model):
     
     def __str__(self):
         return self.name
+    
+    @classmethod
+    def from_osm_adapter_data(cls, osmroute):
+        route = Route()
+        
+        route.osmid = osmroute['osmid']
+        route.name = osmroute['name']
+        route.station_from = osmroute['station_from']
+        route.station_to = osmroute['station_to']
+        
+        return route
 
 class Time(models.Model):
     moment = models.BigIntegerField(primary_key=True, unique=True)
@@ -78,6 +116,16 @@ class Node(models.Model):
     
     def __str__(self):
         return self.name
+    
+    @classmethod
+    def from_osm_adapter_data(cls, osmnode):
+        node = Node()
+        
+        node.osmid = osmnode['node']
+        node.latitude = osmnode['latitude']
+        node.longitude = osmnode['longitude']
+        
+        return node
 
 class Stretch(models.Model):
     route = models.ForeignKey(Route)
@@ -88,3 +136,11 @@ class RoutePoint(models.Model):
     stretch = models.ForeignKey(Stretch)
     order = models.IntegerField()
     time_from_beggining = models.BigIntegerField()
+    
+    @classmethod
+    def from_osm_adapter_data(cls, osmroutepoint):
+        routepoint = RoutePoint()
+        
+        routepoint.order = osmroutepoint['order']
+        
+        return routepoint
