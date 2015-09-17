@@ -1,16 +1,21 @@
 from django.db import models
+from moveon import managers
 
 class Company(models.Model):
+    code = models.TextField(primary_key=True, unique=True) 
     name = models.TextField()
-    code = models.TextField() 
     url = models.URLField()
     logo = models.TextField()
+    
+    objects = managers.CompanyManager()
     
     def __str__(self):
         return self.name
     
 class Transport(models.Model):
     name = models.TextField()
+    
+    objects = managers.TransportManager()
     
     def __str__(self):
         return self.name
@@ -22,9 +27,11 @@ class Station(models.Model):
     code = models.TextField()
     name = models.TextField()
     available = models.BooleanField()
-    adapted = models.BooleanField()
-    shelter = models.BooleanField()
-    bench = models.BooleanField()
+    adapted = models.NullBooleanField(null=True)
+    shelter = models.NullBooleanField(null=True)
+    bench = models.NullBooleanField(null=True)
+    
+    objects = managers.StationManager()
     
     def __str__(self):
         return self.name
@@ -36,12 +43,12 @@ class Station(models.Model):
         station.osmid = osmstation['osmid']
         station.latitude = osmstation['latitude']
         station.longitude = osmstation['longitude']
-        station.osmid = osmstation['code']
-        station.osmid = osmstation['name']
-        station.osmid = osmstation['available']
-        station.osmid = osmstation.get('adapted')
-        station.osmid = osmstation.get('shelter')
-        station.osmid = osmstation.get('bench')
+        station.code = osmstation['code']
+        station.name = osmstation['name']
+        station.available = osmstation['available']
+        station.adapted = osmstation['adapted']
+        station.shelter = osmstation['shelter']
+        station.bench = osmstation['bench']
         
         return station
 
@@ -114,6 +121,8 @@ class Node(models.Model):
     longitude = models.DecimalField(max_digits=10, decimal_places=7)
     near_station = models.ForeignKey(Station, null=True)
     
+    objects = managers.NodeManager()
+    
     def __str__(self):
         return self.name
     
@@ -121,7 +130,7 @@ class Node(models.Model):
     def from_osm_adapter_data(cls, osmnode):
         node = Node()
         
-        node.osmid = osmnode['node']
+        node.osmid = osmnode['osmid']
         node.latitude = osmnode['latitude']
         node.longitude = osmnode['longitude']
         
@@ -135,7 +144,7 @@ class RoutePoint(models.Model):
     node = models.ForeignKey(Node)
     stretch = models.ForeignKey(Stretch)
     order = models.IntegerField()
-    time_from_beggining = models.BigIntegerField()
+    time_from_beggining = models.BigIntegerField(null=True)
     
     @classmethod
     def from_osm_adapter_data(cls, osmroutepoint):
