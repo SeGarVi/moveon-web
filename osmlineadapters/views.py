@@ -29,9 +29,9 @@ def newline(request, company_id):
         cache.set(cache_simplified_id, instance.to_simplified_json(), 600)
         return HttpResponse(request.body)
 
-def newlinedetail(request, company_id, osm_line_id, manager=None):
+def newlinedetail(request, company_id, osm_line_id):
+    cache_simplified_id = str(osm_line_id) + "_simple"
     if request.method == "GET":
-        cache_simplified_id = str(osm_line_id) + "_simple"
         line = json.loads(cache.get(cache_simplified_id))
         if line:
             template = loader.get_template('new_line_detail.html')
@@ -48,15 +48,18 @@ def newlinedetail(request, company_id, osm_line_id, manager=None):
         agree = bool(json_request['osmline']['accept'])
         
         if agree:
-            line = json.loads(cache.get(cache_simplified_id))
+            line = json.loads(cache.get(osm_line_id))
             osmlinemanager = _get_osmlinemanager(line)
             osmlinemanager.save()
-            
-        cache_simplified_id = str(osm_line_id) + "_simple"
+            status_code = 201
+        else:
+            status_code = 200
+        
         cache.delete(osm_line_id)
         cache.delete(cache_simplified_id)
+        return HttpResponse(status=status_code)
 
-def _get_osmlinemanager(line=None):
+def _get_osmlinemanager(line):
     manager_module = settings.OSMLINEMANAGERMODULE
     manager_class_name = settings.OSMLINEMANAGERCLASS
     mod = __import__(manager_module, fromlist=[manager_class_name])

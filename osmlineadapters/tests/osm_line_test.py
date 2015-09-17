@@ -106,21 +106,15 @@ class OSMLineTest(TestCase):
             self.assertTrue(type(station['code']) is str)
             self.assertTrue(type(station['name']) is str)
             self.assertTrue(type(station['available']) is bool)
+            self.assertTrue(station['adapted'] is None or type(station['adapted']) is bool)
+            self.assertTrue(station['shelter'] is None or type(station['shelter']) is bool) 
+            self.assertTrue(station['bench'] is None or type(station['bench']) is bool)
              
             self.assertIsNotNone(station['code'])
             self.assertIsNotNone(station['name'])
              
             self.assertNotEqual(station['code'], "")
             self.assertNotEqual(station['name'], "")
-             
-            if 'wheelchair' in station:
-                self.assertNotEqual(str(station['wheelchair']), "")
-             
-            if 'shelter' in station:
-                self.assertNotEqual(str(station['shelter']), "")
-             
-            if 'bench' in station:
-                self.assertNotEqual(str(station['bench']), "")
      
     def _route_point_has_correct_values(self):
         """The initialized route points have the mandatory fields"""

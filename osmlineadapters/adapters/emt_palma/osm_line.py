@@ -19,7 +19,7 @@ class OSMLine(AbstractOSMLine):
         logger.info('Getting line {0} info'.format(self.osmline['tag']['name']))
         
         self.line['osmid'] = self.osmline['id']
-        self.line['company'] = 'emt-palma'
+        self.line['company'] = 'emt_palma'
         self.line['transport'] = 'bus'
         self.line['code'] = str(self.osmline['tag']['ref'])
         self.line['name'] = self.osmline['tag']['name']
@@ -70,9 +70,21 @@ class OSMLine(AbstractOSMLine):
                         station['code'] = str(osmstation['tag']['ref'])
                         station['name'] = osmstation['tag']['name']
                         station['available'] = True
-                        station['adapted'] = osmstation['tag'].get('wheelchair')
-                        station['shelter'] = osmstation['tag'].get('shelter')
-                        station['bench'] = osmstation['tag'].get('bench')
+                        
+                        if 'wheelchair' in osmstation['tag']:
+                            station['adapted'] = 'yes' in osmstation['tag']['wheelchair']
+                        else:
+                            station['adapted'] = None
+                        
+                        if 'shelter' in osmstation['tag']:
+                            station['shelter'] = 'yes' in osmstation['tag']['shelter']
+                        else:
+                            station['shelter'] = None
+                        
+                        if 'bench' in osmstation['tag']:
+                            station['bench'] = 'yes' in osmstation['tag']['bench']
+                        else:
+                            station['bench'] = None
                         
                         self.line['stations'][station['osmid']] = station
                 elif 'stop' in member['role']:
