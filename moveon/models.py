@@ -21,9 +21,9 @@ class Transport(models.Model):
         return self.name
 
 class Station(models.Model):
-    osmid = models.IntegerField(primary_key=True, unique=True)
+    osmid = models.BigIntegerField(primary_key=True, unique=True)
     latitude = models.DecimalField(max_digits=10, decimal_places=7)
-    longitude = models.DecimalField(max_digits=10, decimal_places=7)
+    longitude = models.DecimalField(max_digits=10, decimal_places=7, db_index=True)
     code = models.TextField()
     name = models.TextField()
     available = models.BooleanField()
@@ -53,7 +53,7 @@ class Station(models.Model):
         return station
 
 class Line(models.Model):
-    osmid = models.IntegerField(primary_key=True, unique=True)
+    osmid = models.BigIntegerField(primary_key=True, unique=True)
     company = models.ForeignKey(Company)
     transport = models.ForeignKey(Transport)
     code = models.TextField()
@@ -76,7 +76,7 @@ class Line(models.Model):
         return line
 
 class Route(models.Model):
-    osmid = models.IntegerField(primary_key=True, unique=True)
+    osmid = models.BigIntegerField(primary_key=True, unique=True)
     line = models.ForeignKey(Line)
     name = models.TextField()
     station_from = models.TextField()
@@ -116,9 +116,9 @@ class TimeTable(models.Model):
     time_table = models.ManyToManyField(Time)
 
 class Node(models.Model):
-    osmid = models.IntegerField(primary_key=True, unique=True)
+    osmid = models.BigIntegerField(primary_key=True, unique=True)
     latitude = models.DecimalField(max_digits=10, decimal_places=7)
-    longitude = models.DecimalField(max_digits=10, decimal_places=7)
+    longitude = models.DecimalField(max_digits=10, decimal_places=7, db_index=True)
     near_station = models.ForeignKey(Station, null=True)
     
     objects = managers.NodeManager()
