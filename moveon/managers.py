@@ -21,3 +21,16 @@ class StationManager(models.Manager):
 class NodeManager(models.Manager):
     def get_by_id(self, station_id):
         return self.get(osmid=station_id)
+
+class RouteManager(models.Manager):
+    def get_station_routes(self, station):
+        node = station.node_set.all().first()
+        route_points = node.routepoint_set.all()
+        
+        routes = []
+        for route_point in route_points:
+            route = route_point.stretch.route
+            if route not in routes:
+                routes.append(route)
+        
+        return routes

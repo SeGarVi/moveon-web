@@ -82,6 +82,8 @@ class Route(models.Model):
     station_from = models.TextField()
     station_to = models.TextField()
     
+    objects = managers.RouteManager()
+    
     def __str__(self):
         return self.name
     
@@ -119,7 +121,7 @@ class Node(models.Model):
     osmid = models.BigIntegerField(primary_key=True, unique=True)
     latitude = models.DecimalField(max_digits=10, decimal_places=7)
     longitude = models.DecimalField(max_digits=10, decimal_places=7, db_index=True)
-    near_station = models.ForeignKey(Station, null=True)
+    near_station = models.ForeignKey(Station, null=True, db_index=True)
     
     objects = managers.NodeManager()
     
