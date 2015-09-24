@@ -66,6 +66,9 @@ def _format_near_station(station):
         formatted_route = dict()
         formatted_route['name'] = route.name
         formatted_route['colour'] = route.line.colour
+        formatted_route['company'] = route.line.company.name
+        formatted_route['company_icon'] = route.line.company.logo
+        formatted_route['transport'] = route.line.transport.name
         formatted_station['routes'].append(formatted_route)
     
     return formatted_station
