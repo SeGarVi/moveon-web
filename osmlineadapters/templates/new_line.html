@@ -1,1 +1,41 @@
-Hello world
+{% extends "index.html" %}
+
+{% block head %}
+        <script>
+        function testCode(key, value) {
+            var info = '{"osmline": {"'+ key +'": '+value+'}}';
+            var url  = window.location.href;
+            $.post( url, info, 
+                function( data ) {
+                    $(".spinner").toggle();
+                    alert("Success" + url);
+                    console.log("Success" + url);
+                    window.location = url + value;
+                }
+            ).fail(
+                function(data){
+                    $(".spinner").toggle();
+                    alert("Error " + data.status);
+                    console.log("Error" + url);
+                }
+            );
+            $(".spinner").toggle();
+        }
+        </script> 
+        <style>
+            .spinner{height:30px;width:30px;background-color: red; display: none;}
+        </style>
+{% endblock %}
+
+{% block content %}
+    <div class="pure-g-r">
+        <div class="pure-u-1-5" ></div>
+        <div class="codeForm pure-u-3-5"> 
+            <p for="code">Code</p>
+            <input class="code" type="code" placeholder="OSM code" maxsize="8">
+
+            <button type="submit" class="pure-button pure-button-primary" onclick="testCode('id', $('input.code').val())">Try!!</button>
+        <div class="spinner"></div>
+    </div>
+    </div>
+{% endblock %}
