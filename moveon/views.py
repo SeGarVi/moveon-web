@@ -4,8 +4,11 @@ from django.template import RequestContext, loader
 from django.shortcuts import get_object_or_404
 
 import json
+import logging
 
 from .models import Company, Line, Station, Route
+
+logger = logging.getLogger(__name__)
 
 def index(request):
     return HttpResponse("Hello, world. You're at the moveon index.")
