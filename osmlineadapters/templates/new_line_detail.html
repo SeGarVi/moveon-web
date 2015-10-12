@@ -1,27 +1,6 @@
 {% extends "index.html" %}
 
 {% block head %}
-        <script>
-        function testCode(key, value) {
-            var info = '{"osmline": {"'+ key +'": '+value+'}}';
-            var url  = window.location.href;
-            $.post( url, info, 
-                function( data ) {
-                    $(".spinner").toggle();
-                    alert("Success" + url);
-                    console.log("Success" + url);
-                    window.location = url + code;
-                }
-            ).fail(
-                function(data){
-                    $(".spinner").toggle();
-                    alert("Error " + data.status);
-                    console.log("Error" + url);
-                }
-            );
-            $(".spinner").toggle();
-        }
-        </script> 
 {% endblock %}
 
 
@@ -31,10 +10,10 @@
         <div class="codeForm pure-u-3-5"> 
 			<h1>Line {{ line.code }} - {{ line.name }}</h1>
 
-			Company: {{ line.company }} <br>
+			<p>Company: {{ line.company }} <br>
 			Transport type: {{ line.transport }} <br>
 			Code: {{ line.code }} <br>
-			Name: {{ line.name }} <br>
+			Name: {{ line.name }} <br></p>
 			<div style="background-color:{{ line.colour }}">Colour:  {{ line.colour }} </div> <br>
 
 			<h1>ROUTES</h1> <br>

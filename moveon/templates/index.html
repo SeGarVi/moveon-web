@@ -10,12 +10,21 @@
         <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
 
         <script src="http://code.jquery.com/jquery-2.1.4.js"></script>
+        <script src="/static/js/main.js"></script>
         
         {% block head %}
         {% endblock %}
     </head>
     
     <body>
+        <!-- This is the menu-->
+        <div class="pure-menu custom-restricted-width">
+            <span class="pure-menu-heading">Menu</span>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item"><a href="#" class="pure-menu-link">Flickr</a></li>
+                <li class="pure-menu-heading">More Sites</li>
+            </ul>
+        </div>
         {% block content %}
         {% endblock content %}
     </body>

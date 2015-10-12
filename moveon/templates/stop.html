@@ -1,0 +1,35 @@
+{% extends "index.html" %}
+
+{% block head %}
+{% endblock %}
+
+
+
+{% block content %}
+
+    <div class="pure-g-r">
+        <div class="pure-u-1-5" ></div>
+        <div class="codeForm pure-u-3-5"> 
+            <div class="in-stop">
+                <div class="info-in-stop">
+                    <span class="code"> {{ stop.code }} </span>
+                    <span class="right-info">
+                        <span class="name"> {{ stop.name }} </span> <br>
+                        <span class="distance"> {{ stop.distance }} </span> 
+                        {% if stop.adapted %}<br> <span class="stop-adapted"></span>{{ endif }}
+                    </span>
+                </div>
+                {% for line in stop.lines %}
+                    <div class="line-stop">
+                        <span class="line" style="background-color:{{ line.colour }}"> {{ line.code }} </span>
+                        <span class="line-name"> {{ line.name }} </span>
+                        <span class="line-direction"> {{ line.station_to }} </span>
+                        <span class="line-time"> {{ line.time }} </span>
+                        {% if line.adapted %}<br> <span class="line-adapted"></span>{{ endif }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="spinner"></div>
+        </div>
+    </div>
+{% endblock %}

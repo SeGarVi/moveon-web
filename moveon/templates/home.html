@@ -1,0 +1,33 @@
+{% extends "index.html" %}
+
+{% block head %}
+{% endblock %}
+
+
+
+{% block content %}
+
+    <div class="pure-g-r">
+        <div class="pure-u-1-5" ></div>
+        <div class="codeForm pure-u-3-5"> 
+        {% for stop in results %}
+            <div class="stop"><a href="/{{ stop.code }}/">
+                <div class="info-up">
+                    <span class="code"> {{ stop.code }} </span>
+                    <span class="name"> {{ stop.name }} </span>
+                    <span class="distance"> {{ stop.distance }} </span>
+                </div>
+                <div class="info-down">
+                    <span class="transport-type"> {{ stop.transport-type }} </span>
+                    <span class="lines"> 
+                    {% for line in stop.lines %}
+                        <span class="line" style="background-color:{{ line.colour }}"> {{ line.name }} </span>
+                    {% endfor %}
+                    </span>
+                </div>
+            </a></div>
+        {% endfor %}
+        <div class="spinner"></div>
+        </div>
+    </div>
+{% endblock %}
