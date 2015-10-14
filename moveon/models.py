@@ -126,7 +126,7 @@ class Node(models.Model):
     objects = managers.NodeManager()
     
     def __str__(self):
-        return self.osmid
+        return str(self.osmid)
     
     @classmethod
     def from_osm_adapter_data(cls, osmnode):
