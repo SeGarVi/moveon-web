@@ -8,6 +8,7 @@ import json
 from .models import Company, Line, Station, Route
 
 def index(request):
+    template = loader.get_template('home.html')
     return HttpResponse("Hello, world. You're at the moveon index.")
 
 def companies(request):
@@ -47,7 +48,7 @@ def nearby_stations(request):
     bbox = request.GET.get('bbox', '')
     left, bottom, right, top = bbox.split(',')
     stations = Station.objects.get_near_stations(left, bottom, right, top)
-    
+    print(stations)
     formatted_stations = []
     for station in stations:
         formatted_stations.append(_format_near_station(station))
@@ -56,6 +57,8 @@ def nearby_stations(request):
 
 def _format_near_station(station):
     formatted_station = dict()
+    formatted_station['id'] = station.osmid
+    formatted_station['distance'] = "123"
     formatted_station['name'] = station.name
     formatted_station['longitude'] = float(station.longitude)
     formatted_station['latitude'] = float(station.latitude)
@@ -66,9 +69,9 @@ def _format_near_station(station):
         formatted_route = dict()
         formatted_route['name'] = route.name
         formatted_route['colour'] = route.line.colour
-        formatted_route['company'] = route.line.company.name
         formatted_route['company_icon'] = route.line.company.logo
         formatted_route['transport'] = route.line.transport.name
+        formatted_route['adapted'] = False  #Change to the good val from de DB
         formatted_station['routes'].append(formatted_route)
     
     return formatted_station
