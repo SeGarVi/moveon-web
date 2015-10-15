@@ -14,9 +14,9 @@ class OSMLineManager():
     
     def save(self):
         self._save_line()
+        self._save_nodes()
         self._save_stations()
         self._assign_stations_to_line()
-        self._save_nodes()
         self._save_routes()
         self._create_default_stretches()
         self._save_route_points()
@@ -32,22 +32,6 @@ class OSMLineManager():
         
         self.line.save()
     
-    def _save_stations(self):
-        logger.debug('Saving stations')
-        for osmstation in self.osmline['stations'].values():
-            try:
-                station = Station.objects.get_by_id(osmstation['osmid'])
-            except Station.DoesNotExist:
-                station = Station.from_osm_adapter_data(osmstation)
-                station.save()
-            
-            self.stations[station.osmid] = station
-    
-    def _assign_stations_to_line(self):
-        logger.debug('Assigning stations to line')
-        self.line.stations = self.stations.values()
-        self.line.save()
-    
     def _save_nodes(self):
         logger.debug('Saving nodes')
         for osmnode in self.osmline['route_points'].values():
@@ -55,12 +39,27 @@ class OSMLineManager():
                 node = Node.objects.get_by_id(osmnode['osmid'])
             except Node.DoesNotExist:
                 node = Node.from_osm_adapter_data(osmnode)
-                
-                if 'near_station' in osmnode:
-                    node.near_station = self.stations[osmnode['near_station']]
-            
                 node.save()
-                self.nodes[node.osmid] = node
+                
+            self.nodes[node.osmid] = node
+    
+    def _save_stations(self):
+        logger.debug('Saving stations')
+        for osmstation in self.osmline['stations'].values():
+            try:
+                station = Station.objects.get_by_id(osmstation['osmid'])
+            except Station.DoesNotExist:
+                station = Station.from_osm_adapter_data(osmstation)
+                station.stop_node = self.nodes[osmstation['stop_node']]
+                station.save()
+            
+            self.stations[station.osmid] = station
+            self.nodes[station.osmid] = station
+    
+    def _assign_stations_to_line(self):
+        logger.debug('Assigning stations to line')
+        self.line.stations = self.stations.values()
+        self.line.save()
     
     def _save_routes(self):
         logger.debug('Saving routes')
@@ -81,7 +80,7 @@ class OSMLineManager():
     def _save_route_points(self):
         logger.debug('Saving route points')
         for osmroute in self.osmline['routes'].values():
-            for osmroutepoint in osmroute['route_points']:
+            for osmroutepoint in osmroute['route_points'].values():
                 routepoint = RoutePoint.from_osm_adapter_data(osmroutepoint)
                 routepoint.node = self.nodes[osmroutepoint['node_id']]
                 routepoint.stretch = self.stretches[osmroute['osmid']]

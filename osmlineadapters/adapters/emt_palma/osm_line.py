@@ -43,7 +43,7 @@ class OSMLine(AbstractOSMLine):
                 route['name'] = osmroute['tag']['name']
                 route['station_from'] = osmroute['tag']['from'] 
                 route['station_to'] = osmroute['tag']['to']
-                route['route_points'] = []
+                route['route_points'] = dict()
                 self.line['routes'][route['osmid']] = route
     
     def _get_line_route_points(self):
@@ -52,6 +52,7 @@ class OSMLine(AbstractOSMLine):
         for osmroute in self.osmroutes:
             route = self.line['routes'][osmroute['id']]
             route_point_order = 1
+            route_station_order = 1
             logger.info('Getting route {0} nodes'.format(route['name']))
             
             for member in osmroute['member']:
@@ -86,35 +87,41 @@ class OSMLine(AbstractOSMLine):
                         else:
                             station['bench'] = None
                         
-                        self.line['stations'][station['osmid']] = station
-                elif 'stop' in member['role']:
-                    logger.debug('Getting stop {0} info'.format(member['ref']))
-                    
-                    if member['ref'] not in self.line['route_points']:
-                        logger.debug("\t Not present, retrieving info...")
-                        
-                        osmstop = self.osmapi.NodeGet(member['ref'])
-                        stop = dict()
-                        stop['osmid'] = osmstop['id']
-                        stop['latitude'] = osmstop['lat']
-                        stop['longitude'] = osmstop['lon']
-                        
-                        node_relations = self.osmapi.NodeRelations(osmstop['id'])
+                        node_relations = self.osmapi.NodeRelations(osmstation['id'])
                         for relation in node_relations:
                             if 'public_transport' in relation['tag']:
                                 if 'stop_area' in relation['tag']['public_transport']:
                                     for sa_member in relation['member']:
-                                        if 'platform' in sa_member['role']:
-                                            stop['near_station'] = sa_member['ref']
+                                        if 'stop' in sa_member['role']:
+                                            station['stop_node'] = sa_member['ref']
                                     break
-                        
-                        self.line['route_points'][stop['osmid']] = stop
+                        self.line['stations'][station['osmid']] = station
                     
                     route_point = dict()
                     route_point['node_id'] = member['ref']
                     route_point['order'] = route_point_order
-                    route['route_points'].append(route_point)
+                    route['route_points'][member['ref']] = route_point
                     route_point_order += 1
+                elif 'stop' in member['role']:
+                    logger.debug('Getting stop {0} info'.format(member['ref']))
+                    
+                    if member['ref'] not in route['route_points']:
+                        if member['ref'] not in self.line['route_points']:
+                            logger.debug("\t Not present, retrieving info...")
+                            
+                            osmstop = self.osmapi.NodeGet(member['ref'])
+                            stop = dict()
+                            stop['osmid'] = osmstop['id']
+                            stop['latitude'] = osmstop['lat']
+                            stop['longitude'] = osmstop['lon']
+                            
+                            self.line['route_points'][stop['osmid']] = stop
+                        
+                        route_point = dict()
+                        route_point['node_id'] = member['ref']
+                        route_point['order'] = route_point_order
+                        route['route_points'][member['ref']] = route_point
+                        route_point_order += 1
                 elif 'way' in member['type']:
                     logger.debug('Getting way {0} info'.format(member['ref']))
                     if member['ref'] not in ways:
@@ -127,19 +134,23 @@ class OSMLine(AbstractOSMLine):
                     for node_id in way['nd']:
                         logger.debug('\tGetting node {0} info'.format(node_id))
                         
-                        if node_id not in self.line['route_points']:
-                            logger.debug("\t\t Not present, retrieving info...")
-                            
-                            osmnode = self.osmapi.NodeGet(node_id)
-                            node = dict()
-                            node['osmid'] = osmnode['id']
-                            node['latitude'] = osmnode['lat']
-                            node['longitude'] = osmnode['lon']
-                            
-                            self.line['route_points'][node['osmid']] = node
+                        if node_id == 3773545143:
+                            print("hola")
                         
-                        route_point = dict()
-                        route_point['node_id'] = node_id
-                        route_point['order'] = route_point_order
-                        route['route_points'].append(route_point)
-                        route_point_order += 1
+                        if node_id not in route['route_points']:
+                            if node_id not in self.line['route_points']:
+                                logger.debug("\t\t Not present, retrieving info...")
+                                
+                                osmnode = self.osmapi.NodeGet(node_id)
+                                node = dict()
+                                node['osmid'] = osmnode['id']
+                                node['latitude'] = osmnode['lat']
+                                node['longitude'] = osmnode['lon']
+                                
+                                self.line['route_points'][node['osmid']] = node
+                            
+                            route_point = dict()
+                            route_point['node_id'] = node_id
+                            route_point['order'] = route_point_order
+                            route['route_points'][node_id] = route_point
+                            route_point_order += 1

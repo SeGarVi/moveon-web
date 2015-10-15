@@ -20,10 +20,27 @@ class Transport(models.Model):
     def __str__(self):
         return self.name
 
-class Station(models.Model):
+class Node(models.Model):
     osmid = models.BigIntegerField(primary_key=True, unique=True)
     latitude = models.DecimalField(max_digits=10, decimal_places=7)
     longitude = models.DecimalField(max_digits=10, decimal_places=7, db_index=True)
+    objects = managers.NodeManager()
+    
+    def __str__(self):
+        return self.osmid
+    
+    @classmethod
+    def from_osm_adapter_data(cls, osmnode):
+        node = Node()
+        
+        node.osmid = osmnode['osmid']
+        node.latitude = osmnode['latitude']
+        node.longitude = osmnode['longitude']
+        
+        return node
+
+class Station(Node):
+    stop_node = models.ForeignKey(Node, related_name='stop_node', null=True)
     code = models.TextField()
     name = models.TextField()
     available = models.BooleanField()
@@ -81,6 +98,7 @@ class Route(models.Model):
     name = models.TextField()
     station_from = models.TextField()
     station_to = models.TextField()
+    stations = models.ManyToManyField(Station)
     
     objects = managers.RouteManager()
     
@@ -116,27 +134,6 @@ class TimeTable(models.Model):
     start = models.DateField()
     end = models.DateField()
     time_table = models.ManyToManyField(Time)
-
-class Node(models.Model):
-    osmid = models.BigIntegerField(primary_key=True, unique=True)
-    latitude = models.DecimalField(max_digits=10, decimal_places=7)
-    longitude = models.DecimalField(max_digits=10, decimal_places=7, db_index=True)
-    near_station = models.ForeignKey(Station, null=True, db_index=True)
-    
-    objects = managers.NodeManager()
-    
-    def __str__(self):
-        return self.osmid
-    
-    @classmethod
-    def from_osm_adapter_data(cls, osmnode):
-        node = Node()
-        
-        node.osmid = osmnode['osmid']
-        node.latitude = osmnode['latitude']
-        node.longitude = osmnode['longitude']
-        
-        return node
 
 class Stretch(models.Model):
     route = models.ForeignKey(Route)
