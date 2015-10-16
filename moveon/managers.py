@@ -14,8 +14,8 @@ class StationManager(models.Manager):
         return self.get(osmid=station_id)
     
     def get_near_stations(self, left, bottom, right, top):
-        stations = self.filter(Q(latitude__gte=left) & Q(longitude__gte=bottom) &
-                           Q(latitude__lte=right) & Q(longitude__lte=top))
+        stations = self.filter(Q(longitude__gte=left) & Q(latitude__gte=bottom) &
+                           Q(longitude__lte=right) & Q(latitude__lte=top))
         return stations
 
 class NodeManager(models.Manager):
@@ -24,8 +24,7 @@ class NodeManager(models.Manager):
 
 class RouteManager(models.Manager):
     def get_station_routes(self, station):
-        node = station.node_set.all().first()
-        route_points = node.routepoint_set.all()
+        route_points = station.routepoint_set.all()
         
         routes = []
         for route_point in route_points:
