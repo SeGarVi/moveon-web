@@ -27,7 +27,7 @@ class Node(models.Model):
     objects = managers.NodeManager()
     
     def __str__(self):
-        return self.osmid
+        return str(self.osmid)
     
     @classmethod
     def from_osm_adapter_data(cls, osmnode):
@@ -119,8 +119,15 @@ class Route(models.Model):
 class Time(models.Model):
     moment = models.BigIntegerField(primary_key=True, unique=True)
     
+    objects = managers.TimeManager()
+    
+    class Meta:
+        ordering = ['moment']
+    
     def __str__(self):
-        return self.moment
+        hour = int(self.moment / 1000 / 60 / 60)
+        minutes = int((self.moment / 1000 / 60) % 60)
+        return "%02d:%02d" % (hour, minutes)
 
 class TimeTable(models.Model):
     monday = models.BooleanField()
@@ -134,16 +141,25 @@ class TimeTable(models.Model):
     start = models.DateField()
     end = models.DateField()
     time_table = models.ManyToManyField(Time)
+    
+    def __str__(self):
+        return str(self.id)
 
 class Stretch(models.Model):
     route = models.ForeignKey(Route)
     time_table = models.ManyToManyField(TimeTable)
+    
+    def __str__(self):
+        return str(self.id)
 
 class RoutePoint(models.Model):
     node = models.ForeignKey(Node)
     stretch = models.ForeignKey(Stretch)
     order = models.IntegerField()
     time_from_beggining = models.BigIntegerField(null=True)
+    
+    class Meta:
+        ordering = ['order']
     
     @classmethod
     def from_osm_adapter_data(cls, osmroutepoint):
@@ -152,3 +168,6 @@ class RoutePoint(models.Model):
         routepoint.order = osmroutepoint['order']
         
         return routepoint
+    
+    def __str__(self):
+        return str(self.id)
