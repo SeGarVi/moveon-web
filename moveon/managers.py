@@ -35,7 +35,7 @@ class RouteManager(models.Manager):
             
             next_vehicles = []
             if n_vehicles > 0:
-                next_vehicles = self._get_next_vehicles(route_point.time_from_beggining, stretch, n_vehicles)
+                next_vehicles = self._get_next_vehicles(station, route_point.time_from_beggining, stretch, n_vehicles)
             
             if n_vehicles == 0 or len(next_vehicles) > 0: 
                 route = route_point.stretch.route
@@ -44,10 +44,10 @@ class RouteManager(models.Manager):
         
         return routes
     
-    def _get_next_vehicles(self, time_from_beggining, stretch, n_vehicles):
+    def _get_next_vehicles(self, station, time_from_beggining, stretch, n_vehicles):
         now = datetime.now()
-        harmonized = datetime(1970,1,1, now.hour, now.minute, 0, 0)
-        harmonized_timestamp = harmonized.timestamp()
+        harmonized = datetime(1970,1,1, now.hour + self._get_time_zone_offset(station) , now.minute, 0, 0)
+        harmonized_timestamp = harmonized.timestamp()*1000
         day_of_week = now.strftime('%A').lower()
         
         timetable = stretch.time_table.filter(**{day_of_week: True}).first()
@@ -57,10 +57,13 @@ class RouteManager(models.Manager):
             next_vehicle_times = timetable.time_table.filter(moment__gt=harmonized_timestamp - time_from_beggining)
             
             for next_time in next_vehicle_times[0:n_vehicles]:
-                next_vehicles.append(next_time.moment - harmonized_timestamp)
+                next_vehicles.append(next_time.moment + time_from_beggining - harmonized_timestamp)
         
         return next_vehicles
         
+    
+    def _get_time_zone_offset(self, station):
+        return 2
 
 class TimeManager(models.Manager):
     def get_by_timestamp(self, timestamp):
