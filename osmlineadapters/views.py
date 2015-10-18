@@ -46,7 +46,6 @@ def newlinedetail(request, company_id, osm_line_id):
     elif request.method == "POST":
         json_request = json.loads(request.body.decode("utf-8"))
         agree = bool(json_request['osmline']['accept'])
-        
         if agree:
             line = json.loads(cache.get(osm_line_id))
             osmlinemanager = _get_osmlinemanager(line)

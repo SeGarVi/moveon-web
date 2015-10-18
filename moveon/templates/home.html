@@ -10,23 +10,30 @@
     <div class="pure-g-r">
         <div class="pure-u-1-5" ></div>
         <div class="codeForm pure-u-3-5"> 
-        {% for stop in results %}
-            <div class="stop"><a href="/{{ stop.code }}/">
-                <div class="info-up">
-                    <span class="code"> {{ stop.code }} </span>
-                    <span class="name"> {{ stop.name }} </span>
-                    <span class="distance"> {{ stop.distance }} </span>
-                </div>
-                <div class="info-down">
-                    <span class="transport-type"> {{ stop.transport-type }} </span>
-                    <span class="lines"> 
-                    {% for line in stop.lines %}
-                        <span class="line" style="background-color:{{ line.colour }}"> {{ line.name }} </span>
-                    {% endfor %}
-                    </span>
-                </div>
-            </a></div>
-        {% endfor %}
+        {% if nearby_stations %}
+            {% for station in nearby_stations %}
+                <div class="station"><a href="/{{ station.code }}/">
+                    <div class="info-up">
+                        <span class="code"> {{ station.code }} </span>
+                        <span class="name"> {{ station.name }} </span>
+                        <span class="distance"> {{ station.distance }} </span>
+                    </div>
+                    <div class="info-routes">
+                        <span class="transport-type"> {{ station.transport-type }} </span>
+                        <span class="transport-company"> {{ station.transport-type }} </span>
+                        <span class="routes"> 
+                        {% for route in station.routes %}
+                            <span class="route-color" style="background-color:{{ route.colour }}"> {{ route.name }} </span>
+                        {% endfor %}
+                        </span>
+                    </div>
+                </a></div>
+            {% endfor %}
+        {% elseif %}
+            <div class="no-points">
+                <p>There is no Latitude and longitude. Please, activate your location or select a place in the map to search your nearest stops.</p>
+            </div>
+        {% endif %}
         <div class="spinner"></div>
         </div>
     </div>

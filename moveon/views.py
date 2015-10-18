@@ -8,7 +8,6 @@ import json
 from .models import Company, Line, Station, Route
 
 def index(request):
-    template = loader.get_template('home.html')
     return HttpResponse("Hello, world. You're at the moveon index.")
 
 def companies(request):
@@ -45,6 +44,8 @@ def nearby_stations(request):
     #bottom is the latitude of the bottom (southernmost) side of the bounding box.
     #right is the longitude of the right (easternmost) side of the bounding box.
     #top is the latitude of the top (northernmost) side of the bounding box. 
+    template = loader.get_template('home.html')
+
     bbox = request.GET.get('bbox', '')
     left, bottom, right, top = bbox.split(',')
     stations = Station.objects.get_near_stations(left, bottom, right, top)
