@@ -9,25 +9,32 @@
 
     <div class="pure-g-r">
         <div class="pure-u-1-5" ></div>
-        <div class="codeForm pure-u-3-5"> 
+        <div class="pure-u-3-5"> 
         {% if nearby_stations %}
-            {% for station in nearby_stations %}
-                <div class="station"><a href="/{{ station.code }}/">
+            {% for station in nearby_stations.stations %}
+                <div class="station">
                     <div class="info-up">
                         <span class="code"> {{ station.code }} </span>
                         <span class="name"> {{ station.name }} </span>
-                        <span class="distance"> {{ station.distance }} </span>
+                        <span class="distance right"> {{ station.distance }} meters</span>
                     </div>
                     {% for route in station.routes %}
                         <div class="info-routes">
-                            <span class="transport-type"> {{ route.transport_type }} </span>
-                            <span class="transport-company"> {{ route.company_icon }} </span>
+                            <span class="transport-company"> 
+                                <img class="pure-img" src="{{ route.company_icon }}"></img> 
+                            </span>
+                            <span class="transport-type"> <img class="pure-img" src="/static/images/{{ route.transport_type }}"> </span>
                             <span class="routes"> 
                                 <span class="route-color" style="background-color:{{ route.colour }}"> {{ route.name }} </span>
+                            </span>
+                            <span class="next-vehicle right">
+                            {% for next_vehicle in route.next_vehicles %}
+                                <span> {{ next_vehicle }}m</span>
+                            {% endfor %}
+                            </span>
+                        </div>
                     {% endfor %}
-                        </span>
-                    </div>
-                </a></div>
+                </div>
             {% endfor %}
         {% else %}
             <div class="no-points">
