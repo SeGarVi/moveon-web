@@ -20,10 +20,27 @@ class Transport(models.Model):
     def __str__(self):
         return self.name
 
-class Station(models.Model):
+class Node(models.Model):
     osmid = models.BigIntegerField(primary_key=True, unique=True)
     latitude = models.DecimalField(max_digits=10, decimal_places=7)
     longitude = models.DecimalField(max_digits=10, decimal_places=7, db_index=True)
+    objects = managers.NodeManager()
+    
+    def __str__(self):
+        return str(self.osmid)
+    
+    @classmethod
+    def from_osm_adapter_data(cls, osmnode):
+        node = Node()
+        
+        node.osmid = osmnode['osmid']
+        node.latitude = osmnode['latitude']
+        node.longitude = osmnode['longitude']
+        
+        return node
+
+class Station(Node):
+    stop_node = models.ForeignKey(Node, related_name='stop_node', null=True)
     code = models.TextField()
     name = models.TextField()
     available = models.BooleanField()
@@ -81,6 +98,7 @@ class Route(models.Model):
     name = models.TextField()
     station_from = models.TextField()
     station_to = models.TextField()
+    stations = models.ManyToManyField(Station)
     
     objects = managers.RouteManager()
     
@@ -101,8 +119,15 @@ class Route(models.Model):
 class Time(models.Model):
     moment = models.BigIntegerField(primary_key=True, unique=True)
     
+    objects = managers.TimeManager()
+    
+    class Meta:
+        ordering = ['moment']
+    
     def __str__(self):
-        return self.moment
+        hour = int(self.moment / 1000 / 60 / 60)
+        minutes = int((self.moment / 1000 / 60) % 60)
+        return "%02d:%02d" % (hour, minutes)
 
 class TimeTable(models.Model):
     monday = models.BooleanField()
@@ -116,37 +141,25 @@ class TimeTable(models.Model):
     start = models.DateField()
     end = models.DateField()
     time_table = models.ManyToManyField(Time)
-
-class Node(models.Model):
-    osmid = models.BigIntegerField(primary_key=True, unique=True)
-    latitude = models.DecimalField(max_digits=10, decimal_places=7)
-    longitude = models.DecimalField(max_digits=10, decimal_places=7, db_index=True)
-    near_station = models.ForeignKey(Station, null=True, db_index=True)
-    
-    objects = managers.NodeManager()
     
     def __str__(self):
-        return str(self.osmid)
-    
-    @classmethod
-    def from_osm_adapter_data(cls, osmnode):
-        node = Node()
-        
-        node.osmid = osmnode['osmid']
-        node.latitude = osmnode['latitude']
-        node.longitude = osmnode['longitude']
-        
-        return node
+        return str(self.id)
 
 class Stretch(models.Model):
     route = models.ForeignKey(Route)
     time_table = models.ManyToManyField(TimeTable)
+    
+    def __str__(self):
+        return str(self.id)
 
 class RoutePoint(models.Model):
     node = models.ForeignKey(Node)
     stretch = models.ForeignKey(Stretch)
     order = models.IntegerField()
     time_from_beggining = models.BigIntegerField(null=True)
+    
+    class Meta:
+        ordering = ['order']
     
     @classmethod
     def from_osm_adapter_data(cls, osmroutepoint):
@@ -155,3 +168,6 @@ class RoutePoint(models.Model):
         routepoint.order = osmroutepoint['order']
         
         return routepoint
+    
+    def __str__(self):
+        return str(self.id)

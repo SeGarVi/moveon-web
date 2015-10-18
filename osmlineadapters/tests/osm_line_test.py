@@ -16,7 +16,7 @@ class OSMLineTest(TestCase):
         self._station_has_correct_values()
         self._route_point_has_correct_values()
         self._route_point_references_exist()
-        self._station_references_exist()
+        self._stop_nodes_references_exist()
     
     def _line_has_correct_values(self):
         """The initialized line has the mandatory fields"""
@@ -77,7 +77,7 @@ class OSMLineTest(TestCase):
             self.assertTrue(type(route['name']) is str)
             self.assertTrue(type(route['station_from']) is str)
             self.assertTrue(type(route['station_to']) is str)
-            self.assertTrue(type(route['route_points']) is list)
+            self.assertTrue(type(route['route_points']) is dict)
              
             self.assertIsNotNone(route['name'])
             self.assertIsNotNone(route['station_from'])
@@ -96,6 +96,7 @@ class OSMLineTest(TestCase):
             self.assertTrue('osmid' in station)
             self.assertTrue('latitude' in station)
             self.assertTrue('longitude' in station)
+            self.assertTrue('stop_node' in station)
             self.assertTrue('code' in station)
             self.assertTrue('name' in station)
             self.assertTrue('available' in station)
@@ -103,6 +104,7 @@ class OSMLineTest(TestCase):
             self.assertTrue(type(station['osmid']) is int)
             self.assertTrue(type(station['latitude']) is float)
             self.assertTrue(type(station['longitude']) is float)
+            self.assertTrue(type(station['stop_node']) is int)
             self.assertTrue(type(station['code']) is str)
             self.assertTrue(type(station['name']) is str)
             self.assertTrue(type(station['available']) is bool)
@@ -131,7 +133,7 @@ class OSMLineTest(TestCase):
         """The referenced route points in a route exist in the line"""
         line = self.concrete_instance.line
         for route in self.concrete_instance.line['routes'].values():
-            for route_point in route['route_points']:
+            for route_point in route['route_points'].values():
                 self.assertTrue('node_id' in route_point)
                 self.assertTrue('order' in route_point)
                  
@@ -140,12 +142,11 @@ class OSMLineTest(TestCase):
                  
                 self.assertGreaterEqual(route_point['order'], 0)
                  
-                self.assertTrue(route_point['node_id'] in line['route_points'])
+                self.assertTrue(route_point['node_id'] in line['route_points']
+                             or route_point['node_id'] in line['stations'])
      
-    def _station_references_exist(self):
+    def _stop_nodes_references_exist(self):
         """The referenced stations in a route point exist in the line"""
         line = self.concrete_instance.line
-        for route_point in line['route_points'].values():
-            if 'near_station' in route_point:
-                self.assertTrue(type(route_point['near_station']) is int)
-                self.assertTrue(route_point['near_station'] in line['stations'])
+        for station in line['stations'].values():
+            self.assertTrue(station['stop_node'] in line['route_points'])

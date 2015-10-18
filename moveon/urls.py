@@ -25,5 +25,6 @@ urlpatterns = [
     url(r'^companies/(?P<company_id>.+)/stations/(?P<station_id>.+)', views.station, name='stations'),
     url(r'^companies/(?P<company_id>.+)', views.company, name='company'),
     url(r'^companies/', views.companies, name='companies'),
+    url(r'^stretches/(?P<stretch_id>.+)/', views.stretches, name='stretches'),
     url(r'^', views.index)
 ]

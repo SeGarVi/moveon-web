@@ -26,13 +26,10 @@ class AbstractOSMLine():
             simplified_route['station_to'] = route['station_to']
             simplified_route['stations'] = []
             
-            station_order = 0
-            for route_point_ref in sorted(route['route_points'], key=lambda x: x['order']):
-                route_point = self.line['route_points'][route_point_ref['node_id']]
-                if 'near_station' in route_point:
-                    station_order += 1
+            for route_point in sorted(route['route_points'].values(), key=lambda x: x['order']):
+                if route_point['node_id'] in self.line['stations']: 
+                    station = self.line['stations'][route_point['node_id']]
                     
-                    station = self.line['stations'][route_point['near_station']]
                     simplified_station = dict()
                     simplified_station['osmid'] = station['osmid']
                     simplified_station['latitude'] = station['latitude']
@@ -43,8 +40,8 @@ class AbstractOSMLine():
                     simplified_station['adapted'] = station.get('adapted')
                     simplified_station['shelter'] = station.get('shelter')
                     simplified_station['bench'] = station.get('bench')
-                    simplified_station['order'] = station_order
-                    
+                    simplified_station['order'] = route_point['order']
+                            
                     simplified_route['stations'].append(simplified_station)
             
             simplified_line['routes'].append(simplified_route)
