@@ -18,18 +18,18 @@
                         <span class="name"> {{ station.name }} </span>
                         <span class="distance"> {{ station.distance }} </span>
                     </div>
-                    <div class="info-routes">
-                        <span class="transport-type"> {{ station.transport-type }} </span>
-                        <span class="transport-company"> {{ station.transport-type }} </span>
-                        <span class="routes"> 
-                        {% for route in station.routes %}
-                            <span class="route-color" style="background-color:{{ route.colour }}"> {{ route.name }} </span>
-                        {% endfor %}
+                    {% for route in station.routes %}
+                        <div class="info-routes">
+                            <span class="transport-type"> {{ route.transport_type }} </span>
+                            <span class="transport-company"> {{ route.company_icon }} </span>
+                            <span class="routes"> 
+                                <span class="route-color" style="background-color:{{ route.colour }}"> {{ route.name }} </span>
+                    {% endfor %}
                         </span>
                     </div>
                 </a></div>
             {% endfor %}
-        {% elseif %}
+        {% else %}
             <div class="no-points">
                 <p>There is no Latitude and longitude. Please, activate your location or select a place in the map to search your nearest stops.</p>
             </div>

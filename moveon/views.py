@@ -135,6 +135,7 @@ def _format_near_station(station):
         formatted_route['colour'] = route.line.colour
         formatted_route['company_icon'] = route.line.company.logo
         formatted_route['transport'] = route.line.transport.name
+        formatted_route['transport_type'] = "bus"
         formatted_route['adapted'] = False  #Change to the good val from de DB
         
         if len(next_vehicles) > 0:
