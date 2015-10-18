@@ -2,6 +2,15 @@ footer {
 	text-align: center;
 }
 
+body {
+	background-color: lightgreen;
+}
+
+.right{
+	text-align: right;
+	float: right;
+}
+
 .spinner{height:30px;width:30px;background-color: red; }
 
 /******************************************************************************/
@@ -12,6 +21,29 @@ footer {
     display: inline-block;
     /* Or set the width explicitly: */
     /* width: 10em; */
+}
+
+
+/******************************************************************************/
+/*                              Homepage                                      */
+/******************************************************************************/
+.station{
+	margin-bottom: 2em;
+	background-color: lightblue;
+}
+
+.info-up {
+	padding-bottom: 0.5em;
+	border-bottom: 0.25em solid black;
+	margin-bottom: 0.75em;
+}
+
+	.info-up.name {
+		text-transform: uppercase;
+	}
+
+.transport-company img{
+	width: 1.5em;
 }
 
 /******************************************************************************/

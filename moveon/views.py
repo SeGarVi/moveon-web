@@ -12,7 +12,6 @@ from moveon.models import Company, Line, Station, Route, Stretch, Time, TimeTabl
 logger = logging.getLogger(__name__)
 
 def index(request):
-    template = loader.get_template('home.html')
     return HttpResponse("Hello, world. You're at the moveon index.")
 
 def companies(request):
@@ -49,15 +48,27 @@ def nearby_stations(request):
     #bottom is the latitude of the bottom (southernmost) side of the bounding box.
     #right is the longitude of the right (easternmost) side of the bounding box.
     #top is the latitude of the top (northernmost) side of the bounding box. 
+
     bbox = request.GET.get('bbox', '')
     left, bottom, right, top = bbox.split(',')
     stations = Station.objects.get_near_stations(left, bottom, right, top)
-    print(stations)
-    formatted_stations = []
+    #print(stations)
+    formatted_stations = dict()
+    formatted_stations['stations'] = [] 
     for station in stations:
-        formatted_stations.append(_format_near_station(station))
+        formatted_stations['stations'].append(_format_near_station(station))
     
-    return HttpResponse(json.dumps(formatted_stations, ensure_ascii=False))
+    #return HttpResponse(json.dumps(formatted_stations, ensure_ascii=False))
+    template = loader.get_template('home.html')
+    context = RequestContext(
+        request, {
+            'nearby_stations': formatted_stations
+        }
+    )
+
+    print("Hay {0} estaciones".format(len(formatted_stations['stations'])))
+
+    return HttpResponse(template.render(context))
 
 def stretches(request, stretch_id):
     if request.method == 'PUT':
@@ -134,6 +145,7 @@ def _format_near_station(station):
         formatted_route['colour'] = route.line.colour
         formatted_route['company_icon'] = route.line.company.logo
         formatted_route['transport'] = route.line.transport.name
+        formatted_route['transport_type'] = "bus"
         formatted_route['adapted'] = False  #Change to the good val from de DB
         
         if len(next_vehicles) > 0:
