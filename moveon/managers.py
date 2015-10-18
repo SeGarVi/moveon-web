@@ -37,9 +37,10 @@ class RouteManager(models.Manager):
             if n_vehicles > 0:
                 next_vehicles = self._get_next_vehicles(route_point.time_from_beggining, stretch, n_vehicles)
             
-            route = route_point.stretch.route
-            if route not in routes:
-                routes.append((route, next_vehicles))
+            if n_vehicles == 0 or len(next_vehicles) > 0: 
+                route = route_point.stretch.route
+                if route not in routes:
+                    routes.append((route, next_vehicles))
         
         return routes
     
@@ -47,15 +48,16 @@ class RouteManager(models.Manager):
         now = datetime.now()
         harmonized = datetime(1970,1,1, now.hour, now.minute, 0, 0)
         harmonized_timestamp = harmonized.timestamp()
-        day_of_week = harmonized.strftime('%A').lower()
+        day_of_week = now.strftime('%A').lower()
         
         timetable = stretch.time_table.filter(**{day_of_week: True}).first()
         
-        next_vehicle_times = timetable.time_table.filter(moment__gt=harmonized_timestamp - time_from_beggining)
-        
         next_vehicles = []
-        for next_time in next_vehicle_times[0:n_vehicles]:
-            next_vehicles.append(next_time.moment - harmonized_timestamp)
+        if timetable:
+            next_vehicle_times = timetable.time_table.filter(moment__gt=harmonized_timestamp - time_from_beggining)
+            
+            for next_time in next_vehicle_times[0:n_vehicles]:
+                next_vehicles.append(next_time.moment - harmonized_timestamp)
         
         return next_vehicles
         
