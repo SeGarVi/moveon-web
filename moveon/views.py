@@ -1,3 +1,5 @@
+from geopy.distance import vincenty
+
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 
@@ -42,6 +44,35 @@ def line(request, company_id, line_id):
 def station(request):
     return HttpResponse("Hello, world. You're at the lines page.")
 
+def nearby(request):
+    limit_increment = 0.003
+    userpos = request.GET.get('userpos', '')
+    lat = float(userpos.split(',')[0])
+    lon = float(userpos.split(',')[1])
+    left = lon - limit_increment
+    right = lon + limit_increment
+    bottom = lat - limit_increment
+    top = lat + limit_increment
+    
+    n_stations = Station.objects.get_number_near_stations(left, bottom, right, top)
+    while n_stations < 5:
+        left = left - limit_increment
+        right = right + limit_increment
+        bottom = bottom - limit_increment
+        top = top + limit_increment
+        n_stations = Station.objects.get_number_near_stations(left, bottom, right, top)
+    
+    near_stations = _get_fenced_stations(left, bottom, right, top, [lat, lon])
+    
+    template = loader.get_template('home.html')
+    context = RequestContext(
+        request, {
+            'nearby_stations': near_stations
+        }
+    )
+
+    return HttpResponse(template.render(context))
+
 def nearby_stations(request):
     #?bbox=left,bottom,right,top
     #left is the longitude of the left (westernmost) side of the bounding box.
@@ -51,24 +82,31 @@ def nearby_stations(request):
 
     bbox = request.GET.get('bbox', '')
     left, bottom, right, top = bbox.split(',')
-    stations = Station.objects.get_near_stations(left, bottom, right, top)
-    #print(stations)
-    formatted_stations = dict()
-    formatted_stations['stations'] = [] 
-    for station in stations:
-        formatted_stations['stations'].append(_format_near_station(station))
     
-    #return HttpResponse(json.dumps(formatted_stations, ensure_ascii=False))
+    near_stations = _get_fenced_stations(left, bottom, right, top)
     template = loader.get_template('home.html')
     context = RequestContext(
         request, {
-            'nearby_stations': formatted_stations
+            'nearby_stations': near_stations
         }
     )
 
-    print("Hay {0} estaciones".format(len(formatted_stations['stations'])))
-
     return HttpResponse(template.render(context))
+
+def _get_fenced_stations(left, bottom, right, top, userpos):
+    stations = Station.objects.get_near_stations(left, bottom, right, top)
+    #print(stations)
+    ret = dict()
+    formatted_stations = [] 
+    for station in stations:
+        formatted_stations.append(_format_near_station(station, userpos))
+    
+    if userpos:
+        ret['stations'] = sorted(formatted_stations, key=lambda x:x['distance'])[:5]
+    else:
+        ret['stations'] = formatted_stations[:5]
+    
+    return ret
 
 def stretches(request, stretch_id):
     if request.method == 'PUT':
@@ -129,10 +167,10 @@ def stretches(request, stretch_id):
         return HttpResponse(status=201)
 
 
-def _format_near_station(station):
+def _format_near_station(station, userpos=None):
     formatted_station = dict()
     formatted_station['id'] = station.osmid
-    formatted_station['distance'] = "123"
+    
     formatted_station['name'] = station.name
     formatted_station['longitude'] = float(station.longitude)
     formatted_station['latitude'] = float(station.latitude)
@@ -152,5 +190,9 @@ def _format_near_station(station):
             formatted_route['next_vehicles'] = [int(next_vehicle / 1000 / 60) for next_vehicle in next_vehicles] 
         
         formatted_station['routes'].append(formatted_route)
+    
+    if userpos:
+        station_pos = [station.latitude, station.longitude]
+        formatted_station['distance'] = int(vincenty(station_pos, userpos).meters)
     
     return formatted_station

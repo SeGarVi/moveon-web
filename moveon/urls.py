@@ -18,7 +18,7 @@ from django.conf.urls import include,url
 from . import views
 
 urlpatterns = [
-    url(r'^stations/nearby', views.nearby_stations, name='nearby_stations'),
+    url(r'^stations/nearby', views.nearby, name='nearby'),
     url(r'^osmlines/(?P<company_id>.+)/', include('osmlineadapters.urls')),
     url(r'^companies/(?P<company_id>.+)/lines/(?P<line_id>.+)', views.line, name='line'),
     url(r'^companies/(?P<company_id>.+)/stations/(?P<station_id>.+)', views.station, name='stations'),

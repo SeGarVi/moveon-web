@@ -20,6 +20,11 @@ class StationManager(models.Manager):
         stations = self.filter(Q(longitude__gte=left) & Q(latitude__gte=bottom) &
                            Q(longitude__lte=right) & Q(latitude__lte=top))
         return stations
+    
+    def get_number_near_stations(self, left, bottom, right, top):
+        n_stations = self.filter(Q(longitude__gte=left) & Q(latitude__gte=bottom) &
+                           Q(longitude__lte=right) & Q(latitude__lte=top)).count()
+        return n_stations
 
 class NodeManager(models.Manager):
     def get_by_id(self, station_id):
