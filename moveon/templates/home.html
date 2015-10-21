@@ -23,9 +23,9 @@
                             <span class="transport-company"> 
                                 <img class="pure-img" src="{{ route.company_icon }}"></img> 
                             </span>
-                            <span class="transport-type"> <img class="pure-img" src="/static/images/{{ route.transport_type }}"> </span>
+                            <span class="transport-type-{{ route.transport_type }}"> <img src="http://s.cdpn.io/3/kiwi.svg" alt="{{ route.transport_type }} transport icon     static/image/icon/{{ route.transport_type }}-18.svg"> </span>
                             <span class="routes"> 
-                                <span class="route-color" style="background-color:{{ route.colour }}"> {{ route.name }} </span>
+                                <span class="route-color" style="background-color:{{ route.colour }}"> {{route.code}} </span> {{ route.name }} 
                             </span>
                             <span class="next-vehicle right">
                             {% for next_vehicle in route.next_vehicles %}
