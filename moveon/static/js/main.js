@@ -17,3 +17,29 @@ function testCode(key, value) {
         }
     );
 }
+
+function getLocation() {
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(redirectToPosition);
+    } else { 
+        alert("Geolocation is not supported by this browser.");
+    }
+}
+
+function redirectToPosition(position) {
+    window.location=window.location.href+'stations/nearby?userpos='+position.coords.latitude+','+position.coords.longitude;
+    //debug
+    console.log(position.coords.latitude + "," + position.coords.longitude);
+}
+
+/*Tooggle on the icons*/
+function toggleCodes(on) {
+    var obj = document.getElementById('icons');
+
+    if (on) {
+        obj.className += ' codesOn';
+    } else {
+        obj.className = obj.className.replace(' codesOn', '');
+    }
+}

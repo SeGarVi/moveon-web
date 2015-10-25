@@ -1,47 +1,14 @@
 {% extends "index.html" %}
 
 {% block head %}
+<script>
+$(document).ready( function(){ getLocation(); } );
+</script>
 {% endblock %}
 
 
 
 {% block content %}
 
-    <div class="pure-g-r">
-        <div class="pure-u-1-5" ></div>
-        <div class="pure-u-3-5"> 
-        {% if nearby_stations %}
-            {% for station in nearby_stations.stations %}
-                <div class="station">
-                    <div class="info-up">
-                        <span class="code"> {{ station.code }} </span>
-                        <span class="name"> {{ station.name }} </span>
-                        <span class="distance right"> {{ station.distance }} meters</span>
-                    </div>
-                    {% for route in station.routes %}
-                        <div class="info-routes">
-                            <span class="transport-company"> 
-                                <img class="pure-img" src="{{ route.company_icon }}"></img> 
-                            </span>
-                            <span class="transport-type-{{ route.transport_type }}"> <img src="http://s.cdpn.io/3/kiwi.svg" alt="{{ route.transport_type }} transport icon     static/image/icon/{{ route.transport_type }}-18.svg"> </span>
-                            <span class="routes"> 
-                                <span class="route-color" style="background-color:{{ route.colour }}"> {{route.code}} </span> {{ route.name }} 
-                            </span>
-                            <span class="next-vehicle right">
-                            {% for next_vehicle in route.next_vehicles %}
-                                <span> {{ next_vehicle }}m</span>
-                            {% endfor %}
-                            </span>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-points">
-                <p>There is no Latitude and longitude. Please, activate your location or select a place in the map to search your nearest stops.</p>
-            </div>
-        {% endif %}
-        <div class="spinner"></div>
-        </div>
-    </div>
+
 {% endblock %}

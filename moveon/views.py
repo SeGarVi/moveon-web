@@ -13,8 +13,14 @@ from moveon.models import Company, Line, Station, Route, Stretch, Time, TimeTabl
 
 logger = logging.getLogger(__name__)
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the moveon index.")
+def index(request):    
+    template = loader.get_template('home.html')
+    context = RequestContext(
+        request, {
+            'companies': companies,
+        }
+    )
+    return HttpResponse(template.render(context))
 
 def companies(request):
     companies = Company.objects.order_by('name')
@@ -64,7 +70,7 @@ def nearby(request):
     
     near_stations = _get_fenced_stations(left, bottom, right, top, [lat, lon])
     
-    template = loader.get_template('home.html')
+    template = loader.get_template('nearby.html')
     context = RequestContext(
         request, {
             'nearby_stations': near_stations
@@ -84,7 +90,7 @@ def nearby_stations(request):
     left, bottom, right, top = bbox.split(',')
     
     near_stations = _get_fenced_stations(left, bottom, right, top)
-    template = loader.get_template('home.html')
+    template = loader.get_template('nearby.html')
     context = RequestContext(
         request, {
             'nearby_stations': near_stations
