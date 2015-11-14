@@ -9,7 +9,7 @@ import json
 import logging
 import dateutil.parser
 
-from moveon.models import Company, Line, Station, Route, Stretch, Time, TimeTable
+from moveon.models import Company, Line, Station, Route, Stretch, Time, TimeTable, RoutePoint
 
 logger = logging.getLogger(__name__)
 
@@ -136,43 +136,95 @@ def stretches(request, stretch_id):
         
         json_times = json_request['times']
         
-        times = []
-        for json_time in json_times:
-            hours_str, minutes_str = json_time.split(':')
-            hours = (int(hours_str)%24) * 60 * 60 * 1000
-            minutes = int(minutes_str) * 60 * 1000
-            timestamp = hours + minutes
+        if type(json_request['times']) is list:
+            times = []
+            for json_time in json_times:
+                hours_str, minutes_str = json_time.split(':')
+                hours = (int(hours_str)%24) * 60 * 60 * 1000
+                minutes = int(minutes_str) * 60 * 1000
+                timestamp = hours + minutes
+                
+                try:
+                    time = Time.objects.get_by_timestamp(timestamp)
+                except Time.DoesNotExist:
+                    time = Time()
+                    time.moment = timestamp
+                    time.save()
+                
+                times.append(time)
             
-            try:
-                time = Time.objects.get_by_timestamp(timestamp)
-            except Time.DoesNotExist:
-                time = Time()
-                time.moment = timestamp
-                time.save()
+            timetable = TimeTable()
+            timetable.monday = monday
+            timetable.tuesday = tuesday
+            timetable.wednesday = wednesday
+            timetable.thursday = thursday
+            timetable.friday = friday
+            timetable.saturday = saturday
+            timetable.sunday = sunday
+            timetable.holiday = holiday
+            timetable.start = start
+            timetable.end = end
+            timetable.save()
+            timetable.time_table = times
+            timetable.save()
             
-            times.append(time)
-        
-        timetable = TimeTable()
-        timetable.monday = monday
-        timetable.tuesday = tuesday
-        timetable.wednesday = wednesday
-        timetable.thursday = thursday
-        timetable.friday = friday
-        timetable.saturday = saturday
-        timetable.sunday = sunday
-        timetable.holiday = holiday
-        timetable.start = start
-        timetable.end = end
-        timetable.save()
-        timetable.time_table = times
-        timetable.save()
-        
-        stretch.time_table.add(timetable)
-        stretch.save()
+            stretch.time_table.add(timetable)
+            stretch.save()
+        elif type(json_request['times']) is dict:
+            _getDistancesFromSchedule(stretch_id, json_request['times'])
         
         return HttpResponse(status=201)
 
-
+def _getDistancesFromSchedule(stretch_id, times):
+    stretch = Stretch.objects.get(id=stretch_id)
+    #Get directly the route points, so we don't do two queries
+    route_points = stretch.objects.routepoint_set()
+    
+    checkpoint = route_points[0]
+    checkpoint_osmid = checkpoint.node.osmid
+    previous = route_points[0]
+    accum_distance = 0
+    interval = 0
+    speeds = []
+    stretch = []
+    
+    for route_point in route_points:
+        previous_coords = [previous.latitude, previous.longitude]
+        current_coords = [route_point.latitude, route_point.longitude]
+        distance = int(vincenty(previous_coords, current_coords).meters)
+        accum_distance += distance
+        
+        route_point_osmid = route_point.node.osmid
+        if route_point_osmid in times:
+            interval = times[route_point_osmid] - times[checkpoint_osmid]
+            speed = accum_distance / interval # We need meters per second, check
+            
+            #Need route_points sub array (will be stretch)
+            _calculate_time_from_beggining(route_points, speed)
+            
+            checkpoint = route_point
+            checkpoint_osmid = checkpoint.node.osmid
+            accum_distance = 0
+            interval = 0
+            stretch = 0
+            speeds.append(speed)
+        
+        previous = route_point
+    
+    median_speed = speeds[len(speeds)/2]
+    #Need route_points sub array (will be stretch)
+    _calculate_time_from_beggining(route_points, median_speed)
+    
+def _calculate_time_from_beggining(route_points, speed):
+    previous = route_points[0]
+    for route_point in route_points[1:]:
+        previous_coords = [previous.latitude, previous.longitude]
+        current_coords = [route_point.latitude, route_point.longitude]
+        distance = int(vincenty(previous_coords, current_coords).meters)
+        time = distance * speed
+        route_point.time_from_beggining = previous.time_from_beggining + time
+        previous = route_point
+    
 def _format_near_station(station, userpos=None):
     formatted_station = dict()
     formatted_station['id'] = station.osmid
