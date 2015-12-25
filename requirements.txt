@@ -2,6 +2,7 @@ Django==1.8.3
 django-appconf==1.0.1
 django-compressor==1.5
 django-libsass==0.4
+djangorestframework==3.3.2
 geopy==1.11.0
 httplib2==0.9.1
 libsass==0.8.3
