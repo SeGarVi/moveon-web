@@ -9,7 +9,7 @@ import json
 import logging
 import dateutil.parser
 
-from moveon.models import Company, Line, Station, Route, Stretch, Time, TimeTable, RoutePoint
+from moveon.models import Company, Line, Station, Route, Stretch, Time, TimeTable
 
 logger = logging.getLogger(__name__)
 
@@ -51,29 +51,17 @@ def station(request):
     return HttpResponse("Hello, world. You're at the lines page.")
 
 def nearby(request):
-    limit_increment = 0.003
     userpos = request.GET.get('userpos', '')
     lat = float(userpos.split(',')[0])
     lon = float(userpos.split(',')[1])
-    left = lon - limit_increment
-    right = lon + limit_increment
-    bottom = lat - limit_increment
-    top = lat + limit_increment
     
-    n_stations = Station.objects.get_number_near_stations(bottom, left, top, right)
-    while n_stations < 5:
-        left = left - limit_increment
-        right = right + limit_increment
-        bottom = bottom - limit_increment
-        top = top + limit_increment
-        n_stations = Station.objects.get_number_near_stations(bottom, left, top, right)
-    
-    near_stations = _get_fenced_stations(left, bottom, right, top, [lat, lon])
+    near_stations = Station.objects.get_nearby_stations([lat, lon])
+    Route.objects.add_route_info_to_station_list(near_stations)
     
     template = loader.get_template('nearby.html')
     context = RequestContext(
         request, {
-            'nearby_stations': near_stations
+            'near_stations': near_stations
         }
     )
 
@@ -89,30 +77,17 @@ def nearby_stations(request):
     bbox = request.GET.get('bbox', '')
     left, bottom, right, top = bbox.split(',')
     
-    near_stations = _get_fenced_stations(left, bottom, right, top)
+    fenced_stations = Station.objects.get_fenced_stations(
+                                                    bottom, left, top, right)
     template = loader.get_template('nearby.html')
     context = RequestContext(
         request, {
-            'nearby_stations': near_stations
+            'nearby_stations': fenced_stations
         }
     )
 
     return HttpResponse(template.render(context))
 
-def _get_fenced_stations(left, bottom, right, top, userpos):
-    stations = Station.objects.get_fenced_stations(bottom, left, top, right)
-    #print(stations)
-    ret = dict()
-    formatted_stations = [] 
-    for station in stations:
-        formatted_stations.append(_format_near_station(station, userpos))
-    
-    if userpos:
-        ret['stations'] = sorted(formatted_stations, key=lambda x:x['distance'])[:5]
-    else:
-        ret['stations'] = formatted_stations[:5]
-    
-    return ret
 
 def stretches(request, stretch_id):
     if request.method == 'PUT':
@@ -230,33 +205,3 @@ def _calculate_time_from_beggining(route_points, speed):
         time = distance * speed
         route_point.time_from_beggining = previous.time_from_beggining + time
         previous = route_point
-    
-def _format_near_station(station, userpos=None):
-    formatted_station = dict()
-    formatted_station['id'] = station.osmid
-    
-    formatted_station['name'] = station.name
-    formatted_station['longitude'] = float(station.longitude)
-    formatted_station['latitude'] = float(station.latitude)
-    formatted_station['adapted'] = station.adapted
-    formatted_station['routes'] = []
-    
-    for route, next_vehicles in Route.objects.get_station_routes(station, 1):
-        formatted_route = dict()
-        formatted_route['name'] = route.name
-        formatted_route['colour'] = route.line.colour
-        formatted_route['company_icon'] = route.line.company.logo
-        formatted_route['transport'] = route.line.transport.name
-        formatted_route['transport_type'] = "bus"
-        formatted_route['adapted'] = False  #Change to the good val from de DB
-        
-        if len(next_vehicles) > 0:
-            formatted_route['next_vehicles'] = [int(next_vehicle / 1000 / 60) for next_vehicle in next_vehicles] 
-        
-        formatted_station['routes'].append(formatted_route)
-    
-    if userpos:
-        station_pos = [station.latitude, station.longitude]
-        formatted_station['distance'] = int(vincenty(station_pos, userpos).meters)
-    
-    return formatted_station

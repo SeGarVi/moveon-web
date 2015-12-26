@@ -7,8 +7,6 @@ from .serializers import CompanySerializer, StationSerializer, LineSerializer, R
 @api_view(['GET'])
 def get_near_stations(request, lat=39.57105, long=2.65071):
     limit = int(request.GET.get('limit', 5))
-    
-    print('You have requested {0} stations near {1}, {2}'.format(limit, lat, long))
     stations = Station.objects.get_nearby_stations(
                                             [float(lat), float(long)], limit)
     Route.objects.add_route_info_to_station_list(stations)

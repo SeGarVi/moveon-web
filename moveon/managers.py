@@ -2,7 +2,6 @@ from datetime import datetime
 
 from django.db import models
 from django.db.models import Q
-from django.db.models import F
 
 from geopy.distance import vincenty
 
