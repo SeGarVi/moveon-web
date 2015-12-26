@@ -18,7 +18,8 @@ from django.conf.urls import include,url
 from . import views
 
 urlpatterns = [
-    url(r'^stations/nearby', views.nearby, name='nearby'),
+    url(r'^api/', include('moveon_rest_api.urls')),
+    url(r'^stations/nearby', views.nearby, name='nearby_stations'),
     url(r'^osmlines/(?P<company_id>.+)/', include('osmlineadapters.urls')),
     url(r'^companies/(?P<company_id>.+)/lines/(?P<line_id>.+)', views.line, name='line'),
     url(r'^companies/(?P<company_id>.+)/stations/(?P<station_id>.+)', views.station, name='stations'),

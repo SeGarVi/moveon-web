@@ -60,13 +60,13 @@ def nearby(request):
     bottom = lat - limit_increment
     top = lat + limit_increment
     
-    n_stations = Station.objects.get_number_near_stations(left, bottom, right, top)
+    n_stations = Station.objects.get_number_near_stations(bottom, left, top, right)
     while n_stations < 5:
         left = left - limit_increment
         right = right + limit_increment
         bottom = bottom - limit_increment
         top = top + limit_increment
-        n_stations = Station.objects.get_number_near_stations(left, bottom, right, top)
+        n_stations = Station.objects.get_number_near_stations(bottom, left, top, right)
     
     near_stations = _get_fenced_stations(left, bottom, right, top, [lat, lon])
     
@@ -100,7 +100,7 @@ def nearby_stations(request):
     return HttpResponse(template.render(context))
 
 def _get_fenced_stations(left, bottom, right, top, userpos):
-    stations = Station.objects.get_near_stations(left, bottom, right, top)
+    stations = Station.objects.get_fenced_stations(bottom, left, top, right)
     #print(stations)
     ret = dict()
     formatted_stations = [] 
@@ -178,9 +178,13 @@ def stretches(request, stretch_id):
 def _getDistancesFromSchedule(stretch_id, times):
     stretch = Stretch.objects.get(id=stretch_id)
     #Get directly the route points, so we don't do two queries
-    route_points = stretch.objects.routepoint_set()
+    route_points = stretch.routepoint_set.order_by('order')
     
-    checkpoint = route_points[0]
+    #order by "order"?
+    
+    index = 0
+    checkpoint_index = 0
+    checkpoint = route_points[checkpoint_index]
     checkpoint_osmid = checkpoint.node.osmid
     previous = route_points[0]
     accum_distance = 0
@@ -200,8 +204,9 @@ def _getDistancesFromSchedule(stretch_id, times):
             speed = accum_distance / interval # We need meters per second, check
             
             #Need route_points sub array (will be stretch)
-            _calculate_time_from_beggining(route_points, speed)
+            _calculate_time_from_beggining(route_points[checkpoint_index:index], speed)
             
+            checkpoint_index = index
             checkpoint = route_point
             checkpoint_osmid = checkpoint.node.osmid
             accum_distance = 0
@@ -210,10 +215,11 @@ def _getDistancesFromSchedule(stretch_id, times):
             speeds.append(speed)
         
         previous = route_point
+        index += 1
     
     median_speed = speeds[len(speeds)/2]
     #Need route_points sub array (will be stretch)
-    _calculate_time_from_beggining(route_points, median_speed)
+    _calculate_time_from_beggining(route_points[checkpoint_index:], median_speed)
     
 def _calculate_time_from_beggining(route_points, speed):
     previous = route_points[0]
