@@ -18,7 +18,6 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    #url(r'^stations/near?userpos=(?P<lat>.+),(?P<long>.+)&limit=(?P<limit>.+)', views.get_near_stations, name='Get near stations'),#
     url(r'^stations/near/(?P<lat>.+)/(?P<long>.+)', views.get_near_stations, name='Get near stations'),
     url(r'^stations/bounded/(?P<bottom>.+)/(?P<left>.+)/(?P<top>.+)/(?P<right>.+)', views.get_bounded_stations, name='Get bounded stations'),
     url(r'^stations/(?P<station_id>.+)', views.get_station, name='Get station information'),
