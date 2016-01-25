@@ -29,9 +29,9 @@
                                 <span class="route-color" style="background-color:{{ route.colour }}"> {{route.code}} </span> {{ route.name }} 
                             </span>
                             <span class="next-vehicle right">
-                            {% for next_vehicle in route.next_vehicles %}
-                                <span> {{ next_vehicle }}m</span>
-                            {% endfor %}
+                                {% for next_vehicle in route.next_vehicles %}
+                                    <span> {{ next_vehicle }}m</span>
+                                {% endfor %}
                             </span>
                             </p>
                         </div>

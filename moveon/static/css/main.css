@@ -16,16 +16,19 @@ body {
 /******************************************************************************/
 /*                                 Menu                                       */
 /******************************************************************************/
-.custom-restricted-width {
-    /* To limit the menu width to the content of the menu: */
-    display: inline-block;
-    /* Or set the width explicitly: */
-    /* width: 10em; */
+
+nav {
+background-color: #cdcdcd;
+/*height: 100px;
+text-align: center;
+font-size:10px;
+color:#CC0000;
+font-family:Verdana;
+padding-top: 10px;
+width: 1000px;*/
+position:fixed;
+bottom: 0px;
 }
-
-
-
-
 
 /******************************************************************************/
 /*                                Icons                                       */
@@ -65,6 +68,11 @@ i {
 	width: 1.5em;
 }
 
+
+    .transport-company{
+        display:inline-block;
+    }
+
 /******************************************************************************/
 /*                               Spinner                                      */
 /******************************************************************************/
@@ -97,3 +105,4 @@ i {
     -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
   }
 }
+
