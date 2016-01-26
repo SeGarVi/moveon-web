@@ -3,7 +3,7 @@ from geopy.distance import vincenty
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 
 import json
 import logging
@@ -13,39 +13,24 @@ from moveon.models import Company, Line, Station, Route, Stretch, Time, TimeTabl
 
 logger = logging.getLogger(__name__)
 
-def index(request):    
-    template = loader.get_template('home.html')
-    context = RequestContext(
-        request, {
-            'companies': companies,
-        }
-    )
-    return HttpResponse(template.render(context))
+def index(request): 
+    return render(request, 'home.html', {'companies': companies}) 
 
 def companies(request):
     companies = Company.objects.order_by('name')
-    template = loader.get_template('companies.html')
-    context = RequestContext(
-        request, {
-            'companies': companies,
-        }
-    )
-    return HttpResponse(template.render(context))
+    return render(request, 'companies.html', {'companies': companies}) 
 
 def company(request, company_id):
     comp = get_object_or_404(Company, code=company_id)
     lines = Line.objects.filter(company=comp).order_by('code')
-    template = loader.get_template('company.html')
-    context = RequestContext(
-        request, {
-            'company': comp,
-            'lines': lines
-        }
-    )
-    return HttpResponse(template.render(context))
+    context = {     'company': comp,
+                    'lines': lines
+              }
+    return render(request, 'company.html', context) 
 
 def line(request, company_id, line_id):
-    return HttpResponse("Hello, world. You're at the line " + line_id + " page of " + company_id)
+    return HttpResponse("Hello, world. You're at the line " 
+                        + line_id + " page of " + company_id)
 
 def station(request):
     return HttpResponse("Hello, world. You're at the lines page.")
@@ -58,14 +43,7 @@ def nearby(request):
     near_stations = Station.objects.get_nearby_stations([lat, lon])
     Route.objects.add_route_info_to_station_list(near_stations)
     
-    template = loader.get_template('nearby.html')
-    context = RequestContext(
-        request, {
-            'near_stations': near_stations
-        }
-    )
-
-    return HttpResponse(template.render(context))
+    return render(request, 'nearby.html', {'near_stations': near_stations}) 
 
 def nearby_stations(request):
     #?bbox=left,bottom,right,top
@@ -76,17 +54,9 @@ def nearby_stations(request):
 
     bbox = request.GET.get('bbox', '')
     left, bottom, right, top = bbox.split(',')
-    
-    fenced_stations = Station.objects.get_fenced_stations(
-                                                    bottom, left, top, right)
-    template = loader.get_template('nearby.html')
-    context = RequestContext(
-        request, {
-            'nearby_stations': fenced_stations
-        }
-    )
+    fenced_stations = Station.objects.get_fenced_stations(bottom, left, top, right)
 
-    return HttpResponse(template.render(context))
+    return render(request, 'nearby.html', {'nearby_stations': fenced_stations}) 
 
 
 def stretches(request, stretch_id):
