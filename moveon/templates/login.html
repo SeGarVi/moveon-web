@@ -1,0 +1,29 @@
+{% extends "index.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+    <div class="pure-g-r">
+        <div class="pure-u-1-5" ></div>
+        <div class="pure-u-3-5"> 
+    <form class="pure-form pure-form-stacked" method="POST" action="/moveon/login">
+        <fieldset>
+            <legend>A Stacked Form</legend>
+
+            <label for="username">Username</label>
+            <input name="username" id="username" type="username" placeholder="Username" required>
+
+            <label for="password">Password</label>
+            <input name="password" id="password" type="password" placeholder="Password" required>
+
+            <label for="remember" class="pure-checkbox">
+                <input id="remember" type="checkbox"> Remember me
+            </label>
+
+            <button type="submit" class="pure-button pure-button-primary">Sign in</button>
+        </fieldset>
+    </form>
+        </div>
+    </div>
+{% endblock %}
