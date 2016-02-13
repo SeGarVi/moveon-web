@@ -2,6 +2,7 @@ import logging
 
 from osmapi import OsmApi
 from osmlineadapters.osm_line import AbstractOSMLine
+from geopy.distance import vincenty
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,9 @@ class OSMLine(AbstractOSMLine):
             route = self.line['routes'][osmroute['id']]
             route_point_order = 1
             route_station_order = 1
+            distance_from_beggining = 0
+            previous_point = None
+            previous_route_point = None
             logger.info('Getting route {0} nodes'.format(route['name']))
             
             for member in osmroute['member']:
@@ -100,6 +104,7 @@ class OSMLine(AbstractOSMLine):
                     route_point = dict()
                     route_point['node_id'] = member['ref']
                     route_point['order'] = route_point_order
+                    route_point['distance_from_beggining'] = previous_route_point['distance_from_beggining']
                     route['route_points'][member['ref']] = route_point
                     route_point_order += 1
                 elif 'stop' in member['role']:
@@ -117,11 +122,23 @@ class OSMLine(AbstractOSMLine):
                             
                             self.line['route_points'][stop['osmid']] = stop
                         
+                        current_point = self.line['route_points'][member['ref']]
+                        if previous_point is not None :
+                            previous_coords = [previous_point['latitude'], previous_point['longitude']]
+                            current_coords = [current_point['latitude'], current_point['longitude']]
+                            distance = int(vincenty(previous_coords, current_coords).meters)
+                            distance_from_beggining += distance
+                            
+                        
                         route_point = dict()
                         route_point['node_id'] = member['ref']
                         route_point['order'] = route_point_order
+                        route_point['distance_from_beggining'] = distance_from_beggining
                         route['route_points'][member['ref']] = route_point
                         route_point_order += 1
+                        
+                        previous_point = current_point
+                        previous_route_point = route_point
                 elif 'way' in member['type']:
                     logger.debug('Getting way {0} info'.format(member['ref']))
                     if member['ref'] not in ways:
@@ -149,8 +166,19 @@ class OSMLine(AbstractOSMLine):
                                 
                                 self.line['route_points'][node['osmid']] = node
                             
+                            current_point = self.line['route_points'][node_id]
+                            if previous_point is not None :
+                                previous_coords = [previous_point['latitude'], previous_point['longitude']]
+                                current_coords = [current_point['latitude'], current_point['longitude']]
+                                distance = int(vincenty(previous_coords, current_coords).meters)
+                                distance_from_beggining += distance
+                            
                             route_point = dict()
                             route_point['node_id'] = node_id
                             route_point['order'] = route_point_order
+                            route_point['distance_from_beggining'] = distance_from_beggining
                             route['route_points'][node_id] = route_point
                             route_point_order += 1
+                            
+                            previous_point = current_point
+                            previous_route_point = route_point

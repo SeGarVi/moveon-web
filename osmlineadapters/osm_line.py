@@ -40,8 +40,9 @@ class AbstractOSMLine():
                     simplified_station['adapted'] = station.get('adapted')
                     simplified_station['shelter'] = station.get('shelter')
                     simplified_station['bench'] = station.get('bench')
+                    simplified_station['distance_from_beggining'] = route_point['distance_from_beggining']
                     simplified_station['order'] = route_point['order']
-                            
+                    
                     simplified_route['stations'].append(simplified_station)
             
             simplified_line['routes'].append(simplified_route)
