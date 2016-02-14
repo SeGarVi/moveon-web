@@ -53,8 +53,7 @@ class OSMLine(AbstractOSMLine):
         for osmroute in self.osmroutes:
             route = self.line['routes'][osmroute['id']]
             route_point_order = 1
-            route_station_order = 1
-            distance_from_beggining = 0
+            distance_from_beginning = 0
             previous_point = None
             previous_route_point = None
             logger.info('Getting route {0} nodes'.format(route['name']))
@@ -104,7 +103,7 @@ class OSMLine(AbstractOSMLine):
                     route_point = dict()
                     route_point['node_id'] = member['ref']
                     route_point['order'] = route_point_order
-                    route_point['distance_from_beggining'] = previous_route_point['distance_from_beggining']
+                    route_point['distance_from_beginning'] = previous_route_point['distance_from_beginning']
                     route['route_points'][member['ref']] = route_point
                     route_point_order += 1
                 elif 'stop' in member['role']:
@@ -127,13 +126,13 @@ class OSMLine(AbstractOSMLine):
                             previous_coords = [previous_point['latitude'], previous_point['longitude']]
                             current_coords = [current_point['latitude'], current_point['longitude']]
                             distance = int(vincenty(previous_coords, current_coords).meters)
-                            distance_from_beggining += distance
+                            distance_from_beginning += distance
                             
                         
                         route_point = dict()
                         route_point['node_id'] = member['ref']
                         route_point['order'] = route_point_order
-                        route_point['distance_from_beggining'] = distance_from_beggining
+                        route_point['distance_from_beginning'] = distance_from_beginning
                         route['route_points'][member['ref']] = route_point
                         route_point_order += 1
                         
@@ -171,12 +170,12 @@ class OSMLine(AbstractOSMLine):
                                 previous_coords = [previous_point['latitude'], previous_point['longitude']]
                                 current_coords = [current_point['latitude'], current_point['longitude']]
                                 distance = int(vincenty(previous_coords, current_coords).meters)
-                                distance_from_beggining += distance
+                                distance_from_beginning += distance
                             
                             route_point = dict()
                             route_point['node_id'] = node_id
                             route_point['order'] = route_point_order
-                            route_point['distance_from_beggining'] = distance_from_beggining
+                            route_point['distance_from_beginning'] = distance_from_beginning
                             route['route_points'][node_id] = route_point
                             route_point_order += 1
                             

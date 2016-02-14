@@ -149,7 +149,7 @@ def _getDistancesFromSchedule(stretch_id, times):
             speed = accum_distance / interval # We need meters per second, check
             
             #Need route_points sub array (will be stretch)
-            _calculate_time_from_beggining(route_points[checkpoint_index:index], speed)
+            _calculate_time_from_beginning(route_points[checkpoint_index:index], speed)
             
             checkpoint_index = index
             checkpoint = route_point
@@ -164,14 +164,14 @@ def _getDistancesFromSchedule(stretch_id, times):
     
     median_speed = speeds[len(speeds)/2]
     #Need route_points sub array (will be stretch)
-    _calculate_time_from_beggining(route_points[checkpoint_index:], median_speed)
+    _calculate_time_from_beginning(route_points[checkpoint_index:], median_speed)
     
-def _calculate_time_from_beggining(route_points, speed):
+def _calculate_time_from_beginning(route_points, speed):
     previous = route_points[0]
     for route_point in route_points[1:]:
         previous_coords = [previous.latitude, previous.longitude]
         current_coords = [route_point.latitude, route_point.longitude]
         distance = int(vincenty(previous_coords, current_coords).meters)
         time = distance * speed
-        route_point.time_from_beggining = previous.time_from_beggining + time
+        route_point.time_from_beginning = previous.time_from_beginning + time
         previous = route_point
