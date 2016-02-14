@@ -24,6 +24,12 @@ class OSMLineTest(TestCase):
         
         line = self.concrete_instance.line
         
+        if len(line['problems']) > 0:
+            print('The following problems in the line have been detected:')
+            for problem in line['problems']:
+                print(str(problem) + "\n")
+            self.fail()
+        
         self.assertTrue('osmid' in line)
         self.assertTrue('company' in line)
         self.assertTrue('transport' in line)

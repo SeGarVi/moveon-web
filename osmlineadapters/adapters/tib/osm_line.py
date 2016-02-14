@@ -28,6 +28,7 @@ class OSMLine(AbstractOSMLine):
         self.line['stations'] = dict()
         self.line['route_points'] = dict()
         self.line['routes'] = dict()
+        self.line['problems'] = []
     
     def _get_line_routes(self):
         logger.info('Getting route info')
@@ -98,6 +99,10 @@ class OSMLine(AbstractOSMLine):
                                         if 'stop' in sa_member['role']:
                                             station['stop_node'] = sa_member['ref']
                                     break
+                        
+                        if 'stop_node' not in station:
+                            error = ['Stop area problem', station['osmid'], station['name']]
+                            self.line['problems'].append(error)
                         
                         self.line['stations'][station['osmid']] = station
                     
