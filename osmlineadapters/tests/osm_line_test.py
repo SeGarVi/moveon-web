@@ -136,11 +136,14 @@ class OSMLineTest(TestCase):
             for route_point in route['route_points'].values():
                 self.assertTrue('node_id' in route_point)
                 self.assertTrue('order' in route_point)
-                 
+                self.assertTrue('distance_from_beginning' in route_point)
+                
                 self.assertTrue(type(route_point['node_id']) is int)
                 self.assertTrue(type(route_point['order']) is int)
-                 
+                self.assertTrue(type(route_point['distance_from_beginning']) is int)
+                
                 self.assertGreaterEqual(route_point['order'], 0)
+                self.assertGreaterEqual(route_point['distance_from_beginning'], 0)
                  
                 self.assertTrue(route_point['node_id'] in line['route_points']
                              or route_point['node_id'] in line['stations'])
