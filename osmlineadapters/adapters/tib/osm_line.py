@@ -156,9 +156,6 @@ class OSMLine(AbstractOSMLine):
                     for node_id in way['nd']:
                         logger.debug('\tGetting node {0} info'.format(node_id))
                         
-                        if node_id == 3773545143:
-                            print("hola")
-                        
                         if node_id not in route['route_points']:
                             if node_id not in self.line['route_points']:
                                 logger.debug("\t\t Not present, retrieving info...")
