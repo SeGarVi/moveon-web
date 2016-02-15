@@ -4,7 +4,7 @@ from osmlineadapters.adapters.emt_palma.osm_line import OSMLine
 class EMTPalmaOSMLineTest(OSMLineTest):
     def setUp(self):
         self.concrete_class = OSMLine
-        self.osmid = '5437366'
+        self.osmid = '5576519'
         
         super(EMTPalmaOSMLineTest, self).setUp()
     

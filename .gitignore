@@ -1,6 +1,8 @@
 db.sqlite3
 *settings.py
 moveon/migrations
+moveon_rest_api/migrations
+osmlineadapters/migrations
 __pycache__
 .project
 .pydevproject

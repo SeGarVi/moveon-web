@@ -156,7 +156,8 @@ class RoutePoint(models.Model):
     node = models.ForeignKey(Node)
     stretch = models.ForeignKey(Stretch)
     order = models.IntegerField()
-    time_from_beggining = models.BigIntegerField(null=True)
+    distance_from_beginning = models.BigIntegerField()
+    time_from_beginning = models.BigIntegerField(null=True)
     
     class Meta:
         ordering = ['order']
@@ -166,6 +167,7 @@ class RoutePoint(models.Model):
         routepoint = RoutePoint()
         
         routepoint.order = osmroutepoint['order']
+        routepoint.distance_from_beginning = osmroutepoint['distance_from_beginning']
         
         return routepoint
     
