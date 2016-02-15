@@ -1,20 +1,41 @@
-from geopy.distance import vincenty
-
-from django.http import HttpResponse
-from django.template import RequestContext, loader
-
-from django.shortcuts import get_object_or_404, render
-
+from django.contrib      import messages
+from django.contrib.auth import authenticate, login
+from django.http         import HttpResponseRedirect, HttpResponse
+from django.shortcuts    import get_object_or_404, render, redirect
+from django.template     import RequestContext, loader
+from geopy.distance      import vincenty
+from moveon.models       import Company, Line, Station, Route, Stretch, Time, TimeTable
+import dateutil.parser
 import json
 import logging
-import dateutil.parser
 
-from moveon.models import Company, Line, Station, Route, Stretch, Time, TimeTable
 
 logger = logging.getLogger(__name__)
 
 def index(request): 
-    return render(request, 'home.html', {'companies': companies}) 
+    return render(request, 'home.html', {'companies': companies})   
+
+def moveon_login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                # Redirect to a success page.
+                print("yes it logs in")
+                return redirect('http://localhost:8000/moveon')
+            else:
+                # Return a 'disabled account' error message
+                print("Something wrong happened while log in")
+                return redirect('http://localhost:8000/moveon')
+        else:
+            # Return an 'invalid login' error message.
+            print("Invalid log in. Please try again")
+            return render(request, 'login.html', {'login': login}) 
+    else:
+        return render(request, 'login.html', {'login': login}) 
 
 def companies(request):
     companies = Company.objects.order_by('name')

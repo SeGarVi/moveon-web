@@ -1,15 +1,17 @@
-from django.http import HttpResponse
-from django.template import RequestContext, loader
-from django.core.cache import cache
+from django.core.cache            import cache
+from django.core.cache.backends   import locmem
+from django.http                  import HttpResponse, Http404
+from django.template              import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
-from django.core.cache.backends import locmem
 
 import json
-
 import osmlineadapters.settings as settings
 
 @csrf_exempt
 def newline(request, company_id):
+    if not request.user.is_authenticated():
+        raise Http404
+
     if request.method == 'GET':
         template = loader.get_template('new_line.html')
         return HttpResponse(template.render())
@@ -30,6 +32,9 @@ def newline(request, company_id):
         return HttpResponse(request.body)
 
 def newlinedetail(request, company_id, osm_line_id):
+    if not request.user.is_authenticated():
+        raise Http404
+        
     cache_simplified_id = str(osm_line_id) + "_simple"
     if request.method == "GET":
         line = json.loads(cache.get(cache_simplified_id))

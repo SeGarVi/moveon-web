@@ -17,7 +17,7 @@ function testCode(key, value) {
         }
     );
 }
-
+/*Get GPS coordinates of the user*/
 function getLocation() {
 
     if (navigator.geolocation) {

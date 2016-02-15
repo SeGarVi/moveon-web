@@ -3,16 +3,13 @@
 {% block head %}
 {% endblock %}
 
-
-
 {% block content %}
-
     <div class="pure-g-r">
         <div class="pure-u-1-5" ></div>
         <div class="pure-u-3-5"> 
         {% if near_stations %}
             {% for station in near_stations %}
-                <div class="station">
+                <a class="station_link" href="#"><div class="station">
                     <div class="info-up">
                         <span class="code"> {{ station.code }} </span>
                         <span class="name"> {{ station.name }} </span>
@@ -36,7 +33,7 @@
                             </p>
                         </div>
                     {% endfor %}
-                </div>
+                </div></a>
             {% endfor %}
         {% else %}
             <div class="no-points">
