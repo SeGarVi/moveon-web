@@ -9,7 +9,6 @@ import dateutil.parser
 import json
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 def index(request): 
@@ -31,6 +30,7 @@ def moveon_login(request):
                 print("Something wrong happened while log in")
                 return redirect('http://localhost:8000/moveon')
         else:
+            
             # Return an 'invalid login' error message.
             print("Invalid log in. Please try again")
             return render(request, 'login.html', {'login': login}) 

@@ -18,14 +18,14 @@ from django.conf.urls import include,url
 from . import views
 
 urlpatterns = [
-    url(r'^api/',                                                     include('moveon_rest_api.urls')),
-    url(r'^osmlines/(?P<company_id>.+)/',                             include('osmlineadapters.urls')),
-    url(r'^stations/nearby',                                          views.nearby,       name='nearby_stations'),
-    url(r'^login',                                                    views.moveon_login, name='moveon_login'),    
-    url(r'^companies/(?P<company_id>.+)/lines/(?P<line_id>.+)',       views.line,         name='line'),
-    url(r'^companies/(?P<company_id>.+)/stations/(?P<station_id>.+)', views.station,      name='stations'),
-    url(r'^companies/(?P<company_id>.+)',                             views.company,      name='company'),
-    url(r'^companies/',                                               views.companies,    name='companies'),
-    url(r'^stretches/(?P<stretch_id>.+)/',                            views.stretches,    name='stretches'),
-    url(r'^', views.index)
+    url(r'^api/',                                                       include('moveon_rest_api.urls')),
+    url(r'^osmlines/(?P<company_id>.+)/',                               include('osmlineadapters.urls')),
+    url(r'^stations/nearby/$',                                          views.nearby,          name='nearby_stations'),
+    url(r'^login/$',                                                    views.moveon_login,    name='moveon_login'),     
+    url(r'^companies/(?P<company_id>.+)/lines/(?P<line_id>.+)/$',       views.line,            name='line'),
+    url(r'^companies/(?P<company_id>.+)/stations/(?P<station_id>.+)/$', views.station,         name='stations'),
+    url(r'^companies/(?P<company_id>.+)/$',                             views.company,         name='company'),
+    url(r'^companies/$',                                                views.companies,       name='companies'),
+    url(r'^stretches/(?P<stretch_id>.+)/$',                             views.stretches,       name='stretches'),
+    url(r'^$',                                                          views.index,           name='index'),
 ]
