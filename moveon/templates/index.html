@@ -6,11 +6,12 @@
 
         <title>MoveOn Web</title>
 
+        <!-- CSS -->
         <!-- <link rel="stylesheet" type="text/css" href="/static/css/pure-min.css"> -->
         <link rel="stylesheet" type="text/css" href="/static/css/fontello-embedded.css" />
         <link rel="stylesheet" type="text/css" href="/static/css/pure.css" />
         <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
-
+        <!-- JS -->
         <script src="http://code.jquery.com/jquery-2.1.4.js"></script>
         <script src="/static/js/main.js"></script>
 
@@ -19,7 +20,7 @@
     </head>
     
     <body>
-        <div id="layout map" class="map">
+        <div class="layout">
             {% block content %}
             {% endblock content %}
         </div>
@@ -30,6 +31,6 @@
     <ul class="pure-menu-list">
         <li class="pure-menu-item"><a href="#" class="pure-menu-link">Login</a></li>
     </ul>
-    <footer class="pure-menu-link right"> MoveOn 2015 </footer>
+    <footer class="pure-menu-link right none"> MoveOn 2015 </footer>
 </nav>
 </html> 

@@ -1,10 +1,11 @@
-from django.contrib      import messages
-from django.contrib.auth import authenticate, login
-from django.http         import HttpResponseRedirect, HttpResponse
-from django.shortcuts    import get_object_or_404, render, redirect
-from django.template     import RequestContext, loader
-from geopy.distance      import vincenty
-from moveon.models       import Company, Line, Station, Route, Stretch, Time, TimeTable
+from django.contrib             import messages
+from django.contrib.auth        import authenticate, login
+from django.contrib.auth.models import User
+from django.http                import HttpResponseRedirect, HttpResponse
+from django.shortcuts           import get_object_or_404, render, redirect
+from django.template            import RequestContext, loader
+from geopy.distance             import vincenty
+from moveon.models              import Company, Line, Station, Route, Stretch, Time, TimeTable
 import dateutil.parser
 import json
 import logging
@@ -16,26 +17,41 @@ def index(request):
 
 def moveon_login(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            if user.is_active:
-                login(request, user)
-                # Redirect to a success page.
-                print("yes it logs in")
-                return redirect('http://localhost:8000/moveon')
+        log_type = request.POST['submit']
+        if log_type=='Log in':
+            username = request.POST['username']
+            password = request.POST['password']
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    # Redirect to a success page.
+                    print("yes it logs in")
+                    return redirect('http://localhost:8000/moveon')
+                else:
+                    # Return a 'disabled account' error message
+                    print("Something wrong happened while log in")
+                    return redirect('http://localhost:8000/moveon')
             else:
-                # Return a 'disabled account' error message
-                print("Something wrong happened while log in")
-                return redirect('http://localhost:8000/moveon')
-        else:
-            
-            # Return an 'invalid login' error message.
-            print("Invalid log in. Please try again")
-            return render(request, 'login.html', {'login': login}) 
-    else:
+                # Return an 'invalid login' error message.
+                print("Invalid log in. Please try again")
+                return render(request, 'login.html', {'login': login}) 
+        elif log_type=='Sign up':
+            username  = request.POST['username2']
+            email     = request.POST['email2']
+            password1 = request.POST['password1']
+            password2 = request.POST['password2']
+            #Still need to test if mail, user and password is valid
+            if password1==password2:
+                print("Let's create a new user")
+                user = User.objects.create_user(username, email, password1)
+                print("User created %s", user)
+            else:
+                print("The password is not the same. Please, retype the passwords")
+
         return render(request, 'login.html', {'login': login}) 
+    else:
+        return render(request, 'login.html', {'login': 'ok'}) 
 
 def companies(request):
     companies = Company.objects.order_by('name')
