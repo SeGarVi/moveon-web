@@ -43,15 +43,22 @@ def moveon_login(request):
             password2 = request.POST['password2']
             #Still need to test if mail, user and password is valid
             if password1==password2:
-                print("Let's create a new user")
                 user = User.objects.create_user(username, email, password1)
-                print("User created %s", user)
+                print("User created ", user)
             else:
                 print("The password is not the same. Please, retype the passwords")
 
         return render(request, 'login.html', {'login': login}) 
     else:
-        return render(request, 'login.html', {'login': 'ok'}) 
+        return render(request, 'login.html', {}) 
+
+#def change_password():
+#    if request.method == 'POST':
+#        username = request.POST['username']
+#        password = request.POST['password']
+#        if 
+#    else:
+#        return render(request, 'change_password.html', {}) 
 
 def companies(request):
     companies = Company.objects.order_by('name')

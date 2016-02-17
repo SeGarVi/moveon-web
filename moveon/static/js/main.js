@@ -43,3 +43,19 @@ function toggleCodes(on) {
         obj.className = obj.className.replace(' codesOn', '');
     }
 }
+
+/*Validate email*/
+function validateEmail(email) {
+    var re = /\S+@\S+\.\S+/;
+    return re.test(email);
+}
+
+/*Opens a dialog page to insert the email to recover the password*/
+function recover_password() {
+    var email=window.prompt("Please enter your email");
+    if (validateEmail(email)) {
+        window.alert("An email has been sent to " + email);
+    } else {
+        window.alert("Your email was invalid -> " + email);
+    }
+}
