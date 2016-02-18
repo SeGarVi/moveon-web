@@ -22,6 +22,8 @@ urlpatterns = [
     url(r'^osmlines/(?P<company_id>.+)/',                               include('osmlineadapters.urls')),
     url(r'^stations/nearby/$',                                          views.nearby,          name='nearby_stations'),
     url(r'^login/$',                                                    views.moveon_login,    name='moveon_login'),
+    url(r'^logout/$',                                                   views.moveon_logout,   name='moveon_logout'),
+    url(r'^logtest/$',                                                  views.logtest),
     #url(r'^change_password/(?P<ch_code>.+)/(?P<email>.+)/$',            views.change_password, name='change_password'),
     url(r'^companies/(?P<company_id>.+)/lines/(?P<line_id>.+)/$',       views.line,            name='line'),
     url(r'^companies/(?P<company_id>.+)/stations/(?P<station_id>.+)/$', views.station,         name='stations'),

@@ -1,11 +1,12 @@
-from django.contrib             import messages
-from django.contrib.auth        import authenticate, login
-from django.contrib.auth.models import User
-from django.http                import HttpResponseRedirect, HttpResponse
-from django.shortcuts           import get_object_or_404, render, redirect
-from django.template            import RequestContext, loader
-from geopy.distance             import vincenty
-from moveon.models              import Company, Line, Station, Route, Stretch, Time, TimeTable
+from django.contrib                 import messages
+from django.contrib.auth            import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models     import User
+from django.http                    import HttpResponseRedirect, HttpResponse
+from django.shortcuts               import get_object_or_404, render, redirect
+from django.template                import RequestContext, loader
+from geopy.distance                 import vincenty
+from moveon.models                  import Company, Line, Station, Route, Stretch, Time, TimeTable
 import dateutil.parser
 import json
 import logging
@@ -47,7 +48,6 @@ def moveon_login(request):
                 print("User created ", user)
             else:
                 print("The password is not the same. Please, retype the passwords")
-
         return render(request, 'login.html', {'login': login}) 
     else:
         return render(request, 'login.html', {}) 
@@ -59,6 +59,14 @@ def moveon_login(request):
 #        if 
 #    else:
 #        return render(request, 'change_password.html', {}) 
+
+@login_required(login_url='moveon_login')
+def logtest(request):
+    return render(request, 'logtest.html', {'companies': companies})
+
+def moveon_logout(request):
+    logout(request)
+    return redirect('http://localhost:8000/moveon')
 
 def companies(request):
     companies = Company.objects.order_by('name')

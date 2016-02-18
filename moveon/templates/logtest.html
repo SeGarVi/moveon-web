@@ -1,0 +1,15 @@
+{% extends "index.html" %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+	{% if user %} 
+	    ¡Gracias por identificarte! 
+	    Tu nombre es {{ user }}. Tu email es {{ email }}.
+	{% else %} 
+		"{{ is_logged_in }}"
+	    Por favor identificarte. 
+	{% endif %} 
+{% endblock %}
+
