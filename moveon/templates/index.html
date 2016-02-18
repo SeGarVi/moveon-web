@@ -29,7 +29,8 @@
 <nav class="pure-menu pure-menu-horizontal">
     <a href="#" class="pure-menu-heading pure-menu-link">MoveOn</a>
     <ul class="pure-menu-list">
-        <li class="pure-menu-item"><a href="{% url 'moveon_login' %}" class="pure-menu-link">Login</a></li>
+        {% if not user.is_authenticated %}<li class="pure-menu-item"><a href="{% url 'moveon_login' %}" class="pure-menu-link">Login</a></li>{% endif %}
+        {% if user.is_authenticated %}    <li class="pure-menu-item"><a href="{% url 'moveon_logout' %}" class="pure-menu-link">Logout</a></li>{% endif %}
     </ul>
     <footer class="pure-menu-link right none"> MoveOn 2015 </footer>
 </nav>
