@@ -227,3 +227,8 @@ def _calculate_time_from_beginning(route_points, speed):
         time = distance * speed
         route_point.time_from_beginning = previous.time_from_beginning + time
         previous = route_point
+
+def _get_stations_for_route(route):
+    node_ids = list(route.stretch_set.first().routepoint_set.all().values_list('node_id', flat=True))
+    stations = list(Station.objects.filter(osmid__in=node_ids))
+    return stations.sort(key=lambda t: node_ids.index(t.osmid))
