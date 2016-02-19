@@ -1,19 +1,22 @@
 {% extends "index.html" %}
 
-{% block head %}
-    <script>
-        function goToCompany() {
-            var widget = document.getElementById("company-selector");
-            var company = widget.options[widget.selectedIndex].value;
-            window.location = "/moveon/companies/" + company;
-        }
-    </script>
-{% endblock %}
-
 {% block content %}
-    <select id="company-selector" onchange="goToCompany()">
-        {% for company in companies %}
-        <option value="{{ company.code }}">{{ company.name }}</option>
-        {% endfor %}
-    </select> 
+    {% for company in companies %}
+        <div class="columns">
+            <div class="moveon-company column is-half is-offset-quarter">
+                <a href="{% url 'company' company.code %}">
+                    <img src="{{ company.logo }}" alt="{{ company.name }} logo">
+                </a>
+                <a href="{% url 'company' company.code %}">
+                    <h1>{{ company.name }}</h1>
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="columns">
+            <div class="moveon-company column is-half is-offset-quarter">
+                <p>Sorry, no companies available yet.</p>
+            </div>
+        </div>
+    {% endfor %}
 {% endblock %}

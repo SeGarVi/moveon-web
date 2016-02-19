@@ -24,18 +24,26 @@
         </div>
     </div>
 
-    {% for route in routes %}
+    <div class="columns">
+        <div class="moveon-company column is-half is-offset-quarter">
+            <a class="moveon-company__route" href="{% url 'route' company.code line.code route.name %}">
+                {{ route.name }}
+            </a>
+        </div>
+    </div>
+
+    {% for station in route.stations %}
         <div class="columns">
             <div class="moveon-company column is-half is-offset-quarter">
-                <a class="moveon-company__route" href="{% url 'route' company.code line.code route.osmid %}">
-                    {{ route.name }}
-                </a>
+                <!--<a class="moveon-company__route" href="{% url 'route' company.code line.code route.name %}">-->
+                    {{ station.name }}
+                <!-- </a> -->
             </div>
         </div>
     {% empty %}
         <div class="columns">
             <div class="moveon-company column is-half is-offset-quarter">
-                <p>Sorry, this company has no routes yet.</p>
+                <p>Sorry, this Route has no stations yet.</p>
             </div>
         </div>
     {% endfor %}

@@ -2,13 +2,8 @@ footer {
 	text-align: center;
 }
 
-body {
+body, html {
 	background-color: #FFF;
-}
-
-.right{
-	text-align: right;
-	float: right;
 }
 
 .spinner{height:30px;width:30px;background-color: red; }
@@ -18,22 +13,23 @@ body {
 /******************************************************************************/
 
 nav {
-background-color: #cdcdcd;
-/*height: 100px;
-text-align: center;
-font-size:10px;
-color:#CC0000;
-font-family:Verdana;
-padding-top: 10px;
-width: 1000px;*/
-position:fixed;
-bottom: 0px;
+  background-color: #cdcdcd;
+  /*position:fixed;
+  bottom: 0px;*/
+}
+
+.footer {
+  padding-left: 0px;
+  padding-right: 0px
+}
+
+.navbar-left, .navbar-right {
+  padding: 0 1em;
 }
 
 /******************************************************************************/
 /*                                Icons                                       */
 /******************************************************************************/
-
 
 i {
     font-size: 2em;
@@ -42,7 +38,7 @@ i {
 /******************************************************************************/
 /*                              Homepage                                      */
 /******************************************************************************/
-.layout {
+body {
     margin: 2em 0em;
 }
 
@@ -65,7 +61,7 @@ a.station_link {
 
 .info-up {
 	padding-bottom: 0.5em;
-	border-bottom: 0.25em solid black;
+	/*border-bottom: 0.25em solid black;*/
 	margin-bottom: 0.75em;
 }
 
@@ -80,11 +76,9 @@ a.station_link {
 .transport-company img{
 	width: 1.5em;
 }
-
-
-    .transport-company{
-        display:inline-block;
-    }
+  .transport-company{
+      display:inline-block;
+  }
 
 
 /******************************************************************************/
@@ -100,6 +94,35 @@ legend {
     color: blue;
     text-decoration: underline;
 }
+
+/******************************************************************************/
+/*                               Companies                                    */
+/******************************************************************************/
+
+.moveon-company {
+  margin-bottom: 1em;
+  border: 0.1em solid #D4D4D4;
+  background-color: #F3F3F3;
+  padding: 1em;
+  box-shadow: 0px 13px 36px -8px rgba(112,112,112,0.42);
+  display: flex;
+}
+
+  .moveon-company a {
+    text-decoration: none;
+    color: inherit;
+  }
+  .moveon-company img {
+    width: 10em;
+    min-width: 10em;
+  }
+  .moveon-company h1 {
+    margin-left: 1em;
+    font-size: 1.5em;
+  }
+  .moveon-company__route {
+    margin-left: 2em;
+  }
 
 /******************************************************************************/
 /*                               Spinner                                      */
@@ -138,5 +161,10 @@ legend {
 @media all and (min-width: 400px) {
   .none{
     display: inline-block;
+  }
+  .moveon-company img{
+
+  }
+  .moveon-company h1{
   }
 }

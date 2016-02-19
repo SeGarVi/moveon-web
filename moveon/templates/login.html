@@ -4,56 +4,53 @@
 {% endblock %}
 
 {% block content %}
-    <div class="pure-g-r">
-        <div class="pure-u-1-5" ></div>
-        <div class="pure-u-3-5">
 
-            <!-- Log in -->
-            <div class="log-card">
-                <div class="pure-u-1-5 none"></div>
-                <form name="login" class="pure-u-1-5 pure-form pure-form-stacked" method="POST" action="{% url 'moveon_login' %}">{% csrf_token %}
-                    <fieldset>
-                        <legend>Log in</legend>
+    <div class="columns">
+        <!-- Log in -->
+        <div class="log-card column is-half is-offset-quarter">
+            <form name="login" class="" method="POST" action="{% url 'moveon_login' %}">{% csrf_token %}
+                <fieldset>
+                    <legend>Log in</legend>
 
-                        <label for="username">Username</label>
-                        <input name="username" id="username" type="text" placeholder="Username" required>
+                    <label for="username">Username</label>
+                    <input name="username" id="username" type="text" placeholder="Username" required>
 
-                        <label for="password">Password</label>
-                        <input name="password" id="password" type="password" placeholder="Password" required>
+                    <label for="password">Password</label>
+                    <input name="password" id="password" type="password" placeholder="Password" required>
 
-                        <label for="remember" class="pure-checkbox">
-                            <input id="remember" type="checkbox"> Remember me
-                        </label>
+                    <label for="remember" class="">
+                        <input id="remember" type="checkbox"> Remember me
+                    </label>
 
-                        <input name="submit" class="pure-button pure-button-primary" type="submit" value="Log in">
-                        <p class="recover_password" onclick="recover_password()">I forgot my password</p>
-                    </fieldset>
-                </form>
-            </div>
-            <!-- Sign up -->
-            <div class="log-card">
-                <p>If not, if you want to Create a new user: </p>
-                <div class="pure-u-1-5 none"></div>
-                <form name="signup" class="pure-u-1-5 pure-form pure-form-stacked" method="POST" action="{% url 'moveon_login' %}">{% csrf_token %}
-                    <fieldset>
-                        <legend>Sign up</legend>
+                    <input name="submit" class=" -primary" type="submit" value="Log in">
+                    <p class="recover_password" onclick="recover_password()">I forgot my password</p>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <div class="columns">
+        <!-- Sign up -->
+        <div class="log-card column is-half is-offset-quarter">
+            <p>If not, if you want to Create a new user: </p>
+            <form name="signup" class="" method="POST" action="{% url 'moveon_login' %}">{% csrf_token %}
+                <fieldset>
+                    <legend>Sign up</legend>
 
-                        <label for="username2">Username</label>
-                        <input name="username2" id="username2" type="text" placeholder="Username">
+                    <label for="username2">Username</label>
+                    <input name="username2" id="username2" type="text" placeholder="Username">
 
-                        <label for="email2">Email</label>
-                        <input name="email2" id="email2" type="email" placeholder="your@email.com" required>
+                    <label for="email2">Email</label>
+                    <input name="email2" id="email2" type="email" placeholder="your@email.com" required>
 
-                        <label for="password1">Password</label>
-                        <input name="password1" id="password1" type="password" placeholder="Password" required>
+                    <label for="password1">Password</label>
+                    <input name="password1" id="password1" type="password" placeholder="Password" required>
 
-                        <label for="password2">Password again</label>
-                        <input name="password2" id="password2" type="password" placeholder="Repeat password" required>
+                    <label for="password2">Password again</label>
+                    <input name="password2" id="password2" type="password" placeholder="Repeat password" required>
 
-                        <input name="submit" class="pure-button pure-button-primary" type="submit" value="Sign up">
-                    </fieldset>
-                </form>
-            </div>
+                    <input name="submit" class=" -primary" type="submit" value="Sign up">
+                </fieldset>
+            </form>
         </div>
     </div>
 {% endblock %}

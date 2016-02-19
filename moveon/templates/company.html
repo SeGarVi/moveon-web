@@ -2,23 +2,33 @@
 {% load color_filters %}
 
 {% block content %}
-    <h1>{{ company.name }} ({{ company.code }})</h1>
-    <img src="{{ company.logo }}" />
-    <a href="{{ company.url }}">Go to home page</a>
-    
-    {% if lines %}
-        <h2>Lines</h2>
-    {% else %}
-        <p>This company has no lines</p>
-    {% endif %}
-    
-    {% for line in lines %}
-    
-    <a href="/moveon/companies/{{ company.code }}/lines/{{ line.code }}"
-        style="color: {{ line.colour | text_color_from_background }}">
-        <div style="background-color: {{ line.colour }}">
-            {{ line.code }} - {{ line.name }} ({{ line.transport }} line)
+    <div class="columns">
+        <div class="moveon-company column is-half is-offset-quarter">
+            <a href="{% url 'company' company.code %}">
+                <img src="{{ company.logo }}" alt="{{ company.name }} logo">
+            </a>
+            <a href="{% url 'company' company.code %}">
+                <h1>{{ company.name }}</h1>
+            </a>
         </div>
-    </a>
+    </div>
+
+    {% for line in lines %}
+        <div class="columns">
+            <div class="moveon-company column is-half is-offset-quarter">
+                <a href="{% url 'line' company.code line.code %}"
+                    style="color: {{ line.colour | text_color_from_background }}">
+                    <div style="background-color: {{ line.colour }}">
+                        {{ line.code }} - {{ line.name }} ({{ line.transport }} line)
+                    </div>
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="columns">
+            <div class="moveon-company column is-half is-offset-quarter">
+                <p>Sorry, this company has no lines yet.</p>
+            </div>
+        </div>
     {% endfor %}
 {% endblock %}
