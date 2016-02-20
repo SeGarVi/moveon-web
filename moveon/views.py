@@ -84,8 +84,10 @@ def line(request, company_id, line_id):
     comp = get_object_or_404(Company, code=company_id)
     line = get_object_or_404(Line, code=line_id)
     routes = Route.objects.filter(line=line).order_by('name')
-    for route in routes:
-        print(route.stations)
+    #for route in routes:
+    #    stations = _get_stations_for_route(route)
+    #    for station in stations:
+    #        print(station)
     context = {     'company': comp,
                     'line': line,
                     'routes': routes
@@ -93,21 +95,16 @@ def line(request, company_id, line_id):
     return render(request, 'line.html', context) 
 
 def route(request, company_id, line_id, route_id):
-    #comp = get_object_or_404(Company, code=company_id)
-    #line = get_object_or_404(Line, code=line_id)
-    #route = get_object_or_404(Route, osmid=route_id)
-    #stations = route.objects.get_stations()
-    #context = {     'company': comp,
-    #                'line': line,
-    #                'route': route,
-    #                'stations': stations
-    #          }
-    #return render(request, 'route.html', context) 
-
-    #################################################################
-    #Erase the line below once get_stations() for a route is working#
-    #################################################################
-    return HttpResponse("Hello, world. You're at the stations-route page.")
+    comp = get_object_or_404(Company, code=company_id)
+    line = get_object_or_404(Line, code=line_id)
+    route = get_object_or_404(Route, osmid=route_id)
+    stations = _get_stations_for_route(route)
+    context = {     'company': comp,
+                    'line': line,
+                    'route': route,
+                    'stations': stations
+              }
+    return render(request, 'route.html', context) 
 
 def station(request, station_id):
     return HttpResponse("Hello, world. You're at the station %s page." % (station_id))

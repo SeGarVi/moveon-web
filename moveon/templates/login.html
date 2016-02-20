@@ -11,19 +11,22 @@
             <form name="login" class="" method="POST" action="{% url 'moveon_login' %}">{% csrf_token %}
                 <fieldset>
                     <legend>Log in</legend>
+                    <p><label for="username">Username
+                        <input class="input" name="username" id="username" type="text" placeholder="Username" required>
+                    </label></p>
 
-                    <label for="username">Username</label>
-                    <input name="username" id="username" type="text" placeholder="Username" required>
+                    <p><label for="password">Password
+                        <input class="input" name="password" id="password" type="password" placeholder="Password" required>
+                    </label></p>
 
-                    <label for="password">Password</label>
-                    <input name="password" id="password" type="password" placeholder="Password" required>
+                    <p><label for="remember" class="">
+                        <input class="checkbox" id="remember" type="checkbox"> Remember me
+                    </label></p>
 
-                    <label for="remember" class="">
-                        <input id="remember" type="checkbox"> Remember me
-                    </label>
-
-                    <input name="submit" class=" -primary" type="submit" value="Log in">
-                    <p class="recover_password" onclick="recover_password()">I forgot my password</p>
+                    <p>
+                        <input name="submit" class="button is-success" type="submit" value="Log in">
+                        <span class="recover_password" onclick="recover_password()">I forgot my password</span>
+                    </p>
                 </fieldset>
             </form>
         </div>
@@ -36,19 +39,23 @@
                 <fieldset>
                     <legend>Sign up</legend>
 
-                    <label for="username2">Username</label>
-                    <input name="username2" id="username2" type="text" placeholder="Username">
+                    <p><label for="username2">Username
+                        <input class="input" name="username2" id="username2" type="text" placeholder="Username">
+                    </label></p>
 
-                    <label for="email2">Email</label>
-                    <input name="email2" id="email2" type="email" placeholder="your@email.com" required>
+                    <p><label for="email2">Email
+                        <input class="input" name="email2" id="email2" type="email" placeholder="your@email.com" required>
+                    </label></p>
 
-                    <label for="password1">Password</label>
-                    <input name="password1" id="password1" type="password" placeholder="Password" required>
+                    <p><label for="password1">Password
+                        <input class="input" name="password1" id="password1" type="password" placeholder="Password" required>
+                    </label></p>
 
-                    <label for="password2">Password again</label>
-                    <input name="password2" id="password2" type="password" placeholder="Repeat password" required>
-
-                    <input name="submit" class=" -primary" type="submit" value="Sign up">
+                    <p><label for="password2">Password again
+                        <input class="input" name="password2" id="password2" type="password" placeholder="Repeat password" required>
+                    </label></p>
+                    
+                    <input name="submit" class="button is-success" type="submit" value="Sign up">
                 </fieldset>
             </form>
         </div>

@@ -92,7 +92,11 @@ legend {
 
 .recover_password {
     color: blue;
-    text-decoration: underline;
+    text-transform: uppercase;
+}
+
+fieldset p {
+    margin: 1em 0;
 }
 
 /******************************************************************************/
@@ -122,6 +126,10 @@ legend {
   }
   .moveon-company__route {
     margin-left: 2em;
+  }
+
+  .moveon-company--list {
+    display: block;
   }
 
 /******************************************************************************/
