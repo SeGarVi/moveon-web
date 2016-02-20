@@ -7,7 +7,7 @@
 
     <div class="columns">
         <!-- Log in -->
-        <div class="log-card column is-half is-offset-quarter">
+        <div class="log-card column is-half is-offset-quarter login-card">
             <form name="login" class="" method="POST" action="{% url 'moveon_login' %}">{% csrf_token %}
                 <fieldset>
                     <legend>Log in</legend>
@@ -23,9 +23,10 @@
                         <input class="checkbox" id="remember" type="checkbox"> Remember me
                     </label></p>
 
-                    <p>
+                    <p class="form-buttons">
                         <input name="submit" class="button is-success" type="submit" value="Log in">
-                        <span class="recover_password" onclick="recover_password()">I forgot my password</span>
+                        <button type="button" class="signup-button button is-primary" onclick="show_signup()">Create account</button></br>
+                        <span class="recover_password" onclick="recover_password()">Forgot your password?</span>
                     </p>
                 </fieldset>
             </form>
@@ -33,8 +34,7 @@
     </div>
     <div class="columns">
         <!-- Sign up -->
-        <div class="log-card column is-half is-offset-quarter">
-            <p>If not, if you want to Create a new user: </p>
+        <div class="log-card column is-half is-offset-quarter is-hidden">
             <form name="signup" class="" method="POST" action="{% url 'moveon_login' %}">{% csrf_token %}
                 <fieldset>
                     <legend>Sign up</legend>
@@ -54,7 +54,7 @@
                     <p><label for="password2">Password again
                         <input class="input" name="password2" id="password2" type="password" placeholder="Repeat password" required>
                     </label></p>
-                    
+
                     <input name="submit" class="button is-success" type="submit" value="Sign up">
                 </fieldset>
             </form>

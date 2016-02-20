@@ -59,3 +59,9 @@ function recover_password() {
         window.alert("Your email was invalid -> " + email);
     }
 }
+
+/*Show signup*/
+function show_signup() {
+    $( ".log-card.is-hidden" ).removeClass( "is-hidden" );
+    $( ".login-card" ).addClass( "is-hidden" );
+}

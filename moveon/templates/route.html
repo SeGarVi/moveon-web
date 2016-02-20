@@ -7,7 +7,7 @@
             <a href="{% url 'company' company.code %}">
                 <img src="{{ company.logo }}" alt="{{ company.name }} logo">
             </a>
-            <a href="{% url 'company' company.code %}">
+            <a class="is-hidden-mobile" href="{% url 'company' company.code %}">
                 <h1>{{ company.name }}</h1>
             </a>
         </div>
