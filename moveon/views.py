@@ -84,10 +84,6 @@ def line(request, company_id, line_id):
     comp = get_object_or_404(Company, code=company_id)
     line = get_object_or_404(Line, code=line_id)
     routes = Route.objects.filter(line=line).order_by('name')
-    #for route in routes:
-    #    stations = _get_stations_for_route(route)
-    #    for station in stations:
-    #        print(station)
     context = {     'company': comp,
                     'line': line,
                     'routes': routes

@@ -35,7 +35,7 @@
     <div class="columns">
         <div class="moveon-company moveon-company--list column is-half is-offset-quarter">
             {% for station in stations %}
-                <a class="moveon-company__route" href="{% url 'station' company.code %}">
+                <a class="moveon-company__route" href="{% url 'station' station.osmid %}">
                     <p>{{ forloop.counter|stringformat:"03d" }} --> {{ station }}</p>
                 </a>
             {% empty %}
