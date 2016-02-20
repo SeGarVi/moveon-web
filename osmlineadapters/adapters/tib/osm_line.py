@@ -12,8 +12,8 @@ class OSMLine(AbstractOSMLine):
         
         self.osmapi = OsmApi()
         self._get_line_from_osm(line_code)
-        self._get_line_routes()
-        self._get_line_route_points()
+        self._get_routes_info()
+        self._get_route_points()
     
     def _get_line_from_osm(self, line_code):
         self.osmline = self.osmapi.RelationGet(line_code)
@@ -30,7 +30,7 @@ class OSMLine(AbstractOSMLine):
         self.line['routes'] = dict()
         self.line['problems'] = []
     
-    def _get_line_routes(self):
+    def _get_routes_info(self):
         logger.info('Getting route info')
         self.osmroutes = []
         for member in self.osmline['member']:
@@ -48,7 +48,7 @@ class OSMLine(AbstractOSMLine):
                 route['route_points'] = dict()
                 self.line['routes'][route['osmid']] = route
     
-    def _get_line_route_points(self):
+    def _get_route_points(self):
         ways = dict()
         logger.debug('Getting route point info')
         for osmroute in self.osmroutes:
