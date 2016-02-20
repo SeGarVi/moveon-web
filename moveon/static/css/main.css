@@ -27,6 +27,10 @@ nav {
   padding: 0 1em;
 }
 
+.is-hidden {
+  display: none;
+}
+
 /******************************************************************************/
 /*                                Icons                                       */
 /******************************************************************************/
@@ -93,6 +97,7 @@ legend {
 .recover_password {
     color: blue;
     text-transform: uppercase;
+    cursor: help;
 }
 
 fieldset p {
