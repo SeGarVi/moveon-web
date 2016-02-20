@@ -36,7 +36,6 @@ class OSMLine(AbstractOSMLine):
             route_point_order = 1
             distance_from_beginning = 0
             previous_point = None
-            #previous_route_point = None
             logger.info('Getting route {0} nodes'.format(route['name']))
             
             for member in osmroute['member']:
@@ -49,7 +48,6 @@ class OSMLine(AbstractOSMLine):
                         self._check_station_problems(station)
                         self.line['stations'][station['osmid']] = station
                     
-                    #distance = previous_route_point['distance_from_beginning']
                     route_point = self._get_route_point_info(
                                     member['ref'], route_point_order,
                                     distance_from_beginning)
@@ -81,7 +79,6 @@ class OSMLine(AbstractOSMLine):
                         route_point_order += 1
                         
                         previous_point = current_point
-                        #previous_route_point = route_point
                 elif self._is_way(member):
                     logger.debug('Getting way {0} info'.format(member['ref']))
                     if member['ref'] not in ways:
@@ -116,7 +113,6 @@ class OSMLine(AbstractOSMLine):
                             route_point_order += 1
                             
                             previous_point = current_point
-                            #previous_route_point = route_point
     
     def _get_line_from_osm(self, line_code):
         self.osmline = self.osmapi.RelationGet(line_code)
