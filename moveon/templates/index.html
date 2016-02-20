@@ -7,9 +7,8 @@
         <title>MoveOn Web</title>
 
         <!-- CSS -->
-        <!-- <link rel="stylesheet" type="text/css" href="/static/css/pure-min.css"> -->
         <link rel="stylesheet" type="text/css" href="/static/css/fontello-embedded.css" />
-        <link rel="stylesheet" type="text/css" href="/static/css/pure.css" />
+        <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/jgthms/bulma/master/css/bulma.css" />
         <link rel="stylesheet" type="text/css" href="/static/css/main.css" />
         <!-- JS -->
         <script src="http://code.jquery.com/jquery-2.1.4.js"></script>
@@ -20,18 +19,21 @@
     </head>
     
     <body>
-        <div class="layout">
-            {% block content %}
-            {% endblock content %}
-        </div>
+        {% block content %}
+        {% endblock content %}
     </body>
 
-<nav class="pure-menu pure-menu-horizontal">
-    <a href="#" class="pure-menu-heading pure-menu-link">MoveOn</a>
-    <ul class="pure-menu-list">
-        {% if not user.is_authenticated %}<li class="pure-menu-item"><a href="{% url 'moveon_login' %}" class="pure-menu-link">Login</a></li>{% endif %}
-        {% if user.is_authenticated %}    <li class="pure-menu-item"><a href="{% url 'moveon_logout' %}" class="pure-menu-link">Logout</a></li>{% endif %}
-    </ul>
-    <footer class="pure-menu-link right none"> MoveOn 2015 </footer>
-</nav>
+    <!-- Menu/footer -->
+    <div class="container is-fluid is-marginless footer">
+        <nav class="navbar">
+            <div class="navbar-left">
+                <!-- <p class="navbar-item"><a class="button is-success">New</a></p> -->
+                {% if not user.is_authenticated %}<p class="navbar-item"><a href="{% url 'moveon_login' %}">Login</a></p>{% endif %}
+                {% if user.is_authenticated %}    <p class="navbar-item"><a href="{% url 'moveon_logout' %}">Logout</a></p>{% endif %}
+            </div>
+            <div class="navbar-right">
+                <p class="is-hidden-mobile">MoveOn 2016</p>
+            </div>
+        </nav>
+    </div>
 </html> 

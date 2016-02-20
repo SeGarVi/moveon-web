@@ -9,22 +9,25 @@
 {% endcomment %}
 
 {% block content %}
-    <div class="pure-g-r">
-        <div class="pure-u-1-5" ></div>
-        <div class="pure-u-3-5"> 
-        {% if near_stations %}
-            {% for station in near_stations %}
-                <a class="station_link" href="#"><div class="station">
-                    <div class="info-up">
-                        <span class="code"> {{ station.code }} </span>
-                        <span class="name"> {{ station.name }} </span>
-                        <span class="distance right"> {{ station.distance }} meters</span>
+    <div class="container">
+    {% for station in near_stations %}
+        <a class="station_link" href="{% url 'station' station.code %}">
+            <div class="moveon-company column is-half is-offset-quarter station">
+                    <div class="tabs info-up is-fullwidth">
+                        <ul>
+                            <li class="is-text-left">
+                                <span class="name"> [{{ station.code }}] {{ station.name }} </span>
+                            </li>
+                            <li class="is-text-right">
+                                <span class="distance"> {{ station.distance }} meters</span>
+                            </li>
+                        </ul>
                     </div>
                     {% for route in station.routes %}
                         <div class="info-routes">
                             <p>
-                            <span class="transport-company"> 
-                                <img class="pure-img" src="{{ route.company_icon }}"></img> 
+                            <span class="transport-company image"> 
+                                <img src="{{ route.company_icon }}"></img> 
                             </span>
                             <i class="demo-icon icon-{{ route.transport_type }}-24"></i>
                             <span class="routes"> 
@@ -38,14 +41,13 @@
                             </p>
                         </div>
                     {% endfor %}
-                </div></a>
-            {% endfor %}
-        {% else %}
-            <div class="no-points">
-                <p>There is no Latitude and longitude. Please, activate your location or select a place in the map to search your nearest stops.</p>
             </div>
-        {% endif %}
-        <div class="spinner"></div>
+        </a>
+    {% empty %}
+        <div class="no-points">
+            <p>There is no Latitude and longitude. Please, activate your location or select a place in the map to search your nearest stops.</p>
         </div>
+    {% endfor %}
     </div>
+    <!-- <div class="spinner"></div> -->
 {% endblock %}

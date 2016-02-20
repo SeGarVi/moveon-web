@@ -81,11 +81,33 @@ def company(request, company_id):
     return render(request, 'company.html', context) 
 
 def line(request, company_id, line_id):
-    return HttpResponse("Hello, world. You're at the line " 
-                        + line_id + " page of " + company_id)
+    comp = get_object_or_404(Company, code=company_id)
+    line = get_object_or_404(Line, code=line_id)
+    routes = Route.objects.filter(line=line).order_by('name')
+    #for route in routes:
+    #    stations = _get_stations_for_route(route)
+    #    for station in stations:
+    #        print(station)
+    context = {     'company': comp,
+                    'line': line,
+                    'routes': routes
+              }
+    return render(request, 'line.html', context) 
 
-def station(request):
-    return HttpResponse("Hello, world. You're at the lines page.")
+def route(request, company_id, line_id, route_id):
+    comp = get_object_or_404(Company, code=company_id)
+    line = get_object_or_404(Line, code=line_id)
+    route = get_object_or_404(Route, osmid=route_id)
+    stations = _get_stations_for_route(route)
+    context = {     'company': comp,
+                    'line': line,
+                    'route': route,
+                    'stations': stations
+              }
+    return render(request, 'route.html', context) 
+
+def station(request, station_id):
+    return HttpResponse("Hello, world. You're at the station %s page." % (station_id))
 
 def nearby(request):
     userpos = request.GET.get('userpos', '')
