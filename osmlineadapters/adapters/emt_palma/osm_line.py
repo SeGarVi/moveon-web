@@ -50,7 +50,7 @@ class OSMLine(AbstractOSMLine):
                     
                     #distance = previous_route_point['distance_from_beginning']
                     route_point = self._get_route_point_info(
-                                    self, member, route_point_order,
+                                    member, route_point_order,
                                     distance_from_beginning)
                     route['route_points'][member['ref']] = route_point
                     route_point_order += 1
@@ -73,7 +73,7 @@ class OSMLine(AbstractOSMLine):
                             
                         
                         route_point = self._get_route_point_info(
-                                    self, member, route_point_order,
+                                    member, route_point_order,
                                     distance_from_beginning)
                         route['route_points'][member['ref']] = route_point
                         route_point_order += 1
@@ -92,38 +92,32 @@ class OSMLine(AbstractOSMLine):
                     for node_id in way['nd']:
                         logger.debug('\tGetting node {0} info'.format(node_id))
                         
-                        if node_id not in route['route_points']:
-                            if node_id not in self.line['route_points']:
-                                logger.debug("\t\t Not present, retrieving info...")
-                                
-                                osmnode = self.osmapi.NodeGet(node_id)
-                                node = dict()
-                                node['osmid'] = osmnode['id']
-                                node['latitude'] = osmnode['lat']
-                                node['longitude'] = osmnode['lon']
-                                
-                                self.line['route_points'][node['osmid']] = node
+                        if not self._node_already_in_route(member, route) and \
+                           not self._node_already_in_line(member):
+                            logger.debug("\t\t Not present, retrieving info...")
                             
-                            current_point = self.line['route_points'][node_id]
+                            osmnode = self._get_node_from_osm(member['ref'])
+                            node = self._set_node_info(osmnode)
+                            self.line['route_points'][node['osmid']] = node
+                            
                             if previous_point is not None :
-                                previous_coords = [previous_point['latitude'], previous_point['longitude']]
-                                current_coords = [current_point['latitude'], current_point['longitude']]
-                                distance = int(vincenty(previous_coords, current_coords).meters)
+                                distance = \
+                                    self._distance_between_route_points(
+                                                            previous_point, node)
                                 distance_from_beginning += distance
                             
-                            route_point = dict()
-                            route_point['node_id'] = node_id
-                            route_point['order'] = route_point_order
-                            route_point['distance_from_beginning'] = distance_from_beginning
+                            route_point = self._get_route_point_info(
+                                    member, route_point_order,
+                                    distance_from_beginning)
                             route['route_points'][node_id] = route_point
                             route_point_order += 1
                             
-                            previous_point = current_point
+                            previous_point = node
                             #previous_route_point = route_point
     
     def _get_line_from_osm(self, line_code):
-        logger.info('Getting line {0} info'.format(self.osmline['tag']['name']))
         self.osmline = self.osmapi.RelationGet(line_code)
+        logger.info('Getting line {0} info'.format(self.osmline['tag']['name']))
     
     def _set_line_info(self):
         self.line['osmid'] = self.osmline['id']
@@ -236,19 +230,31 @@ class OSMLine(AbstractOSMLine):
         return 'stop' in member['role']
     
     def _stop_already_in_route(self, member, route):
-        return member['ref'] in route['route_points']
+        return self._node_already_in_route(member, route)
         
     def _stop_already_in_line(self, member):
-        return member['ref'] not in self.line['route_points']
+        return self._node_already_in_line(member)
+    
+    def _node_already_in_route(self, member, route):
+        return member['ref'] in route['route_points']
+        
+    def _node_already_in_line(self, member):
+        return member['ref'] in self.line['route_points']
     
     def _get_stop_from_osm(self, stop_id):
-        return self.osmapi.NodeGet(stop_id)
+        return self._get_node_from_osm(stop_id)
     
     def _set_stop_info(self, osmstop):
+        return self._set_node_info(osmstop)
+    
+    def _get_node_from_osm(self, node_id):
+        return self.osmapi.NodeGet(node_id)
+    
+    def _set_node_info(self, osmnode):
         stop = dict()
-        stop['osmid'] = osmstop['id']
-        stop['latitude'] = osmstop['lat']
-        stop['longitude'] = osmstop['lon']
+        stop['osmid'] = osmnode['id']
+        stop['latitude'] = osmnode['lat']
+        stop['longitude'] = osmnode['lon']
         return stop
     
     def _distance_between_route_points(self, previous_point, current_point):
