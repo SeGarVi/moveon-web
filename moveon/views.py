@@ -2,6 +2,7 @@ from django.contrib                 import messages
 from django.contrib.auth            import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models     import User
+from django.core.urlresolvers       import reverse
 from django.http                    import HttpResponseRedirect, HttpResponse
 from django.shortcuts               import get_object_or_404, render, redirect
 from django.template                import RequestContext, loader
@@ -26,13 +27,9 @@ def moveon_login(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    # Redirect to a success page.
-                    print("yes it logs in")
-                    return redirect('http://localhost:8000/moveon')
+                    return redirect(reverse('index'))
                 else:
-                    # Return a 'disabled account' error message
-                    print("Something wrong happened while log in")
-                    return redirect('http://localhost:8000/moveon')
+                    return redirect(reverse('index'))
             else:
                 # Return an 'invalid login' error message.
                 print("Invalid log in. Please try again")
@@ -66,7 +63,7 @@ def logtest(request):
 
 def moveon_logout(request):
     logout(request)
-    return redirect('http://localhost:8000/moveon')
+    return redirect(reverse('index'))
 
 def companies(request):
     companies = Company.objects.order_by('name')
@@ -102,6 +99,23 @@ def route(request, company_id, line_id, route_id):
               }
     return render(request, 'route.html', context) 
 
+def timetable(request, company_id, line_id, route_id):
+    comp = get_object_or_404(Company, code=company_id)
+    line = get_object_or_404(Line, code=line_id)
+    route = get_object_or_404(Route, osmid=route_id)
+    stations = _get_stations_for_route(route)
+    times = []
+    mean_speed = 0
+    context = {     'company': comp,
+                    'line': line,
+                    'route': route,
+                    'stations': stations,
+                    'times': times,
+                    'mean_speed': mean_speed,
+                    'stretch_id': route.stretch_set.first().id
+              }
+    return render(request, 'timetable.html', context) 
+
 def station(request, station_id):
     return HttpResponse("Hello, world. You're at the station %s page." % (station_id))
 
@@ -135,7 +149,7 @@ def stretches(request, stretch_id):
             stretch = Stretch.objects.get(id = stretch_id)
         except Stretch.DoesNotExist:
             return HttpResponse(status=404)
-        
+        print(request.body.decode("utf-8"))
         json_request = json.loads(request.body.decode("utf-8"))['timetable']
         
         monday = bool(json_request['monday'])

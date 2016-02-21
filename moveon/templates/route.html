@@ -26,9 +26,10 @@
 
     <div class="columns">
         <div class="moveon-company column is-half is-offset-quarter">
-            <a class="" href="{% url 'route' company.code line.code route.name %}">
-                Route --> {{ route.name }}
+            <a class="" href="{% url 'route' company.code line.code route.osmid %}">
+                Route --> {{ route.name }} 
             </a>
+            {% if user.is_authenticated %}    <button class="button is-primary"><a href="{% url 'timetable' company.code line.code route.osmid %}">Write the timetable</a></button>{% endif %}
         </div>
     </div>
 
@@ -36,7 +37,7 @@
         <div class="moveon-company moveon-company--list column is-half is-offset-quarter">
             {% for station in stations %}
                 <a class="moveon-company__route" href="{% url 'station' station.osmid %}">
-                    <p>{{ forloop.counter|stringformat:"03d" }} --> {{ station }}</p>
+                    <p>{{ forloop.counter|stringformat:"03d" }} --> {{ station.code}} - {{ station }}</p>
                 </a>
             {% empty %}
                 <p>Sorry, this Route has no stations yet.</p>

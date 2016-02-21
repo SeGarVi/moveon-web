@@ -65,3 +65,57 @@ function show_signup() {
     $( ".log-card.is-hidden" ).removeClass( "is-hidden" );
     $( ".login-card" ).addClass( "is-hidden" );
 }
+
+var timetableColumn_counter = 1;
+/*Timetable add form column*/
+function add_timetableColumn(iterations) {
+    ///$( " form ").append('<div id="timetable-column-' + timetableColumn_counter + '" class="moveon-company timetable--form"></div>');
+    $( " #timetable--form").append('<fieldset id="timetable-column-' + timetableColumn_counter + '"  class="moveon-company"></fieldset>');
+    for (var i = 0; i < iterations; i++) {
+        $( "#timetable-column-" + timetableColumn_counter).append('<input class="input" name="time-' + timetableColumn_counter + '-' + i + '" type="text"/><br>');
+    }
+    timetableColumn_counter++;
+}
+
+function send_timetableCalculation(route_id, stretch_id) {
+    //Get values
+    var mean_speed = $( "input[name='mean_speed']" ).val();
+    var timetable_form = $('form').serialize();
+    var timetable = {
+        "mean_speed":mean_speed,
+        "times": timetable_form,
+        "route_id": route_id,
+    };
+    //Send values
+    $.ajax({
+      type: "PUT",
+      url: "/moveon/stretches/"+stretch_id,
+      data: JSON.stringify(timetable)
+    });
+}
+
+function send_timetableAcceptation(route_id, stretch_id) {
+    //recolectar valores
+    var mean_speed = $( "input[name='mean_speed']" ).val();
+    var start = $( "input[name='start-date']" ).val();
+    var end = $( "input[name='end-date']" ).val();
+    var days = $("input[name=day]:checked").map(function () {return this.value;}).get().join(",");
+    var timetable_form = $('form').serialize();
+    var timetable = {
+        "mean_speed":mean_speed,
+        "times": timetable_form,
+        "route_id": route_id,
+        "day": days,
+        "start": start,
+        "end": end
+    };
+    console.log(timetable + " - " + start + " - " + end + " - " + days);
+    //enviar valores
+    $.ajax({
+      type: "PUT",
+      url: "/moveon/stretches/"+stretch_id,
+      data: JSON.stringify(timetable)//,
+      //success: console.log("success"),
+      //dataType: json
+    });
+}
