@@ -98,7 +98,6 @@ class Route(models.Model):
     name = models.TextField()
     station_from = models.TextField()
     station_to = models.TextField()
-    stations = models.ManyToManyField(Station)
     
     objects = managers.RouteManager()
     

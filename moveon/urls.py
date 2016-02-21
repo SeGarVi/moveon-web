@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^api/',                                                                        include('moveon_rest_api.urls')),
     url(r'^osmlines/(?P<company_id>.+)/',                                                include('osmlineadapters.urls')),
     url(r'^stations/nearby/$',                                                           views.nearby,          name='nearby_stations'),
+    url(r'^stations/(?P<station_id>.+)/$',                                               views.station,         name='station'),
     url(r'^login/$',                                                                     views.moveon_login,    name='moveon_login'),
     url(r'^logout/$',                                                                    views.moveon_logout,   name='moveon_logout'),
     url(r'^logtest/$',                                                                   views.logtest),
@@ -29,7 +30,6 @@ urlpatterns = [
     url(r'^companies/(?P<company_id>.+)/lines/(?P<line_id>.+)/$',                        views.line,            name='line'),
     url(r'^companies/(?P<company_id>.+)/$',                                              views.company,         name='company'),
     url(r'^companies/$',                                                                 views.companies,       name='companies'),
-    url(r'^station/(?P<station_id>.+)/$',                                                views.station,         name='station'),
     url(r'^stretches/(?P<stretch_id>.+)/$',                                              views.stretches,       name='stretches'),
     url(r'^$',                                                                           views.index,           name='index'),
 ]
