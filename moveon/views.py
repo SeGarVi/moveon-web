@@ -103,6 +103,7 @@ def timetable(request, company_id, line_id, route_id):
     route = get_object_or_404(Route, osmid=route_id)
     stations = _get_stations_for_route(route)
     times = []
+    serialize_ids = [str(station.osmid) for station in stations]
     mean_speed = 0
     context = {     'company': comp,
                     'line': line,
@@ -110,6 +111,7 @@ def timetable(request, company_id, line_id, route_id):
                     'stations': stations,
                     'times': times,
                     'mean_speed': mean_speed,
+                    'serialize_ids': serialize_ids,
                     'stretch_id': route.stretch_set.first().id
               }
     return render(request, 'timetable.html', context) 
