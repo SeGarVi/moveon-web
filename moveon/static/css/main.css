@@ -129,12 +129,19 @@ fieldset p {
     margin-left: 1em;
     font-size: 1.5em;
   }
+  .moveon-company_day p {
+    flex-basis: 10em;
+  }
   .moveon-company__route {
     margin-left: 2em;
   }
 
   .moveon-company--list {
     display: block;
+  }
+
+  .moveon-company_day {
+    display:block;
   }
 
 /******************************************************************************/

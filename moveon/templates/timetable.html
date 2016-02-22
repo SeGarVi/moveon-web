@@ -2,6 +2,12 @@
 {% load color_filters %}
 
 {% block head %}
+    <script>
+        /*var serialize_ids = {{ serialize_ids|safe }};
+        console.log(serialize_ids);
+        console.log(serialize_ids[1]);
+        console.log(serialize_ids.length);*/
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -36,7 +42,7 @@
     </div>
 
     <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
+        <div class="moveon-company column is-half is-offset-quarter ">
             <button class="button is-primary" onclick="send_timetableCalculation({{ route.osmid }}, {{ stretch_id }})">Calculate times</button>
             <button class="button is-success" onclick="send_timetableAcceptation({{ route.osmid }}, {{ stretch_id }})">Accept</button>
             <input class="input" name="mean_speed" type="number"/> km/h
@@ -45,14 +51,16 @@
 
     <div class="columns">
         <div class="moveon-company column is-half is-offset-quarter">
-            <input type="checkbox" name="day" value="monday">Monday<br>
-            <input type="checkbox" name="day" value="tuesday">Tuesday<br>
-            <input type="checkbox" name="day" value="wednesday">Wednesday<br>
-            <input type="checkbox" name="day" value="thursday">Thursday<br>
-            <input type="checkbox" name="day" value="friday">Friday<br>
-            <input type="checkbox" name="day" value="saturday">Saturday<br>
-            <input type="checkbox" name="day" value="sunday">Sunday<br>
-            <input type="checkbox" name="day" value="holiday">Holiday
+            <div class="moveon-company_day">
+                <p><input type="checkbox" name="day" value="monday">Monday</p>
+                <p><input type="checkbox" name="day" value="tuesday">Tuesday</p>
+                <p><input type="checkbox" name="day" value="wednesday">Wednesday</p>
+                <p><input type="checkbox" name="day" value="thursday">Thursday</p>
+                <p><input type="checkbox" name="day" value="friday">Friday</p>
+                <p><input type="checkbox" name="day" value="saturday">Saturday</p>
+                <p><input type="checkbox" name="day" value="sunday">Sunday</p>
+                <p><input type="checkbox" name="day" value="holiday">Holiday</p>
+            </div>
         </div>
     </div>
 
@@ -82,13 +90,13 @@
                 <form id="timetable--form" class="is-flex">
                 <fieldset id="timetable-column-0" class="moveon-company">
                     {% for station in stations %}
-                        <input class="input" name="time-0-{{ forloop.counter0 }}" type="text"/><br>
+                        <input class="input" name="time-0-{{ station.osmid }}" type="text"/><br>
                     {% endfor %}
                 </fieldset>
                 </form>
             </div>
             <div class="timetable--form">
-                <button class="button is-primary" onclick="add_timetableColumn({{ stations|length }})"> + </button>
+                <button class="button is-primary" onclick="add_timetableColumn({{ serialize_ids|safe }})"> + </button>
             </div>
         {% endfor %}
     </div>
