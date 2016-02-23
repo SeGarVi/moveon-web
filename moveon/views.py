@@ -5,10 +5,10 @@ from django.core.urlresolvers       import reverse
 from django.http                    import HttpResponse
 from django.shortcuts               import get_object_or_404, render, redirect
 from geopy.distance                 import vincenty
-from moveon.models                  import Company, Line, Station, Route, Stretch, Time, TimeTable
-import dateutil.parser
+from moveon.models                  import Company, Line, Station, Route, Stretch
 import json
 import logging
+from django.http.response import JsonResponse
 
 logger = logging.getLogger(__name__)
 
@@ -150,59 +150,17 @@ def stretches(request, stretch_id):
         except Stretch.DoesNotExist:
             return HttpResponse(status=404)
         print(request.body.decode("utf-8"))
-        json_request = json.loads(request.body.decode("utf-8"))['timetable']
+        json_request = json.loads(request.body.decode("utf-8"))
+        route_points = _get_station_route_points_for_stretch(stretch_id)
+        if json_request['mean_speed'] is not "":
+            new_speeds = _calculate_times_with_mean_speeds(
+                                                int(json_request['mean_speed']),
+                                                json_request['times'],
+                                                route_points)
         
-        monday = bool(json_request['monday'])
-        tuesday = bool(json_request['tuesday'] )
-        wednesday = bool(json_request['wednesday'])
-        thursday = bool(json_request['thursday'])
-        friday = bool(json_request['friday'])
-        saturday = bool(json_request['saturday'])
-        sunday = bool(json_request['sunday'])
-        holiday = bool(json_request['holiday'])
-        start = dateutil.parser.parse(json_request['start'])
-        end = dateutil.parser.parse(json_request['end'])
+        json_ret = json.dumps(new_speeds)
         
-        json_times = json_request['times']
-        
-        if type(json_request['times']) is list:
-            times = []
-            for json_time in json_times:
-                hours_str, minutes_str = json_time.split(':')
-                hours = (int(hours_str)%24) * 60 * 60 * 1000
-                minutes = int(minutes_str) * 60 * 1000
-                timestamp = hours + minutes
-                
-                try:
-                    time = Time.objects.get_by_timestamp(timestamp)
-                except Time.DoesNotExist:
-                    time = Time()
-                    time.moment = timestamp
-                    time.save()
-                
-                times.append(time)
-            
-            timetable = TimeTable()
-            timetable.monday = monday
-            timetable.tuesday = tuesday
-            timetable.wednesday = wednesday
-            timetable.thursday = thursday
-            timetable.friday = friday
-            timetable.saturday = saturday
-            timetable.sunday = sunday
-            timetable.holiday = holiday
-            timetable.start = start
-            timetable.end = end
-            timetable.save()
-            timetable.time_table = times
-            timetable.save()
-            
-            stretch.time_table.add(timetable)
-            stretch.save()
-        elif type(json_request['times']) is dict:
-            _getDistancesFromSchedule(stretch_id, json_request['times'])
-        
-        return HttpResponse(status=201)
+        return HttpResponse(json_ret)
 
 def _getDistancesFromSchedule(stretch_id, times):
     stretch = Stretch.objects.get(id=stretch_id)
@@ -265,3 +223,51 @@ def _get_stations_for_route(route):
     stations = list(Station.objects.filter(osmid__in=node_ids))
     stations.sort(key=lambda t: node_ids.index(t.osmid))
     return stations
+
+def _get_station_route_points_for_stretch(stretch_id):
+    node_ids = Stretch.objects.get(id=stretch_id).routepoint_set.all().values_list('node_id', flat=True)
+    stations_ids = list(Station.objects.filter(osmid__in=node_ids).values_list('osmid', flat=True))
+    route_points = Stretch.objects.get(id=stretch_id).routepoint_set.filter(node_id__in=stations_ids)
+    return route_points
+    
+def _calculate_times_with_mean_speeds(mean_speed, times, station_points):
+    meters_per_second = mean_speed/3.6
+    return_times = []
+    for turn in times:
+        return_times.append(turn)
+        first_station_point_str = turn['name'].split('-')[2]
+        first_station_point_id = int(first_station_point_str)
+        prefix = turn['name'].split(first_station_point_str)[0]
+        
+        #Convert to seconds
+        hours_str, minutes_str = turn['value'].split(':')
+        hours = (int(hours_str)%24) * 60 * 60
+        minutes = int(minutes_str) * 60
+        timestamp = hours + minutes
+        
+        #Find first matching stations and calculate for the others
+        apply = False
+        first_distance = 0
+        for station_point in station_points:
+            if apply:
+                distance_difference = \
+                    station_point.distance_from_beginning - first_distance
+                time_to_reach = distance_difference / meters_per_second
+                reach_time = timestamp + time_to_reach
+                new_turn = dict()
+                
+                reach_minutes = int(reach_time/60) % 60
+                reach_hours = int(reach_time / 60 / 60)
+                
+                new_turn['name'] = prefix + str(station_point.node_id)
+                new_turn['value'] = str(reach_hours) + ':' \
+                                  + str(reach_minutes).zfill(2)
+                
+                return_times.append(new_turn)
+            
+            if (not apply) and (first_station_point_id == station_point.node_id):
+                apply = True
+                first_distance = station_point.distance_from_beginning
+            
+    return return_times
+    
