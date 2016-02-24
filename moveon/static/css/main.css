@@ -31,6 +31,9 @@ nav {
 .is-hidden {
   display: none;
 }
+.is-flex-right{ 
+  justify-content: flex-end;
+}
 
 /******************************************************************************/
 /*                                Icons                                       */
@@ -103,6 +106,11 @@ legend {
 
 fieldset p {
     margin: 1em 0;
+}
+
+.redborder{
+  border: 2px solid red;
+  color: red;
 }
 
 /******************************************************************************/
