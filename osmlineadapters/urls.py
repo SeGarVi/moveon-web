@@ -19,5 +19,5 @@ from . import views
 
 urlpatterns = [
     url(r'^(?P<osm_line_id>.+)', views.newlinedetail, name='newlinedetail'),
-    url(r'^', views.newline),
+    url(r'^', views.newline, name='newline'),
 ]
