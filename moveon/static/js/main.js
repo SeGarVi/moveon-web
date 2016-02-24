@@ -81,18 +81,34 @@ function add_timetableColumn(serialize_ids) {
 
 function send_timetableCalculation(route_id, stretch_id) {
     var mean_speed = $( "input[name='mean_speed']" ).val();
-    var timetable_form_empties = $('form').serialize();
-    var timetable_form = timetable_form_empties.replace(/[^&]+=\.?(?:&|$)/g, '')
+    var timetable_form_empties = $('form').serializeArray();
+    
+    for (i=0; i<timetable_form_empties.length;) {
+        var obj = timetable_form_empties[i]
+        if(obj.value == "") {
+            timetable_form_empties.splice(i, 1);
+        } else {
+            i++;
+        }
+    }
+    
     var timetable = {
         "mean_speed":mean_speed,
-        "times": timetable_form,
-        "route_id": route_id,
+        "times": timetable_form_empties,
+        "route_id": route_id
     };
 
     $.ajax({
       type: "PUT",
       url: "/moveon/stretches/"+stretch_id,
-      data: JSON.stringify(timetable)
+      data: JSON.stringify(timetable),
+      success: function(data) {
+        decoded_data = JSON.parse(data);
+        for (index in decoded_data) {
+            time = decoded_data[index];
+            $("input[name="+time.name+"]").val(time.value);
+        }
+      }
     });
 }
 

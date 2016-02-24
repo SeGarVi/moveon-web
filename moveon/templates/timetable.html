@@ -74,7 +74,7 @@
     <div class="columns">
         <div class="moveon-company moveon-company--list">
             {% for station in stations %}
-                <p class="timetable--entry">{{ station.code}} - {{ station }}</p><br>
+                <p class="input">{{ station.code}} - {{ station }}</p><br>
             {% empty %}
                 <p>Sorry, this Route has no stations yet.</p>
             {% endfor %}
@@ -90,7 +90,7 @@
                 <form id="timetable--form" class="is-flex">
                 <fieldset id="timetable-column-0" class="moveon-company">
                     {% for station in stations %}
-                        <input class="input" name="time-0-{{ station.osmid }}" type="text"/><br>
+                        <p><input class="input" name="time-0-{{ station.osmid }}" type="text"/></p>
                     {% endfor %}
                 </fieldset>
                 </form>
