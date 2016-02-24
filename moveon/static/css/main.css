@@ -6,7 +6,6 @@ body, html {
 	background-color: #FFF;
 }
 
-.spinner{height:30px;width:30px;background-color: red; }
 
 /******************************************************************************/
 /*                                 Menu                                       */
@@ -33,6 +32,10 @@ nav {
 }
 .is-flex-right{ 
   justify-content: flex-end;
+}
+.is-flex-justify {
+  justify-content: space-around;
+  align-items: baseline;
 }
 
 /******************************************************************************/

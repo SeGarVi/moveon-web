@@ -1,17 +1,23 @@
 {% extends "index.html" %}
 
-{% block head %}
-{% endblock %}
-
 {% block content %}
-    <div class="pure-g-r">
-        <div class="pure-u-1-5" ></div>
-        <div class="codeForm pure-u-3-5"> 
-            <p for="code">Code</p>
-            <input class="code" type="code" placeholder="OSM code" maxsize="8">
-
-            <button type="submit" class="pure-button pure-button-primary" onclick="testCode('id', $('input.code').val())">Try!!</button>
-            <div class="spinner"></div>
+    <div class="columns">
+        <div class="moveon-company column is-half is-offset-quarter">
+            <a href="{% url 'company' company.code %}">
+                <img src="{{ company.logo }}" alt="{{ company.name }} logo">
+            </a>
+            <a href="{% url 'company' company.code %}">
+                <h1>{{ company.name }}</h1>
+            </a>
         </div>
     </div>
+    
+    <div class="columns">
+        <div class="moveon-company column is-half is-offset-quarter is-flex-justify">
+        	<p class="code">Add code</p>
+            <input class="code" type="code" placeholder="OSM code" maxsize="8">
+            <button type="submit" class="button is-primary" onclick="testCode('id', $('input.code').val())">Try!!</button>
+        </div>
+    </div>
+    
 {% endblock %}

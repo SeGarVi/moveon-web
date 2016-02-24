@@ -1,21 +1,19 @@
-from django.core.cache            import cache
-from django.core.cache.backends   import locmem
-from django.http                  import HttpResponse, Http404
-from django.template              import RequestContext, loader
-from django.views.decorators.csrf import csrf_exempt
-
+from django.contrib.auth.decorators import login_required
+from django.core.cache              import cache
+from django.core.cache.backends     import locmem
+from django.http                    import HttpResponse, Http404
+from django.shortcuts               import get_object_or_404, render, redirect
+from django.template                import RequestContext, loader
+from django.views.decorators.csrf   import csrf_exempt
+from moveon.models                  import Company
 import json
 import osmlineadapters.settings as settings
 
 @csrf_exempt
+@login_required(login_url='moveon_login')
 def newline(request, company_id):
-    if not request.user.is_authenticated():
-        raise Http404
-
-    if request.method == 'GET':
-        template = loader.get_template('new_line.html')
-        return HttpResponse(template.render())
-    elif request.method == 'POST':
+    #Looking for the 
+    if request.method == 'POST':
         json_request = json.loads(request.body.decode("utf-8"))
         osm_line_id = json_request['osmline']['id']
         
@@ -31,10 +29,14 @@ def newline(request, company_id):
         cache.set(cache_simplified_id, instance.to_simplified_json(), 600)
         return HttpResponse(request.body)
 
+    comp = get_object_or_404(Company, code=company_id)
+    context = {     'company': comp
+              }
+    return render(request, 'new_line.html', context) 
+
+@login_required(login_url='moveon_login')
 def newlinedetail(request, company_id, osm_line_id):
-    if not request.user.is_authenticated():
-        raise Http404
-        
+       
     cache_simplified_id = str(osm_line_id) + "_simple"
     if request.method == "GET":
         line = json.loads(cache.get(cache_simplified_id))
