@@ -2,7 +2,9 @@
 
 {% block head %}
     <script>
-        $(document).ready( function(){ getLocation(); } );
+        $(document).ready( function(){ 
+        	getLocationRedirection("{% url 'nearby_stations' %}"); 
+        } );
     </script>
 {% endblock %}
 

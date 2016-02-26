@@ -5,9 +5,8 @@
 
 
 {% block content %}
-	<div class="pure-g-r">
-        <div class="pure-u-1-5" ></div>
-        <div class="codeForm pure-u-3-5"> 
+	<div class="columns">
+        <div class="codeForm column"> 
 			<h1>Line {{ line.code }} - {{ line.name }}</h1>
 
 			<p>Company: {{ line.company }} <br>
@@ -37,8 +36,10 @@
 			</p>
 			---------------------------------------------------<br>
 	{% endfor %}
-			<button class="pure-button" onclick="testCode('accept', true)">I agree</button>
-			<button class="pure-button" onclick="testCode('accept', false)">I don't agree</button>
+			<button class="button" onclick="testCode('accept', true)">
+			I agree</button>
+			<button class="button" onclick="testCode('accept', false)">
+			I don't agree</button>
 		</div>
 	</div>
 {% endblock %}

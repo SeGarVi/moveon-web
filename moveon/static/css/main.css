@@ -13,8 +13,6 @@ body, html {
 
 nav {
   background-color: #cdcdcd;
-  /*position:fixed;
-  bottom: 0px;*/
 }
 
 .footer {
@@ -65,6 +63,9 @@ body {
   box-shadow: 0px 13px 36px -8px rgba(112,112,112,0.42);
 }
 
+.station_header {
+}
+
 a.station_link {
   text-decoration: none;
   color: inherit;
@@ -72,24 +73,8 @@ a.station_link {
 
 .info-up {
 	padding-bottom: 0.5em;
-	/*border-bottom: 0.25em solid black;*/
 	margin-bottom: 0.75em;
 }
-
-	.info-up.name {
-		text-transform: uppercase;
-	}
-
-.info-routes {
-	border-bottom: 0.1em solid #7D7D7D;
-}
-
-.transport-company img{
-	width: 1.5em;
-}
-  .transport-company{
-      display:inline-block;
-  }
 
 
 /******************************************************************************/
@@ -126,35 +111,42 @@ fieldset p {
   background-color: #F3F3F3;
   padding: 1em;
   box-shadow: 0px 13px 36px -8px rgba(112,112,112,0.42);
-  display: flex;
+  flex-direction: column;
 }
 
-  .moveon-company a {
-    text-decoration: none;
-    color: inherit;
-  }
-  .moveon-company img {
-    width: 10em;
-    min-width: 10em;
-  }
-  .moveon-company h1 {
-    margin-left: 1em;
-    font-size: 1.5em;
-  }
-  .moveon-company_day p {
-    flex-basis: 10em;
-  }
-  .moveon-company__route {
-    margin-left: 2em;
+.station_header {
+  justify-content: space-between;
+  color: black;
+  font-size: 1.5em;
+}
+  .station-header .name {
+    text-transform: uppercase;
   }
 
-  .moveon-company--list {
-    display: block;
+.station_info {
+  border-bottom: 2px solid darkgrey;
+  box-shadow: 0 2px 0px lightgray;
+  margin-bottom: 2em;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.station_routes--info {
+  justify-content: space-between;
+  align-items: center;
+}
+
+  .station_routes--info .route-color {
+    padding: 0.25em 0.5em;
+    margin-right: 0.5em;
   }
 
-  .moveon-company_day {
-    display:block;
+  .station_routes--info .route-info i {
+    padding: 0.25em 0.5em;
+    margin-right: 0.5em;
   }
+
+
 
 /******************************************************************************/
 /*                               Timetable                                      */

@@ -117,7 +117,18 @@ def timetable(request, company_id, line_id, route_id):
     return render(request, 'timetable.html', context) 
 
 def station(request, station_id):
-    return HttpResponse("Hello, world. You're at the station %s page." % (station_id))
+    station = get_object_or_404(Station, code=station_id)
+    #Get distance between station and user
+    bbox = request.GET.get('userpos', '').split(',')
+    station_pos = [station.stop_node.latitude, station.stop_node.longitude]
+    distance = int(vincenty(station_pos, bbox).meters)
+    #Get station times
+    Route.objects.add_route_info_to_station(station)
+    
+    context = { 'station':  station,
+                'distance': distance
+              }
+    return render(request, 'station.html', context)
 
 def nearby(request):
     userpos = request.GET.get('userpos', '')
@@ -126,8 +137,10 @@ def nearby(request):
     
     near_stations = Station.objects.get_nearby_stations([lat, lon])
     Route.objects.add_route_info_to_station_list(near_stations)
-    
-    return render(request, 'nearby.html', {'near_stations': near_stations}) 
+    context = { 'near_stations': near_stations,
+                'location': userpos
+              }
+    return render(request, 'nearby.html', context) 
 
 def nearby_stations(request):
     #?bbox=left,bottom,right,top

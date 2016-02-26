@@ -1,25 +1,25 @@
 {% extends "index.html" %}
 
 {% block head %}
+<script type="text/javascript">console.log("{{ location }}");</script>
 {% endblock %}
 
 {% comment %}
     127.0.0.1:8000/moveon/stations/nearby?userpos=41.4003531,2.1899433#
-    localhost:8000/moveon/stations/nearby?userpos=41.4003531,2.1899433#
 {% endcomment %}
 
 {% block content %}
     <div class="container">
     {% for station in near_stations %}
-        <a class="station_link" href="{% url 'station' station.code %}">
+        <a class="station_link" href="{% url 'station' station.code %}?userpos={{ location }}">
             <div class="moveon-company column is-half is-offset-quarter station">
                     <div class="tabs info-up is-fullwidth">
                         <ul>
                             <li class="is-text-left">
-                                <span class="name"> [{{ station.code }}] {{ station.name }} </span>
+                                <span class="name"> <span class="is-hidden-mobile">[{{ station.code }}]</span> {{ station.name }} </span>
                             </li>
                             <li class="is-text-right">
-                                <span class="distance"> {{ station.distance }} meters</span>
+                                <span class="distance"> {{ station.distance }} m</span>
                             </li>
                         </ul>
                     </div>
@@ -49,5 +49,4 @@
         </div>
     {% endfor %}
     </div>
-    <!-- <div class="spinner"></div> -->
 {% endblock %}

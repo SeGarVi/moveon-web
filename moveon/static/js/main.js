@@ -1,3 +1,5 @@
+///Global variables
+
 // Function to retrieve information and send a 
 function testCode(key, value) {
     var info = '{"osmline": {"'+ key +'": '+value+'}}';
@@ -19,7 +21,11 @@ function testCode(key, value) {
 }
 
 /*Get GPS coordinates of the user*/
-function getLocation() {
+function getLocationRedirection(url) {
+    function redirectToPosition(position) {
+        window.location= url+'?userpos='+position.coords.latitude+','+position.coords.longitude;
+        console.log('redirected to: ' + url+'?userpos='+position.coords.latitude+','+position.coords.longitude);
+    }
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(redirectToPosition);
@@ -28,10 +34,7 @@ function getLocation() {
     }
 }
 
-function redirectToPosition(position) {
-    window.location=window.location.href+'stations/nearby?userpos='+position.coords.latitude+','+position.coords.longitude;
-    console.log(position.coords.latitude + "," + position.coords.longitude);
-}
+
 
 /*Validate email*/
 function validateEmail(email) {

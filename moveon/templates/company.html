@@ -35,9 +35,11 @@
     {% if user.is_authenticated %}
         <div class="columns">
             <div class="moveon-company column is-half is-offset-quarter is-flex-right">
-            <button class="button is-primary"><a href="{% url 'newline' company.code %}">Add a new line</a></button>
+                <button class="button is-primary">
+                    <a href="{% url 'newline' company.code %}">Add a new line</a>
+                </button>
             </div>
         </div>
     {% endif %}
-    
+
 {% endblock %}

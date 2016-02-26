@@ -3,6 +3,9 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Favicon -->
+        <link rel="shortcut icon" href="/static/image/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="/static/image/favicon.ico" type="image/x-icon">
 
         <title>MoveOn Web</title>
 
@@ -27,13 +30,12 @@
     <div class="container is-fluid is-marginless footer">
         <nav class="navbar">
             <div class="navbar-left">
-                <!-- <p class="navbar-item"><a class="button is-success">New</a></p> -->
                 <p class="navbar-item"><a href="{% url 'companies' %}">Companies</a></p>
                 {% if not user.is_authenticated %}<p class="navbar-item"><a href="{% url 'moveon_login' %}">Login</a></p>{% endif %}
                 {% if user.is_authenticated %}    <p class="navbar-item"><a href="{% url 'moveon_logout' %}">Logout</a></p>{% endif %}
             </div>
             <div class="navbar-right">
-                <p class="is-hidden-mobile">MoveOn 2016</p>
+                <p class="is-hidden-mobile"><a href="{% url 'index' %}">MoveOn 2016</a></p>
             </div>
         </nav>
     </div>

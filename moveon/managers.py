@@ -17,23 +17,23 @@ class TransportManager(models.Manager):
 class StationManager(models.Manager):
     def get_by_id(self, station_id):
         return self.get(osmid=station_id)
-    
+
     def get_nearby_stations(self, userpos, nneareststations=5):
         max_n_stations = self.count();
         limit_increment = 0.003
         lat = userpos[0]
         lon = userpos[1]
-        left = lon - limit_increment
-        right = lon + limit_increment
+        left   = lon - limit_increment
+        right  = lon + limit_increment
         bottom = lat - limit_increment
-        top = lat + limit_increment
+        top    = lat + limit_increment
         
         n_stations = self.get_number_fenced_stations(bottom, left, top, right)
         while n_stations < nneareststations and n_stations < max_n_stations:
-            left = left - limit_increment
-            right = right + limit_increment
+            left   = left   - limit_increment
+            right  = right  + limit_increment
             bottom = bottom - limit_increment
-            top = top + limit_increment
+            top    = top    + limit_increment
             n_stations = self.get_number_fenced_stations(bottom, left, top, right)
         
         stations = self.get_fenced_stations(bottom, left, top, right)
