@@ -19,7 +19,7 @@ class OSMLineManager():
         self._assign_stations_to_line()
         self._save_routes()
         self._create_default_stretches()
-        self._save_route_points()
+        self._save_route_points_and_assign_to_stretch()
     
     def _save_line(self):
         logger.debug('Saving line')
@@ -77,11 +77,16 @@ class OSMLineManager():
             stretch.save()
             self.stretches[route.osmid] = stretch
     
-    def _save_route_points(self):
+    def _save_route_points_and_assign_to_stretch(self):
         logger.debug('Saving route points')
         for osmroute in self.osmline['routes'].values():
+            route_points = []
             for osmroutepoint in osmroute['route_points'].values():
                 routepoint = RoutePoint.from_osm_adapter_data(osmroutepoint)
                 routepoint.node = self.nodes[osmroutepoint['node_id']]
-                routepoint.stretch = self.stretches[osmroute['osmid']]
                 routepoint.save()
+                route_points.append(routepoint)
+            
+            stretch = self.stretches[osmroute['osmid']]
+            stretch.route_points = route_points
+            stretch.save()
