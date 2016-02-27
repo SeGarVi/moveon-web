@@ -1,9 +1,8 @@
 ///Global variables
 
 // Function to retrieve information and send a 
-function testCode(key, value) {
+function getOSMLine(key, value, url) {
     var info = '{"osmline": {"'+ key +'": '+value+'}}';
-    var url  = window.location.href;
     $( ".code" ).addClass( "is-loading" );
     $( "input[type='code']" ).addClass( "is-loading" );
     $.post( url, info, 
@@ -64,7 +63,7 @@ function add_timetableColumn(serialize_ids) {
     ///$( " form ").append('<div id="timetable-column-' + timetableColumn_counter + '" class="moveon-company timetable--form"></div>');
     $( " #timetable--form").append('<fieldset id="timetable-column-' + timetableColumn_counter + '"  class="moveon-company"></fieldset>');
     for (var i = 0; i < serialize_ids.length; i++) {
-        $( "#timetable-column-" + timetableColumn_counter).append('<input class="input" name="time-' + timetableColumn_counter + '-' + serialize_ids[i] + '" type="text"/><br>');
+        $( "#timetable-column-" + timetableColumn_counter).append('<input class="input" name="time-' + timetableColumn_counter + '-' + serialize_ids[i] + '" type="text"/>');
     }
     timetableColumn_counter++;
 }

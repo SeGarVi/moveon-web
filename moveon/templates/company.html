@@ -23,7 +23,7 @@
                 <p class="code control">Write your OSM code
                     <input type="code" placeholder="OSM code" maxsize="8">
                 </p>
-                <button type="submit" class="button is-primary" onclick="testCode('id', $('input').val())">Add the new line!!</button>
+                <button type="submit" class="button is-primary" onclick="getOSMLine('id', $('input').val(), '{% url 'newline' company.code %}')">Add the new line!!</button>
             </div>
         </div>
     {% endif %}
