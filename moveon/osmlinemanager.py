@@ -74,6 +74,7 @@ class OSMLineManager():
         for route in self.routes:
             stretch = Stretch()
             stretch.route = route
+            stretch.save()
             self.stretches[route.osmid] = stretch
     
     def _save_route_points_and_assign_to_stretch(self):
