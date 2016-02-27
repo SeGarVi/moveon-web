@@ -241,15 +241,15 @@ def _calculate_time_from_beginning(route_points, speed):
         previous = route_point
 
 def _get_stations_for_route(route):
-    node_ids = list(route.stretch_set.first().routepoint_set.all().values_list('node_id', flat=True))
+    node_ids = list(route.stretch_set.first().route_points.values_list('node_id', flat=True))
     stations = list(Station.objects.filter(osmid__in=node_ids))
     stations.sort(key=lambda t: node_ids.index(t.osmid))
     return stations
 
 def _get_station_route_points_for_stretch(stretch_id):
-    node_ids = Stretch.objects.get(id=stretch_id).routepoint_set.all().values_list('node_id', flat=True)
+    node_ids = Stretch.objects.get(id=stretch_id).route_points.values_list('node_id', flat=True)
     stations_ids = list(Station.objects.filter(osmid__in=node_ids).values_list('osmid', flat=True))
-    route_points = Stretch.objects.get(id=stretch_id).routepoint_set.filter(node_id__in=stations_ids)
+    route_points = Stretch.objects.get(id=stretch_id).route_points.filter(node_id__in=stations_ids)
     return route_points
     
 def _calculate_times_with_mean_speeds(mean_speed, times, station_points):
