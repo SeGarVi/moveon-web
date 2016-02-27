@@ -130,6 +130,9 @@ def station(request, station_id):
               }
     return render(request, 'station.html', context)
 
+def map(request):
+    return "hello beibe"
+    
 def nearby(request):
     userpos = request.GET.get('userpos', '')
     lat = float(userpos.split(',')[0])
