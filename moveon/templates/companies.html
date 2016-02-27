@@ -2,16 +2,9 @@
 
 {% block content %}
     {% for company in companies %}
-        <div class="columns">
-            <div class="moveon-company column is-half is-offset-quarter">
-                <a href="{% url 'company' company.code %}">
-                    <img src="{{ company.logo }}" alt="{{ company.name }} logo">
-                </a>
-                <a href="{% url 'company' company.code %}">
-                    <h1>{{ company.name }}</h1>
-                </a>
-            </div>
-        </div>
+
+        {% include "_company.html" %}
+        
     {% empty %}
         <div class="columns">
             <div class="moveon-company column is-half is-offset-quarter">

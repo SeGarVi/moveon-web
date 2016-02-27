@@ -71,7 +71,7 @@ function add_timetableColumn(serialize_ids) {
 
 function send_timetableCalculation(route_id, stretch_id) {
     var mean_speed = $( "input[name='mean_speed']" ).val();
-
+    var CSVfile = $( "input[name='CSV']" ).val();
     /*Only for non empty values*/
     var timetable_form_empties = $('form').serializeArray();
     for (i=0; i<timetable_form_empties.length;) {

@@ -1,0 +1,10 @@
+<div class="columns">
+    <div class="moveon-company column is-half is-offset-quarter">
+        <a href="{% url 'line' company.code line.code %}">
+            <span class="line_code" style="background-color: {{ line.colour }}">
+                {{ line.code }}
+            </span>
+             - {{ line.name }} ({{ line.transport }} line)
+        </a>
+    </div>
+</div>

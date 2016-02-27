@@ -2,28 +2,13 @@
 {% load color_filters %}
 
 {% block content %}
-    <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
-            <a href="{% url 'company' company.code %}">
-                <img src="{{ company.logo }}" alt="{{ company.name }} logo">
-            </a>
-            <a href="{% url 'company' company.code %}">
-                <h1>{{ company.name }}</h1>
-            </a>
-        </div>
-    </div>
+    
+    {% include "_company.html" %}
 
     {% for line in lines %}
-        <div class="columns">
-            <div class="moveon-company column is-half is-offset-quarter">
-                <a href="{% url 'line' company.code line.code %}"
-                    style="color: {{ line.colour | text_color_from_background }}">
-                    <div style="background-color: {{ line.colour }}">
-                        {{ line.code }} - {{ line.name }} ({{ line.transport }} line)
-                    </div>
-                </a>
-            </div>
-        </div>
+    
+        {% include "_line.html" %}
+
     {% empty %}
         <div class="columns">
             <div class="moveon-company column is-half is-offset-quarter">
@@ -34,10 +19,11 @@
 
     {% if user.is_authenticated %}
         <div class="columns">
-            <div class="moveon-company column is-half is-offset-quarter is-flex-right">
-                <button class="button is-primary">
-                    <a href="{% url 'newline' company.code %}">Add a new line</a>
-                </button>
+            <div class="moveon-company column is-half is-offset-quarter is-flex is-flex-justify">
+                <p class="code control">Write your OSM code
+                    <input type="code" placeholder="OSM code" maxsize="8">
+                </p>
+                <button type="submit" class="button is-primary" onclick="testCode('id', $('input').val())">Add the new line!!</button>
             </div>
         </div>
     {% endif %}

@@ -11,37 +11,10 @@
 {% block content %}
     <div class="container">
     {% for station in near_stations %}
-        <a class="station_link" href="{% url 'station' station.code %}?userpos={{ location }}">
-            <div class="moveon-company column is-half is-offset-quarter station">
-                    <div class="tabs info-up is-fullwidth">
-                        <ul>
-                            <li class="is-text-left">
-                                <span class="name"> <span class="is-hidden-mobile">[{{ station.code }}]</span> {{ station.name }} </span>
-                            </li>
-                            <li class="is-text-right">
-                                <span class="distance"> {{ station.distance }} m</span>
-                            </li>
-                        </ul>
-                    </div>
-                    {% for route in station.routes %}
-                        <div class="info-routes">
-                            <p>
-                            <span class="transport-company image"> 
-                                <img src="{{ route.company_icon }}"></img> 
-                            </span>
-                            <i class="demo-icon icon-{{ route.transport_type }}-24"></i>
-                            <span class="routes"> 
-                                <span class="route-color" style="background-color:{{ route.colour }}"> {{route.code}} </span> {{ route.name }} 
-                            </span>
-                            <span class="next-vehicle right">
-                                {% for next_vehicle in route.next_vehicles %}
-                                    <span> {{ next_vehicle }}m</span>
-                                {% endfor %}
-                            </span>
-                            </p>
-                        </div>
-                    {% endfor %}
-            </div>
+        <a class="station_link" href="{% url 'station' station.osmid %}?userpos={{ location }}">
+
+            {% include "_station.html" %}
+
         </a>
     {% empty %}
         <div class="no-points">
