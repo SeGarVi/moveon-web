@@ -74,7 +74,7 @@
                 <form id="timetable--form" class="is-flex">
                 <fieldset id="timetable-column-0" class="moveon-company">
                     {% for station in stations %}
-                        <input class="input" name="time-0-{{ station.osmid }}" type="text" onchange="verify_time('time-0-{{ station.osmid }}')" /><br>
+                        <input class="input" name="time-0-{{ station.osmid }}" type="text" onchange="verify_time('time-0-{{ station.osmid }}')" />
                     {% endfor %}
                 </fieldset>
                 </form>

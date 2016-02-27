@@ -221,6 +221,7 @@ p.timetable--entry:nth-child(even) {
 
 #timetable--form input{
   width: 4em;
+  margin-bottom: 1.45em;
 }
 
 #timetable--form fieldset {
