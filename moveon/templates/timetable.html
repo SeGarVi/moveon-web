@@ -16,35 +16,12 @@
 {% endblock %}
 
 {% block content %}
-    <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
-            <a href="{% url 'company' company.code %}">
-                <img src="{{ company.logo }}" alt="{{ company.name }} logo">
-            </a>
-            <a class="is-hidden-mobile" href="{% url 'company' company.code %}">
-                <h1>{{ company.name }}</h1>
-            </a>
-        </div>
-    </div>
+    
+    {% include "_company.html" %}
 
-    <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
-            <a href="{% url 'line' company.code line.code %}"
-                style="color: {{ line.colour | text_color_from_background }}">
-                <div style="background-color: {{ line.colour }}">
-                    {{ line.code }} - {{ line.name }} ({{ line.transport }} line)
-                </div>
-            </a>
-        </div>
-    </div>
+    {% include "_line.html" %}
 
-    <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
-            <a class="" href="{% url 'route' company.code line.code route.osmid %}">
-                Route --> {{ route.name }}
-            </a>
-        </div>
-    </div>
+    {% include "_route.html" %}
 
     <div class="columns">
         <div class="moveon-company column is-half is-offset-quarter is-flex is-column">
@@ -69,6 +46,12 @@
                 <button class="button is-primary" onclick="send_timetableCalculation({{ route.osmid }}, {{ stretch_id }})">Calculate times</button>
                 <button class="button is-success" onclick="send_timetableAcceptation({{ route.osmid }}, {{ stretch_id }})">Accept</button> 
             </div>
+        </div>
+    </div>
+
+    <div class="columns">
+        <div class="moveon-company column is-half is-offset-quarter is-flex is-flex-justify">
+            Upload the times with a CSV <input type="file" accept=".csv" name="csv" />
         </div>
     </div>
 

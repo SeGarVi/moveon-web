@@ -2,41 +2,17 @@
 {% load color_filters %}
 
 {% block content %}
-    <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
-            <a href="{% url 'company' company.code %}">
-                <img src="{{ company.logo }}" alt="{{ company.name }} logo">
-            </a>
-            <a class="is-hidden-mobile" href="{% url 'company' company.code %}">
-                <h1>{{ company.name }}</h1>
-            </a>
-        </div>
-    </div>
+    
+    {% include "_company.html" %}
 
-    <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
-            <a href="{% url 'line' company.code line.code %}"
-                style="color: {{ line.colour | text_color_from_background }}">
-                <div style="background-color: {{ line.colour }}">
-                    {{ line.code }} - {{ line.name }} ({{ line.transport }} line)
-                </div>
-            </a>
-        </div>
-    </div>
+    {% include "_line.html" %}
 
-    <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
-            <a class="" href="{% url 'route' company.code line.code route.osmid %}">
-                Route --> {{ route.name }} 
-            </a>
-            {% if user.is_authenticated %}    <button class="button is-primary"><a href="{% url 'timetable' company.code line.code route.osmid %}">Write the timetable</a></button>{% endif %}
-        </div>
-    </div>
+    {% include "_route.html" %}
 
     <div class="columns">
         <div class="moveon-company moveon-company--list column is-half is-offset-quarter">
             {% for station in stations %}
-                <a class="moveon-company__route" href="{% url 'station' station.osmid %}">
+                <a class="moveon-company__route" onclick="getLocationRedirection('{% url "station" station.osmid %}')">
                     <p>{{ forloop.counter|stringformat:"03d" }} --> {{ station.code}} - {{ station }}</p>
                 </a>
             {% empty %}

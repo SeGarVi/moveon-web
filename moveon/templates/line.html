@@ -2,27 +2,10 @@
 {% load color_filters %}
 
 {% block content %}
-    <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
-            <a href="{% url 'company' company.code %}">
-                <img src="{{ company.logo }}" alt="{{ company.name }} logo">
-            </a>
-            <a href="{% url 'company' company.code %}">
-                <h1>{{ company.name }}</h1>
-            </a>
-        </div>
-    </div>
+    
+    {% include "_company.html" %}
 
-    <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
-            <a href="{% url 'line' company.code line.code %}"
-                style="color: {{ line.colour | text_color_from_background }}">
-                <p style="background-color: {{ line.colour }}">
-                    {{ line.code }} - {{ line.name }} ({{ line.transport }} line)
-                </p>
-            </a>
-        </div>
-    </div>
+    {% include "_line.html" %}
 
     {% for route in routes %}
         <div class="columns">

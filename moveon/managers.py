@@ -18,6 +18,13 @@ class StationManager(models.Manager):
     def get_by_id(self, station_id):
         return self.get(osmid=station_id)
 
+    def get_with_distance(self, station_id, userpos):
+        station = self.get_by_id(station_id)
+        station_pos = [station.latitude, station.longitude]
+        station.distance = int(vincenty(station_pos, userpos).meters)
+
+        return station
+
     def get_nearby_stations(self, userpos, nneareststations=5):
         max_n_stations = self.count();
         limit_increment = 0.003
