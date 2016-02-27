@@ -41,13 +41,10 @@ def newlinedetail(request, company_id, osm_line_id):
     if request.method == "GET":
         line = json.loads(cache.get(cache_simplified_id))
         if line:
-            template = loader.get_template('new_line_detail.html')
-            context = RequestContext(
-                request, {
-                    'line': line,
-                }
-            )
-            return HttpResponse(template.render(context))
+            context = { 'line': line,
+                        'company_id': company_id
+                      }
+            return render(request, 'new_line_detail.html', context)
         else:
             return HttpResponse("Line not retrieved yet")
     elif request.method == "POST":
