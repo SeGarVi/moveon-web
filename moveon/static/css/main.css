@@ -6,7 +6,10 @@ body, html {
 	background-color: #FFF;
 }
 
-
+h1 {
+  font-size: 1.5em;
+  color: black;
+}
 /******************************************************************************/
 /*                                 Menu                                       */
 /******************************************************************************/
@@ -35,13 +38,24 @@ nav {
   justify-content: space-around;
   align-items: baseline;
 }
+.is-column {
+  flex-direction: column;
+}
+.is-small-image {
+  width: 1em;
+}
+
+.is-medium-image {
+  width: 10em;
+  min-width: 2em;
+}
 
 /******************************************************************************/
 /*                                Icons                                       */
 /******************************************************************************/
 
 i {
-    font-size: 2em;
+  font-size: 2em;
 }
 
 /******************************************************************************/
@@ -111,7 +125,36 @@ fieldset p {
   background-color: #F3F3F3;
   padding: 1em;
   box-shadow: 0px 13px 36px -8px rgba(112,112,112,0.42);
-  flex-direction: column;
+}
+
+.moveon-company a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.moveon-company--list p {
+  background-color: #F3F3F3;
+  border: none;
+  border-bottom: 2px solid lightgray;
+  box-shadow: none;
+  width: 20em;
+}
+
+.moveon-company--list {
+
+}
+
+.moveon-company_calcdataform {
+    justify-content: space-around;
+    margin-bottom: 2em;
+}
+
+.moveon-company_buttons {
+    justify-content: flex-end;
+}
+
+.moveon-company_buttons button{
+    margin: 0em 1em;
 }
 
 .station_header {
@@ -165,9 +208,10 @@ p.timetable--entry:nth-child(even) {
 
 }
 
-#timetable--form {
-  
+#timetable--form input{
+  width: 4em;
 }
+
 #timetable--form fieldset {
   display: flex;
 }
