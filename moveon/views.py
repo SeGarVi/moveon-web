@@ -170,6 +170,12 @@ def stretches(request, stretch_id):
                                                 int(json_request['mean_speed']),
                                                 json_request['times'],
                                                 route_points)
+        else:
+            classified_station_points = _classify_station_points(route_points)
+            new_speeds = _calculate_times_by_checkpoints(
+                                            json_request['times'],
+                                            route_points,
+                                            classified_station_points)
         
         json_ret = json.dumps(new_speeds)
         
@@ -277,10 +283,119 @@ def _calculate_times_with_mean_speeds(mean_speed, times, station_points):
                                   + str(reach_minutes).zfill(2)
                 
                 return_times.append(new_turn)
-            
-            if (not apply) and (first_station_point_id == station_point.node_id):
+            elif first_station_point_id == station_point.node_id:
                 apply = True
                 first_distance = station_point.distance_from_beginning
             
     return return_times
+
+def _classify_station_points(station_points):
+    classified_station_points = dict()
+    for point in station_points:
+        classified_station_points[point.node_id] = point
+    return classified_station_points
+
+def _calculate_times_by_checkpoints(times, station_points, classified_station_points):
+    turn_infos = []
+    current_turn = -1
+    prefix = times[0]['name'].split('-')[0]
+    for time in times:
+        time_turn = time['name'].split('-')[1]
+        time_station_point = int(time['name'].split('-')[2])
+        station_point = classified_station_points[time_station_point]
+        time_value = time['value'].split(':')
+        
+        if time_turn != current_turn:
+            current_turn = time_turn
+            
+            turn_info = dict()
+            turn_info['speeds'] = []
+            turn_info['checkpoints'] = []
+            turn_info['checkpoint_times'] = []
+            turn_infos.append(turn_info)
+            previous_station_point = None
+            previous_timestamp = 0
+        
+        turn_info['checkpoints'].append(time_station_point)
+        
+        if previous_station_point is not None:
+            hours = (int(time_value[0])%24) * 60 * 60
+            minutes = int(time_value[1]) * 60
+            current_timestamp = hours + minutes
+            
+            period = current_timestamp - previous_timestamp
+            distance = station_point.distance_from_beginning -\
+                       previous_station_point.distance_from_beginning
+            
+            speed = distance/period
+            turn_info['speeds'].append(speed)
+        
+        previous_station_point = station_point
+        hours = (int(time['value'].split(':')[0])%24) * 60 * 60
+        minutes = int(time['value'].split(':')[1]) * 60
+        previous_timestamp = hours + minutes
+        turn_info['checkpoint_times'].append(previous_timestamp)
+    
+    return_times=[]
+    for i in range(len(turn_infos)):
+        turn_info = turn_infos[i]
+        data_index = 0
+        next_checkpoint = turn_info['checkpoints'][data_index]
+        first_distance = 0
+        checkpoint_time = 0
+        apply = False
+        for station_point in station_points:
+            if apply:
+                distance_difference = \
+                    station_point.distance_from_beginning - first_distance
+                time_to_reach = distance_difference / speed
+                reach_time = checkpoint_time + time_to_reach
+                new_turn = dict()
+                
+                reach_minutes = int(reach_time/60) % 60
+                reach_hours = int(reach_time / 60 / 60)
+                
+                new_turn['name'] = prefix + "-" + str(i) + "-" + str(station_point.node_id)
+                new_turn['value'] = str(reach_hours) + ':' \
+                                  + str(reach_minutes).zfill(2)
+                
+                return_times.append(new_turn)
+                
+                
+                if next_checkpoint == station_point.node_id:
+                    checkpoint_time = turn_info['checkpoint_times'][data_index]
+                    
+                    if data_index < len(turn_info['speeds']):
+                        speed = turn_info['speeds'][data_index]
+                    else:
+                        turn_info['speeds'].sort
+                        median_pos = int(len(turn_info['speeds']) / 2)
+                        speed = turn_info['speeds'][median_pos]
+                    data_index += 1
+                    first_distance = station_point.distance_from_beginning
+                    
+                    if data_index < len(turn_info['checkpoints']):
+                        next_checkpoint = turn_info['checkpoints'][data_index]
+                    
+            elif turn_info['checkpoints'][0] == station_point.node_id:
+                apply = True
+                speed = turn_info['speeds'][data_index]
+                checkpoint_time = turn_info['checkpoint_times'][data_index]
+                data_index += 1
+                next_checkpoint = turn_info['checkpoints'][data_index]
+                first_distance = station_point.distance_from_beginning
+                
+                new_turn = dict()
+                
+                reach_minutes = int(checkpoint_time/60) % 60
+                reach_hours = int(checkpoint_time / 60 / 60)
+                
+                new_turn['name'] = prefix + "-" + str(i) + "-" + str(station_point.node_id)
+                new_turn['value'] = str(reach_hours) + ':' \
+                                  + str(reach_minutes).zfill(2)
+                return_times.append(new_turn)
+                
+    return return_times
+    
+    
     
