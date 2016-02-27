@@ -47,36 +47,32 @@
     </div>
 
     <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter ">
-            <button class="button is-primary" onclick="send_timetableCalculation({{ route.osmid }}, {{ stretch_id }})">Calculate times</button>
-            <button class="button is-success" onclick="send_timetableAcceptation({{ route.osmid }}, {{ stretch_id }})">Accept</button>
-            <input class="input" name="mean_speed" type="number" max="100.0" min="0.0" step="0.01" onchange="verify_speed('mean_speed')" /> km/h
-        </div>
-    </div>
-
-    <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
-            <div class="moveon-company_day">
-                <p><input type="checkbox" name="day" value="monday">Monday</p>
-                <p><input type="checkbox" name="day" value="tuesday">Tuesday</p>
-                <p><input type="checkbox" name="day" value="wednesday">Wednesday</p>
-                <p><input type="checkbox" name="day" value="thursday">Thursday</p>
-                <p><input type="checkbox" name="day" value="friday">Friday</p>
-                <p><input type="checkbox" name="day" value="saturday">Saturday</p>
-                <p><input type="checkbox" name="day" value="sunday">Sunday</p>
-                <p><input type="checkbox" name="day" value="holiday">Holiday</p>
+        <div class="moveon-company column is-half is-offset-quarter is-flex is-column">
+            <div class="is-flex moveon-company_calcdataform">
+                <div class="moveon-company_day">
+                    <p><input type="checkbox" name="day" value="monday"> Monday</p>
+                    <p><input type="checkbox" name="day" value="tuesday"> Tuesday</p>
+                    <p><input type="checkbox" name="day" value="wednesday"> Wednesday</p>
+                    <p><input type="checkbox" name="day" value="thursday"> Thursday</p>
+                    <p><input type="checkbox" name="day" value="friday"> Friday</p>
+                    <p><input type="checkbox" name="day" value="saturday"> Saturday</p>
+                    <p><input type="checkbox" name="day" value="sunday"> Sunday</p>
+                    <p><input type="checkbox" name="day" value="holiday"> Holiday</p>
+                </div>
+                <div class="moveon-company_calcdata">
+                    Mean Speed (km/h): <input class="input" name="mean_speed" type="number" max="100.0" min="0.0" step="0.01" onchange="verify_speed('mean_speed')" />
+                    Start date: <input id="datepicker"  class="input" name="start-date" type="text" onchange="verify_date('start-date')" />
+                    End Date:   <input id="datepicker2" class="input" name="end-date"   type="text" onchange="verify_date('end-date')"/>
+                </div>
+            </div>
+            <div class="is-flex moveon-company_buttons">
+                <button class="button is-primary" onclick="send_timetableCalculation({{ route.osmid }}, {{ stretch_id }})">Calculate times</button>
+                <button class="button is-success" onclick="send_timetableAcceptation({{ route.osmid }}, {{ stretch_id }})">Accept</button> 
             </div>
         </div>
     </div>
 
-    <div class="columns">
-        <div class="moveon-company column is-half is-offset-quarter">
-            Start date: <input id="datepicker"  class="input" name="start-date" type="text" onchange="verify_date('start-date')" />
-            End Date:   <input id="datepicker2" class="input" name="end-date"   type="text" onchange="verify_date('end-date')"/>
-        </div>
-    </div>
-
-    <div class="columns">
+    <div class="columns is-flex">
         <div class="moveon-company moveon-company--list">
             {% for station in stations %}
                 <p class="input">{{ station.code}} - {{ station }}</p><br>
@@ -95,7 +91,7 @@
                 <form id="timetable--form" class="is-flex">
                 <fieldset id="timetable-column-0" class="moveon-company">
                     {% for station in stations %}
-                        <p><input class="input" name="time-0-{{ station.osmid }}" type="text" onchange="verify_time('time-0-{{ station.osmid }}')" /></p>
+                        <input class="input" name="time-0-{{ station.osmid }}" type="text" onchange="verify_time('time-0-{{ station.osmid }}')" /><br>
                     {% endfor %}
                 </fieldset>
                 </form>

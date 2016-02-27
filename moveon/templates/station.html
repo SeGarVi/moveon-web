@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="columns">
-    <div class="column moveon-company is-flex is-half is-offset-quarter">
+    <div class="column moveon-company is-flex is-column is-half is-offset-quarter">
         <div class="station_header is-flex">
             <span class="name"> <span class="is-hidden-mobile">[{{ station.code }}]</span> {{ station.name }} </span>
             <span class="distance"> {{ distance }} m</span>
@@ -35,7 +35,7 @@
         <div class="station_routes">
                 <div class="station_routes--info is-flex">
                     <span class="route-info">
-                        <img class="is-hidden-mobile" src="/static/image/favicon.ico"></img> 
+                        <img class="is-hidden-mobile is-small-image" src="/static/image/favicon.ico"></img> 
                         <i class="is-hidden-mobile demo-icon icon-bus-24"></i>
                         <span class="route-color" style="background-color:green"> 169 </span> Sixty nine, 69
                     </span>
@@ -45,7 +45,7 @@
                 </div>
                 <div class="station_routes--info is-flex">
                     <span class="route-info">
-                        <img class="is-hidden-mobile" src="/static/image/favicon.ico"></img> 
+                        <img class="is-hidden-mobile is-small-image" src="/static/image/favicon.ico"></img> 
                         <i class="is-hidden-mobile demo-icon icon-heliport-24"></i>
                         <span class="route-color" style="background-color:yellow"> 169 </span> Sixty nine, 69
                     </span>
@@ -56,7 +56,7 @@
             {% for route in station.routes %}
                 <div class="station_routes--info is-flex">
                     <span class="route-info">
-                        <img class="is-hidden-mobile" src="{{ route.company_icon }}"></img> 
+                        <img class="is-hidden-mobile is-small-image" src="{{ route.company_icon }}"></img> 
                         <i class="is-hidden-mobile demo-icon icon-{{ route.transport_type }}-24"></i>
                         <span class="route-color" style="background-color:{{ route.colour }}"> {{route.code}} </span> {{ route.name }}
                     </span>
