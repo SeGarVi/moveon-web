@@ -1,13 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache              import cache
-from django.core.cache.backends     import locmem
-from django.http                    import HttpResponse, Http404
-from django.shortcuts               import get_object_or_404, render, redirect
-from django.template                import RequestContext, loader
+from django.http                    import HttpResponse
+from django.shortcuts               import render, redirect
 from django.views.decorators.csrf   import csrf_exempt
-from moveon.models                  import Company
 import json
 import osmlineadapters.settings as settings
+from django.core.urlresolvers import reverse
 
 @csrf_exempt
 @login_required(login_url='moveon_login')
