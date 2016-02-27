@@ -324,11 +324,14 @@ def _calculate_times_by_checkpoints(times, station_points, classified_station_po
             current_timestamp = hours + minutes
             
             period = current_timestamp - previous_timestamp
-            distance = station_point.distance_from_beginning -\
-                       previous_station_point.distance_from_beginning
-            
-            speed = distance/period
-            turn_info['speeds'].append(speed)
+            if period > 0:
+                distance = station_point.distance_from_beginning -\
+                           previous_station_point.distance_from_beginning
+                
+                speed = distance/period
+                turn_info['speeds'].append(speed)
+            else:
+                turn_info['speeds'].append(-1)
         
         previous_station_point = station_point
         hours = (int(time['value'].split(':')[0])%24) * 60 * 60
@@ -346,18 +349,24 @@ def _calculate_times_by_checkpoints(times, station_points, classified_station_po
         apply = False
         for station_point in station_points:
             if apply:
-                distance_difference = \
-                    station_point.distance_from_beginning - first_distance
-                time_to_reach = distance_difference / speed
-                reach_time = checkpoint_time + time_to_reach
-                new_turn = dict()
-                
-                reach_minutes = int(reach_time/60) % 60
-                reach_hours = int(reach_time / 60 / 60)
-                
-                new_turn['name'] = prefix + "-" + str(i) + "-" + str(station_point.node_id)
-                new_turn['value'] = str(reach_hours) + ':' \
-                                  + str(reach_minutes).zfill(2)
+                if speed > 0:
+                    distance_difference = \
+                        station_point.distance_from_beginning - first_distance
+                    time_to_reach = distance_difference / speed
+                    reach_time = checkpoint_time + time_to_reach
+                    new_turn = dict()
+                    
+                    reach_minutes = int(reach_time/60) % 60
+                    reach_hours = int(reach_time / 60 / 60)
+                    
+                    new_turn['name'] = prefix + "-" + str(i) + "-" + str(station_point.node_id)
+                    new_turn['value'] = str(reach_hours) + ':' \
+                                      + str(reach_minutes).zfill(2)
+                else:
+                    previous_turn = new_turn
+                    new_turn = dict()
+                    new_turn['name'] = prefix + "-" + str(i) + "-" + str(station_point.node_id)
+                    new_turn['value'] = previous_turn['value']
                 
                 return_times.append(new_turn)
                 
@@ -368,7 +377,11 @@ def _calculate_times_by_checkpoints(times, station_points, classified_station_po
                     if data_index < len(turn_info['speeds']):
                         speed = turn_info['speeds'][data_index]
                     else:
-                        turn_info['speeds'].sort
+                        turn_info['speeds'].sort()
+                        
+                        while turn_info['speeds'][0] < 0:
+                            del turn_info['speeds'][0]
+                        
                         median_pos = int(len(turn_info['speeds']) / 2)
                         speed = turn_info['speeds'][median_pos]
                     data_index += 1
