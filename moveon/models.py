@@ -144,16 +144,11 @@ class TimeTable(models.Model):
     def __str__(self):
         return str(self.id)
 
-class Stretch(models.Model):
-    route = models.ForeignKey(Route)
-    time_table = models.ManyToManyField(TimeTable)
-    
-    def __str__(self):
-        return str(self.id)
+
 
 class RoutePoint(models.Model):
     node = models.ForeignKey(Node)
-    stretch = models.ForeignKey(Stretch)
+    #stretch = models.ForeignKey(Stretch)
     order = models.IntegerField()
     distance_from_beginning = models.BigIntegerField()
     time_from_beginning = models.BigIntegerField(null=True)
@@ -169,6 +164,14 @@ class RoutePoint(models.Model):
         routepoint.distance_from_beginning = osmroutepoint['distance_from_beginning']
         
         return routepoint
+    
+    def __str__(self):
+        return str(self.id)
+    
+class Stretch(models.Model):
+    route = models.ForeignKey(Route)
+    time_table = models.ManyToManyField(TimeTable)
+    route_points = models.ManyToManyField(RoutePoint)
     
     def __str__(self):
         return str(self.id)
