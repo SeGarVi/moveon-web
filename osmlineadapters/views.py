@@ -29,10 +29,7 @@ def newline(request, company_id):
         cache.set(cache_simplified_id, instance.to_simplified_json(), 600)
         return HttpResponse(request.body)
 
-    comp = get_object_or_404(Company, code=company_id)
-    context = {     'company': comp
-              }
-    return render(request, 'new_line.html', context) 
+    return redirect('copany', company_id=company_id) 
 
 @login_required(login_url='moveon_login')
 def newlinedetail(request, company_id, osm_line_id):

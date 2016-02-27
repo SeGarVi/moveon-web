@@ -36,7 +36,7 @@
                     </p>
                     ---------------------------------------------------<br>
             {% endfor %}
-            <button class="button" onclick="getOSMLine('accept', true,  '{% url 'company' company_id %}')">I agree</button>
+            <button class="button" onclick="getOSMLine('accept', true,  '{% url 'newlinedetail' company_id line.osmid %}')">I agree</button>
             <button class="button" onclick="getOSMLine('accept', false, '{% url 'company' company_id %}')">I don't agree</button>
         </div>
     </div>
