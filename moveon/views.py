@@ -145,20 +145,6 @@ def nearby(request):
               }
     return render(request, 'nearby.html', context) 
 
-def nearby_stations(request):
-    #?bbox=left,bottom,right,top
-    #left is the longitude of the left (westernmost) side of the bounding box.
-    #bottom is the latitude of the bottom (southernmost) side of the bounding box.
-    #right is the longitude of the right (easternmost) side of the bounding box.
-    #top is the latitude of the top (northernmost) side of the bounding box. 
-
-    bbox = request.GET.get('bbox', '')
-    left, bottom, right, top = bbox.split(',')
-    fenced_stations = Station.objects.get_fenced_stations(bottom, left, top, right)
-
-    return render(request, 'nearby.html', {'nearby_stations': fenced_stations}) 
-
-
 def stretches(request, stretch_id):
     if request.method == 'PUT':
         try:

@@ -27,7 +27,7 @@ def newline(request, company_id):
         cache.set(cache_simplified_id, instance.to_simplified_json(), 600)
         return HttpResponse(request.body)
 
-    return redirect('copany', company_id=company_id) 
+    return redirect('company', company_id=company_id) 
 
 @login_required(login_url='moveon_login')
 def newlinedetail(request, company_id, osm_line_id):
