@@ -120,7 +120,7 @@ class OSMLine(AbstractOSMLine):
     
     def _set_line_info(self):
         self.line['osmid'] = self.osmline['id']
-        self.line['company'] = 'emt_palma'
+        self.line['company'] = 'tib'
         self.line['transport'] = 'bus'
         self.line['code'] = str(self.osmline['tag']['ref'])
         self.line['name'] = self.osmline['tag']['name']
