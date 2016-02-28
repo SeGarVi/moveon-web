@@ -4,7 +4,7 @@
 function getOSMLine(key, value, url) {
     var info = '{"osmline": {"'+ key +'": '+value+'}}';
     $( ".code" ).addClass( "is-loading" );
-    $( "input[type='code']" ).addClass( "is-loading" );
+    $( "button" ).addClass( "is-loading" );
     $.post( url, info, 
         function( data ) {
             if (key === 'accept') { window.location = url; }
@@ -16,7 +16,7 @@ function getOSMLine(key, value, url) {
         }
     );
     $( ".code" ).removeClass( "is-loading" );
-    $( "input[type='code']" ).removeClass( "is-loading" );
+    $( "button" ).removeClass( "is-loading" );
 }
 
 /*Get GPS coordinates of the user*/
@@ -70,7 +70,8 @@ function add_timetableColumn(serialize_ids) {
 
 function send_timetableCalculation(route_id, stretch_id) {
     var mean_speed = $( "input[name='mean_speed']" ).val();
-    var CSVfile = $( "input[name='CSV']" ).val();
+    //var CSVfile = $( "[type='file']" ).serializeArray();
+    console.log(CSVfile);
     /*Only for non empty values*/
     var timetable_form_empties = $('form').serializeArray();
     for (i=0; i<timetable_form_empties.length;) {
