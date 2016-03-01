@@ -148,6 +148,10 @@ class Stretch(models.Model):
     route = models.ForeignKey(Route)
     time_table = models.ManyToManyField(TimeTable)
     
+    #redundant attributes to improve efficiency
+    station_from = models.ForeignKey(Station, related_name='station_from', null=True)
+    station_to = models.ForeignKey(Station, related_name='station_to', null=True)
+    
     def __str__(self):
         return str(self.id)
 
