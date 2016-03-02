@@ -6,6 +6,8 @@ from django.views.decorators.csrf   import csrf_exempt
 import json
 import osmlineadapters.settings as settings
 from django.core.urlresolvers import reverse
+import traceback
+import sys
 
 @csrf_exempt
 @login_required(login_url='moveon_login')
@@ -19,7 +21,13 @@ def newline(request, company_id):
         mod = __import__(adapter_path, fromlist=['OSMLine'])
         class_ = getattr(mod, 'OSMLine')
         
-        instance = class_(osm_line_id)
+        try:
+            instance = class_(osm_line_id)
+        except Exception:
+            print("Exception in user code:")    
+            print("-"*60)
+            traceback.print_exc(file=sys.stdout)
+            print("-"*60)
         
         cache_id = osm_line_id
         cache_simplified_id = str(osm_line_id) + "_simple"
@@ -48,7 +56,15 @@ def newlinedetail(request, company_id, osm_line_id):
         if agree:
             line = json.loads(cache.get(osm_line_id))
             osmlinemanager = _get_osmlinemanager(line)
-            osmlinemanager.save()
+            
+            try:
+                osmlinemanager.save()
+            except Exception:
+                print("Exception in user code:")    
+                print("-"*60)
+                traceback.print_exc(file=sys.stdout)
+                print("-"*60)
+            
             status_code = 201
         else:
             status_code = 200
