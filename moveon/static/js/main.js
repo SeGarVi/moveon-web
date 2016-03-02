@@ -73,18 +73,42 @@ function send_timetableCalculation(route_id, stretch_id) {
     var CSVfile = $( "input[name='CSV']" ).val();
     /*Only for non empty values*/
     var timetable_form_empties = $('form').serializeArray();
+    
+    classified_times = []
+    for (i=0; i<timetableColumn_counter; i++) {
+    	classified_times.push([]);
+    }
+    
     for (i=0; i<timetable_form_empties.length;) {
         var obj = timetable_form_empties[i]
         if(obj.value == "") {
             timetable_form_empties.splice(i, 1);
         } else {
+        	col = parseInt(obj.name.split("-")[1]);
+        	station_id = parseInt(obj.name.split("-")[2]);
+        	
+        	hour_str=obj.value.split(":")[0];
+        	min_str=obj.value.split(":")[1];
+        	
+        	hour = (parseInt(hour_str)%24) * 60 * 60; 
+        	min = parseInt(min_str) * 60;
+        	
+        	classified_times[col].push(
+        			{
+        				"station_id" : station_id,
+        				"time" : hour + min
+        			});
+        	
             i++;
         }
     }
     
+    prefix = obj.name.split("-")[0];
+    data = {"prefix" : prefix, "time_list" : classified_times}
+    
     var timetable = {
         "mean_speed":mean_speed,
-        "times": timetable_form_empties,
+        "times": data,
         "route_id": route_id
     };
 
@@ -127,18 +151,40 @@ function send_timetableAcceptation(route_id, stretch_id) {
         var mean_speed = $( "input[name='mean_speed']" ).val();
         /*Only for non empty values*/
         var timetable_form_empties = $('form').serializeArray();
+        classified_times = []
+        for (i=0; i<timetableColumn_counter; i++) {
+        	classified_times.push([]);
+        }
+        
         for (i=0; i<timetable_form_empties.length;) {
             var obj = timetable_form_empties[i]
             if(obj.value == "") {
                 timetable_form_empties.splice(i, 1);
             } else {
+            	col = parseInt(obj.name.split("-")[1]);
+            	station_id = parseInt(obj.name.split("-")[2]);
+            	
+            	hour_str=obj.value.split(":")[0];
+            	min_str=obj.value.split(":")[1];
+            	
+            	hour = (parseInt(hour_str)%24) * 60 * 60; 
+            	min = parseInt(min_str) * 60;
+            	
+            	classified_times[col].push(
+            			{
+            				"station_id" : station_id,
+            				"time" : hour + min
+            			});
+            	
                 i++;
             }
         }
+        
+        prefix = obj.name.split("-")[0];
+        data = {"prefix" : prefix, "time_list" : classified_times}
 
         var timetable = {
-            "mean_speed":mean_speed,
-            "times": timetable_form,
+            "times_to_save": data,
             "route_id": route_id,
             "day": days,
             "start": start,
