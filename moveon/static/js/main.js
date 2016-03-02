@@ -107,7 +107,7 @@ function send_timetableCalculation(route_id, stretch_id) {
     data = {"prefix" : prefix, "time_list" : classified_times}
     
     var timetable = {
-        "mean_speed":mean_speed,
+        "mean_speed":parseFloat(mean_speed)/3.6,
         "times": data,
         "route_id": route_id
     };
@@ -120,7 +120,17 @@ function send_timetableCalculation(route_id, stretch_id) {
         decoded_data = JSON.parse(data);
         for (index in decoded_data) {
             time = decoded_data[index];
-            $("input[name="+time.name+"]").val(time.value);
+            hours = parseInt(time.value / 60 / 60)
+            minutes = parseInt(time.value / 60) % 60
+            final_value = hours.toString() + ":";
+            
+            if (minutes < 10) {
+            	final_value += "0" + minutes.toString()
+            } else {
+            	final_value += minutes.toString()
+            }
+            
+            $("input[name="+time.name+"]").val(final_value);
         }
       }
     });
