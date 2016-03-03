@@ -14,8 +14,18 @@ h1 {
 /*                                 Menu                                       */
 /******************************************************************************/
 
-nav {
+body {
+  min-height: 100%;
+  margin-bottom: 10em;
+  margin-top: 2em;
+}
+
+header.header {
   background-color: #cdcdcd;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
 }
 
 .footer {
@@ -24,8 +34,8 @@ nav {
   background-color: white;
 }
 
-.navbar-left, .navbar-right {
-  padding: 0 1em;
+.header-right {
+  display: flex;
 }
 
 .is-hidden {
@@ -62,9 +72,6 @@ i {
 /******************************************************************************/
 /*                              Homepage                                      */
 /******************************************************************************/
-body {
-    margin: 2em 0em;
-}
 
 .none {
     display: none;
@@ -76,9 +83,6 @@ body {
   background-color: #F3F3F3;
   padding: 1em;
   box-shadow: 0px 13px 36px -8px rgba(112,112,112,0.42);
-}
-
-.station_header {
 }
 
 a.station_link {
@@ -151,10 +155,6 @@ fieldset p {
   width: 20em;
 }
 
-.moveon-company--list {
-
-}
-
 .moveon-company_calcdataform {
     justify-content: space-around;
     margin-bottom: 2em;
@@ -206,27 +206,47 @@ fieldset p {
 /*                               Timetable                                      */
 /******************************************************************************/
 
+#timetable--form {
+  overflow-x: scroll;
+  overflow: scroll;
+  width: 75vw;
+  float: left;
+  overflow-y: hidden;
+}
+
 .timetable--entry {
     margin-bottom: 0.45em;
     width: 20em;
 }
 
-p.timetable--entry:nth-child(odd) {
-
-}
-
-p.timetable--entry:nth-child(even) {
-
-}
-
 #timetable--form input{
   width: 4em;
-  margin-bottom: 1.45em;
+  margin-bottom: 1.43em;
 }
 
 #timetable--form fieldset {
   display: flex;
 }
+
+
+
+
+/******************************************************************************/
+/*                               Map                                          */
+/******************************************************************************/
+
+#map {
+  height: 40em;
+  padding: 0;
+}
+
+#map-complete {
+  position:absolute; 
+  top:0; 
+  bottom:0;
+  width:100%;
+}
+
 
 /* Medium screens */
 @media all and (min-width: 400px) {
