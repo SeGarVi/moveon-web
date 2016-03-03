@@ -4,10 +4,6 @@
 <script type="text/javascript">console.log("{{ location }}");</script>
 {% endblock %}
 
-{% comment %}
-    127.0.0.1:8000/moveon/stations/nearby?userpos=41.4003531,2.1899433#
-{% endcomment %}
-
 {% block content %}
     <div class="container">
     {% for station in near_stations %}

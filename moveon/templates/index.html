@@ -24,19 +24,36 @@
     <body>
         {% block content %}
         {% endblock content %}
-    </body>
 
-    <!-- Menu/footer -->
-    <div class="container is-fluid is-marginless footer">
-        <nav class="navbar">
-            <div class="navbar-left">
-                <p class="navbar-item"><a href="{% url 'companies' %}">Companies</a></p>
-                {% if not user.is_authenticated %}<p class="navbar-item"><a href="{% url 'moveon_login' %}">Login</a></p>{% endif %}
-                {% if user.is_authenticated %}    <p class="navbar-item"><a href="{% url 'moveon_logout' %}">Logout</a></p>{% endif %}
+        <!-- Menu/header/footer -->
+        <header class="header">
+            <div class="container">
+                <!-- Left side -->
+                <div class="header-left">
+                    <a class="header-tab" href="{% url 'index' %}">
+                    MoveOn '16
+                    </a>
+                </div>
+
+                <!-- Right side -->
+                <div class="header-right">
+                    <span class="header-item">
+                        <a href="{% url 'companies' %}">Search</a>
+                    </span>
+                    <span class="header-item">
+                        <a onclick="getLocationRedirection('{% url 'map' %}');">Map</a>
+                    </span>
+                    <span class="header-item">
+                        {% if not user.is_authenticated %}
+                            <a class="button" href="{% url 'moveon_login' %}">Login</a>
+                        {% endif %}
+                        {% if user.is_authenticated %}
+                            <a class="button" href="{% url 'moveon_logout' %}">Logout</a>
+                        {% endif %}
+                    </span>
+                </div>
             </div>
-            <div class="navbar-right">
-                <p class="is-hidden-mobile"><a href="{% url 'index' %}">MoveOn 2016</a></p>
-            </div>
-        </nav>
-    </div>
+        </header>
+        
+    </body>
 </html> 

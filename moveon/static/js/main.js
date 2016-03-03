@@ -3,20 +3,19 @@
 // Function to retrieve information and send a 
 function getOSMLine(key, value, url) {
     var info = '{"osmline": {"'+ key +'": '+value+'}}';
-    $( ".code" ).addClass( "is-loading" );
     $( "button" ).addClass( "is-loading" );
     $.post( url, info, 
         function( data ) {
             if (key === 'accept') { window.location = url; }
             else{ window.location = url + value; }
+            $( "button" ).removeClass( "is-loading" );
         }
     ).fail(
         function(data){
             alert("Error " + data.status + " " + url + " " + info);
+            $( "button" ).removeClass( "is-loading" );
         }
     );
-    $( ".code" ).removeClass( "is-loading" );
-    $( "button" ).removeClass( "is-loading" );
 }
 
 /*Get GPS coordinates of the user*/
@@ -60,7 +59,6 @@ function show_signup() {
 var timetableColumn_counter = 1;
 /*Timetable add form column*/
 function add_timetableColumn(serialize_ids) {
-    ///$( " form ").append('<div id="timetable-column-' + timetableColumn_counter + '" class="moveon-company timetable--form"></div>');
     $( " #timetable--form").append('<fieldset id="timetable-column-' + timetableColumn_counter + '"  class="moveon-company"></fieldset>');
     for (var i = 0; i < serialize_ids.length; i++) {
         $( "#timetable-column-" + timetableColumn_counter).append('<input class="input" name="time-' + timetableColumn_counter + '-' + serialize_ids[i] + '" type="text"/>');
@@ -70,8 +68,6 @@ function add_timetableColumn(serialize_ids) {
 
 function send_timetableCalculation(route_id, stretch_id) {
     var mean_speed = $( "input[name='mean_speed']" ).val();
-    //var CSVfile = $( "[type='file']" ).serializeArray();
-    console.log(CSVfile);
     /*Only for non empty values*/
     var timetable_form_empties = $('form').serializeArray();
     for (i=0; i<timetable_form_empties.length;) {
@@ -172,7 +168,7 @@ function verify(class_name, res) {
 }
 function verify_time(class_name) {
     var input = $( "input[name='"+class_name+"']" ).val();
-    var res = input.match(/^([01]?[0-9]|2[0-3]):[0-5][0-9]/);
+    var res = input.match(/^(([01]?[0-9]|2[0-3]):[0-5][0-9]|\s*)$/);
     verify(class_name, res);
 }
 
@@ -187,3 +183,29 @@ function verify_date(class_name) {
     var res = input.match(/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}/);
     verify(class_name, res);
 }
+
+function csv_json(serialize_ids) {
+    $("#csv").parse({
+        skipEmptyLines: true,
+        config: {
+            complete: function(results, file) {
+                //Calculate total of cycles before to avoid inconsistent results
+                var total = results.data[0].length - timetableColumn_counter;
+                for (var i = 0; i < total; i++) {
+                    add_timetableColumn(serialize_ids);
+                }
+                //Writing in the user timetable
+                for (var i = 0; i < results.data.length; i++) {
+                    for (var j = 0; j < results.data[i].length; j++) {
+                        $("input[name=time-"+ j + "-" + serialize_ids[i] + "]").val(results.data[i][j]);
+                        verify_time("time-"+ j + "-" + serialize_ids[i]);
+                    }
+                }
+            }
+        },
+        complete: function() {
+            console.log("All times added!");
+        }
+    });
+}
+

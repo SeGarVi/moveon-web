@@ -1,12 +1,69 @@
 {% extends "index.html" %}
 
 {% block head %}
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.1/mapbox-gl.css' rel='stylesheet' />
 {% endblock %}
 
 {% block content %}
 
     {% include "_station.html" %}
 
-    <div>Add Mapbox map here in a separate div correctly formatted</div>
+    <div class="columns">
+        <div id="map" class="moveon-company column">
+        </div>
+    </div>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1Ijoiaml1Y2siLCJhIjoiY2lrcGJ6NWZkMDBiYXZxbHNjdGQzdGllaCJ9.bgTUEJPNl-T44l5t6sNv8g';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v8',
+            center: [{{ station.stop_node.longitude }}, 
+                     {{ station.stop_node.latitude }}],
+            zoom: 15
+        });
+
+        var stations = {
+          "type": "FeatureCollection",
+          "features": [
+
+            {
+              "type": "Feature",
+              "geometry": {
+                "type": "Point",
+                "coordinates": [{{ station.stop_node.longitude }}, 
+                                {{ station.stop_node.latitude }}]
+              },
+              "properties": {
+                    "title": "{{ station.code }} - {{ station.name }}",
+                    "marker-symbol": "bus"
+                }
+            }
+            
+          ]
+        }
+
+map.on('style.load', function () {
+    map.addSource("markers", {
+        "type": "geojson",
+        "data": stations
+    });
+
+    map.addLayer({
+        "id": "markers",
+        "type": "symbol",
+        "source": "markers",
+        "layout": {
+            "icon-image": "{marker-symbol}-15",
+            "text-field": "{title}",
+            "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+            "text-offset": [0, 0.6],
+            "text-anchor": "top"
+        }
+    });
+});
+
+    </script>
 
 {% endblock %}

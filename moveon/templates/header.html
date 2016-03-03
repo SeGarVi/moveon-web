@@ -1,0 +1,29 @@
+<!-- Menu/header/footer -->
+<header class="header">
+    <div class="container">
+        <!-- Left side -->
+        <div class="header-left">
+            <a class="header-tab" href="{% url 'index' %}">
+            MoveOn '16
+            </a>
+        </div>
+
+        <!-- Right side -->
+        <div class="header-right">
+            <span class="header-item">
+                <a href="{% url 'companies' %}">Companies</a>
+            </span>
+            <span class="header-item">
+                <a href="" onclick="getLocationRedirection('{% url 'map' %}');">Map</a>
+            </span>
+            <span class="header-item">
+                {% if not user.is_authenticated %}
+                    <a class="button" href="{% url 'moveon_login' %}">Login</a>
+                {% endif %}
+                {% if user.is_authenticated %}
+                    <a class="button" href="{% url 'moveon_logout' %}">Logout</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+</header>

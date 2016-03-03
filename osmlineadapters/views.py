@@ -5,6 +5,7 @@ from django.shortcuts               import render, redirect
 from django.views.decorators.csrf   import csrf_exempt
 import json
 import osmlineadapters.settings as settings
+import sys, traceback
 from django.core.urlresolvers import reverse
 
 @csrf_exempt
@@ -19,7 +20,13 @@ def newline(request, company_id):
         mod = __import__(adapter_path, fromlist=['OSMLine'])
         class_ = getattr(mod, 'OSMLine')
         
-        instance = class_(osm_line_id)
+        try:
+            instance = class_(osm_line_id)
+        except Exception:
+            print("Exception in user code:")     
+            print("-"*60) 
+            traceback.print_exc(file=sys.stdout) 
+            print("-"*60)
         
         cache_id = osm_line_id
         cache_simplified_id = str(osm_line_id) + "_simple"

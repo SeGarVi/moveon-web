@@ -131,7 +131,18 @@ def station(request, station_id):
     return render(request, 'station.html', context)
 
 def map(request):
-    return "hello beibe"
+    userpos = request.GET.get('userpos', '')
+    lat = float(userpos.split(',')[0])
+    lon = float(userpos.split(',')[1])
+    
+    near_stations = Station.objects.get_nearby_stations([lat, lon])
+    Route.objects.add_route_info_to_station_list(near_stations)
+    context = { 'near_stations': near_stations,
+                'location': { 'lon': lon,
+                              'lat': lat
+                            }
+              }
+    return render(request, 'map.html', context) 
     
 def nearby(request):
     userpos = request.GET.get('userpos', '')

@@ -6,12 +6,13 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="/static/js/papaparse.min.js"></script>
     <script>
         $(function() {
           $( "#datepicker" ).datepicker();
           $( "#datepicker2" ).datepicker();
         });
-        console.log("{{ browser }}");
+        var serialize_ids = {{ serialize_ids|safe }};
     </script>
 {% endblock %}
 
@@ -51,7 +52,7 @@
 
     <div class="columns">
         <div class="moveon-company column is-half is-offset-quarter is-flex is-flex-justify">
-            Upload the times with a CSV <input type="file" accept=".csv" name="csv" />
+            Upload the times with a CSV <input id="csv" type="file" accept=".csv" name="csv" onchange="csv_json(serialize_ids);" />
         </div>
     </div>
 
@@ -80,7 +81,7 @@
                 </form>
             </div>
             <div class="timetable--form">
-                <button class="button is-primary" onclick="add_timetableColumn({{ serialize_ids|safe }})"> + </button>
+                <button class="button is-primary" onclick="add_timetableColumn(serialize_ids)"> + </button>
             </div>
         {% endfor %}
     </div>
