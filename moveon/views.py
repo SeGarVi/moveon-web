@@ -171,7 +171,7 @@ def stretches(request, stretch_id):
             _save_times(json_request['times_to_save'], stretch,route_points)
         elif json_request['mean_speed'] is not None:
             new_speeds = _calculate_times_with_mean_speeds(
-                                                int(json_request['mean_speed']),
+                                                json_request['mean_speed'],
                                                 json_request['times'],
                                                 route_points,
                                                 classified_station_points)
