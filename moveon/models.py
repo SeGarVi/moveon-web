@@ -149,6 +149,7 @@ class Stretch(models.Model):
     time_table = models.ManyToManyField(TimeTable)
     
     #redundant attributes to improve efficiency
+    signature = models.TextField()
     station_from = models.ForeignKey(Station, related_name='station_from', null=True)
     station_to = models.ForeignKey(Station, related_name='station_to', null=True)
     
@@ -162,6 +163,9 @@ class RoutePoint(models.Model):
     distance_from_beginning = models.BigIntegerField()
     time_from_beginning = models.BigIntegerField(null=True)
     
+    #redundant attributes to improve efficiency
+    is_station = models.BooleanField(null=False)
+    
     class Meta:
         ordering = ['order']
     
@@ -171,6 +175,7 @@ class RoutePoint(models.Model):
         
         routepoint.order = osmroutepoint['order']
         routepoint.distance_from_beginning = osmroutepoint['distance_from_beginning']
+        routepoint.is_station = osmroutepoint['is_station']
         
         return routepoint
     

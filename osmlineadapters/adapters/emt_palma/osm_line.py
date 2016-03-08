@@ -50,7 +50,7 @@ class OSMLine(AbstractOSMLine):
                     
                     route_point = self._get_route_point_info(
                                     member['ref'], route_point_order,
-                                    distance_from_beginning)
+                                    distance_from_beginning, True)
                     route['route_points'][member['ref']] = route_point
                     route_point_order += 1
                 elif self._is_stop(member):
@@ -74,7 +74,7 @@ class OSMLine(AbstractOSMLine):
                         
                         route_point = self._get_route_point_info(
                                     member['ref'], route_point_order,
-                                    distance_from_beginning)
+                                    distance_from_beginning, False)
                         route['route_points'][member['ref']] = route_point
                         route_point_order += 1
                         
@@ -108,7 +108,7 @@ class OSMLine(AbstractOSMLine):
                             
                             route_point = self._get_route_point_info(
                                     node_id, route_point_order,
-                                    distance_from_beginning)
+                                    distance_from_beginning, False)
                             route['route_points'][node_id] = route_point
                             route_point_order += 1
                             
@@ -218,10 +218,11 @@ class OSMLine(AbstractOSMLine):
     def _station_has_no_related_stop(self, station):
         return 'stop_node' not in station
     
-    def _get_route_point_info(self, node_id, route_point_order, distance):
+    def _get_route_point_info(self, node_id, route_point_order, distance, is_station):
         route_point = dict()
         route_point['node_id'] = node_id
         route_point['order'] = route_point_order
+        route_point['is_station'] = is_station
         route_point['distance_from_beginning'] = distance
         return route_point
     
