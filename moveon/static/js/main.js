@@ -158,11 +158,18 @@ function send_timetableAcceptation(route_id, stretch_id) {
         var mean_speed = $( "input[name='mean_speed']" ).val();
         /*Only for non empty values*/
         var timetable_form_empties = $('form').serializeArray();
-        classified_times = []
+        stretch_info_list = []
         for (i=0; i<timetableColumn_counter; i++) {
-        	classified_times.push([]);
+        	stretch_info_list.push(
+        			{
+        				"stretch_signature" : "",
+        				"time_signature" : "",
+        				"classified_times" : []
+        			}
+        		);
         }
         
+        stretch_signature = "";
         for (i=0; i<timetable_form_empties.length;) {
             var obj = timetable_form_empties[i]
             if(obj.value == "") {
@@ -177,21 +184,35 @@ function send_timetableAcceptation(route_id, stretch_id) {
             	hour = (parseInt(hour_str)%24) * 60 * 60; 
             	min = parseInt(min_str) * 60;
             	
-            	classified_times[col].push(
+            	stretch_info_list[col]["classified_times"].push(
             			{
             				"station_id" : station_id,
             				"time" : hour + min
             			});
             	
+            	stretch_info_list[col]["stretch_signature"] =
+            		stretch_info_list[col]["stretch_signature"]
+            			.concat(obj.name.split("-")[2].concat("."));
+            	
                 i++;
             }
         }
         
-        prefix = obj.name.split("-")[0];
-        data = {"prefix" : prefix, "time_list" : classified_times}
+        for (i=0; i<stretch_info_list.length; i++) {
+        	time_signature = "";
+        	times = stretch_info_list[i]['classified_times']
+        	first_time = times[0]['time'];
+        	
+        	for (j=0; j<times.length; j++) {
+        		increment = times[j]['time'] - first_time;
+        		time_signature =
+        			time_signature.concat(increment.toString().concat(".")); 
+        	}
+        	stretch_info_list[i]['time_signature'] = time_signature;
+        }
 
         var timetable = {
-            "times_to_save": data,
+            "stretch_info_list": stretch_info_list,
             "route_id": route_id,
             "day": days,
             "start": start,

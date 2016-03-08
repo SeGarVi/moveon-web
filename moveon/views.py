@@ -6,10 +6,10 @@ from django.http                    import HttpResponse
 from django.shortcuts               import get_object_or_404, render, redirect
 from geopy.distance                 import vincenty
 from moveon.models                  import Company, Line, Station, Route, Stretch,\
-    RoutePoint
+    RoutePoint, Time, TimeTable
 import json
 import logging
-from django.http.response import JsonResponse
+import dateutil.parser
 
 logger = logging.getLogger(__name__)
 
@@ -167,8 +167,13 @@ def stretches(request, stretch_id):
         json_request = json.loads(request.body.decode("utf-8"))
         route_points = _get_station_route_points_for_stretch(stretch)
         classified_station_points = _classify_station_points(route_points)
-        if 'times_to_save' in json_request:
-            _save_times(json_request['times_to_save'], stretch,route_points)
+        if 'stretch_info_list' in json_request:
+            _save_times(
+                        json_request,
+                        stretch,
+                        route_points,
+                        classified_station_points)
+            return HttpResponse()
         elif json_request['mean_speed'] is not None:
             new_speeds = _calculate_times_with_mean_speeds(
                                                 json_request['mean_speed'],
@@ -280,80 +285,116 @@ def _calculate_times_with_mean_speeds(mean_speed, times, station_points, classif
             
     return return_times
 
-def _save_times(times, stretch, station_points):
-    times_by_turn = []
-    stations_by_turn = []
+def _save_times(timetable, default_stretch, station_points, classified_station_points):
+    new_stretches = dict()
     
-    previous_time_turn = -1
-    for time in times:
-        time_turn = int(time['name'].split('-')[1])
+    stretch_info_list = timetable['stretch_info_list']
+    default_route_points = list(default_stretch.routepoint_set.all())
+    
+    #classify by stretches
+    classified_stretches = dict()
+    for stretch_info in stretch_info_list:
+        key = stretch_info['stretch_signature'] + "-" + stretch_info['time_signature']
         
-        if time_turn != previous_time_turn:
-            turn_times = []
-            turn_stations = []
-            
-            times_by_turn.append(turn_times)
-            stations_by_turn.append(turn_stations)
-            
-            previous_time_turn = time_turn
-            
-        time_station = int(time['name'].split('-')[2])
-        time_components = time['value'].split(':')
-        hours = (int(time_components[0])%24) * 60 * 60
-        minutes = int(time_components[1]) * 60
-        time_value = hours + minutes
+        if not key in classified_stretches:
+            classified_stretches[key] = []
         
-        turn_stations.append(time_station)
-        turn_times.append(time_value)
-    
-    stretches = []
-    
-    
-    
-    for turn_idx in range(0, len(stations_by_turn)):
-        turn = stations_by_turn[turn_idx]
+        classified_stretches[key].append(stretch_info['classified_times'])
         
-        stretch_parsed = False
-        stretches_idx = 0
-        while stretches_idx < len(stretches) and not stretch_parsed:
-            parsed_stretch = stretches[stretches_idx]
+    #create stretches
+    for key in classified_stretches.keys():
+        if not key in new_stretches:
+            new_stretch = Stretch()
+            new_stretch.route = default_stretch.route
+            new_stretch.signature = key
+            new_stretch.save()
             
-            len_turn_stretch = len(turn)
-            len_parsed_stretch_turn = len(parsed_stretch[1])
-            if len_turn_stretch == len_parsed_stretch_turn and \
-                turn[0] == parsed_stretch[1][0] and \
-                turn[len_turn_stretch-1] == parsed_stretch[1][len_parsed_stretch_turn-1]:
+            new_stretches[key] = new_stretch
+    
+    # if stretch has no associated route points
+    # create and save route points
+    for stretch in new_stretches.values():
+        if not stretch.routepoint_set.all():
+            route_points_ids = stretch.signature.split("-")[0].split('.')
+            time_differences = stretch.signature.split("-")[1].split('.')
+            
+            station_from = route_points_ids[0]
+            station_to = route_points_ids[len(route_points_ids) - 2]
+            
+            initial_station_route_point = \
+                default_stretch.routepoint_set.filter(node_id=station_from).first()
+            final_station_route_point = \
+                default_stretch.routepoint_set.filter(node_id=station_to).first()
+            
+            initial_idx = \
+                default_route_points.index(initial_station_route_point) - 1
+            final_idx = \
+                default_route_points.index(final_station_route_point) + 1
+            
+            order = 0
+            initial_distance = \
+                default_route_points[initial_idx].distance_from_beginning
+            for i in range(initial_idx, final_idx):
+                existing_route_point = default_route_points[i]
                 
-                parsed_stretch[2].append(times_by_turn[turn_idx])
-                
-                stretch_parsed = True
-                
-            stretches_idx += 1
-        
-        if not stretch_parsed:
-            if len(turn) == len(station_points):
-                new_stretch= stretch
-            else:
-                new_stretch = Stretch()
-                new_stretch.route = stretch.route
-            
-            new_stretch_info = (new_stretch, turn, [])
-            new_stretch_info[2].append(times_by_turn[turn_idx])
-            stretches.append(new_stretch_info)
+                # We only add time route points if they are not station
+                #    related ones or if they are included in the info we
+                #    get from the timetable edition page 
+                if not existing_route_point.is_station or \
+                    existing_route_point.is_station and \
+                        str(existing_route_point.node_id) in route_points_ids:
+                    
+                    new_route_point = RoutePoint()
+                    new_route_point.node = existing_route_point.node
+                    new_route_point.stretch = stretch
+                    new_route_point.order = order
+                    new_route_point.distance_from_beginning = \
+                        existing_route_point.distance_from_beginning - initial_distance
+                    
+                    if existing_route_point.is_station:
+                        new_route_point.is_station = True
+                        
+                        info_idx = route_points_ids.index(str(new_route_point.node_id))
+                        time_difference = time_differences[info_idx]
+                        
+                        new_route_point.distance_from_beginning = int(time_difference)
+                    
+                    order += 1
     
-    #por cada stretch
-        #si el stretch es el por defecto
-            # lista route points = route_points por defecto
-        #Si el stretch no se ha creado
-            # crearlo
-            # ir al primer route_point
-            # crear route points basados en el anterior
-            # añadir a lista route points
-        # por cada route point en la lista de route points calcular time from beginning
-        # crear timetable para cada stretch
+    # create and save schedule
+    for key in classified_stretches.keys():
+        stretch = new_stretches[key]
+        stretch_turns = classified_stretches[key]
         
-    
-    print('hola')
+        times = []
+        first_times = list([i[0]['time'] for i in stretch_turns])
+        for timestamp in first_times:
+            try:
+                time = Time.objects.get_by_timestamp(timestamp)
+            except Time.DoesNotExist:
+                time = Time()
+                time.moment = timestamp
+                time.save()
+                
+                times.append(time)
+        
+        new_timetable = TimeTable()
+        new_timetable.monday = 'monday' in timetable['day'] 
+        new_timetable.tuesday = 'tuesday' in timetable['day']
+        new_timetable.wednesday = 'wednesday' in timetable['day']
+        new_timetable.thursday = 'thursday' in timetable['day']
+        new_timetable.friday = 'friday' in timetable['day']
+        new_timetable.saturday = 'saturday' in timetable['day']
+        new_timetable.sunday = 'sunday' in timetable['day']
+        new_timetable.holiday = 'holiday' in timetable['day']
+        new_timetable.start = dateutil.parser.parse(timetable['start'], dayfirst=True, yearfirst=False)
+        new_timetable.end = dateutil.parser.parse(timetable['start'], dayfirst=True, yearfirst=False)
+        new_timetable.save()
+        new_timetable.time_table = times
+        new_timetable.save()
+        
+        stretch.time_table.add(new_timetable)
+        stretch.save()
 
 def _classify_station_points(station_points):
     classified_station_points = dict()
