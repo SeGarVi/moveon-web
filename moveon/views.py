@@ -10,6 +10,8 @@ from moveon.models                  import Company, Line, Station, Route, Stretc
 import json
 import logging
 import dateutil.parser
+import sys
+import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -168,11 +170,17 @@ def stretches(request, stretch_id):
         route_points = _get_station_route_points_for_stretch(stretch)
         classified_station_points = _classify_station_points(route_points)
         if 'stretch_info_list' in json_request:
-            _save_times(
-                        json_request,
-                        stretch,
-                        route_points,
-                        classified_station_points)
+            try:
+                _save_times(
+                            json_request,
+                            stretch,
+                            route_points,
+                            classified_station_points)
+            except Exception:
+                print("Exception in user code:")    
+                print("-"*60)
+                traceback.print_exc(file=sys.stdout)
+                print("-"*60)
             return HttpResponse()
         elif json_request['mean_speed'] is not None:
             new_speeds = _calculate_times_with_mean_speeds(
@@ -350,6 +358,7 @@ def _save_times(timetable, default_stretch, station_points, classified_station_p
                     new_route_point.order = order
                     new_route_point.distance_from_beginning = \
                         existing_route_point.distance_from_beginning - initial_distance
+                    new_route_point.is_station = False
                     
                     if existing_route_point.is_station:
                         new_route_point.is_station = True
@@ -358,6 +367,8 @@ def _save_times(timetable, default_stretch, station_points, classified_station_p
                         time_difference = time_differences[info_idx]
                         
                         new_route_point.distance_from_beginning = int(time_difference)
+                    
+                    new_route_point.save()
                     
                     order += 1
     
