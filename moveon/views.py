@@ -461,10 +461,14 @@ def _calculate_times_by_checkpoints(times, station_points, classified_station_po
                 
                 return_times.append(new_turn)
         
-        if next_checkpoint_id != last_station_point.node_id:
+        current_checkpoint_id = next_checkpoint_id
+        current_checkpoint_idx = next_checkpoint_idx
+        current_distance = next_distance
+        current_checkpoint_time = next_checkpoint_time
+        if current_checkpoint_id != last_station_point.node_id:
             speed = turn_speeds[int(len(turn_speeds)/2)]
             
-            for k in range(next_checkpoint_idx , len(station_points)):
+            for k in range(current_checkpoint_idx , len(station_points)):
                 station_point = station_points[k]
                 
                 distance_difference = \
