@@ -114,7 +114,7 @@ class RouteManager(models.Manager):
     def _get_next_vehicles(self, station, time_from_beginning, stretch, n_vehicles):
         now = datetime.now()
         harmonized = datetime(1970,1,1, now.hour + self._get_time_zone_offset(station) , now.minute, 0, 0)
-        harmonized_timestamp = harmonized.timestamp()*1000
+        harmonized_timestamp = harmonized.timestamp()
         day_of_week = now.strftime('%A').lower()
         
         timetable = stretch.time_table.filter(**{day_of_week: True}).first()
@@ -130,7 +130,7 @@ class RouteManager(models.Manager):
         
     
     def _get_time_zone_offset(self, station):
-        return 2
+        return 1
 
 class TimeManager(models.Manager):
     def get_by_timestamp(self, timestamp):
