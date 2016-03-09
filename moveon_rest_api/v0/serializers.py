@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from asyncio.transports import Transport
 
 class RouteSerializer(serializers.Serializer):
     pk = serializers.IntegerField(read_only=True)
