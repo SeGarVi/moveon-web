@@ -366,7 +366,7 @@ def _save_times(timetable, default_stretch, station_points, classified_station_p
                         info_idx = route_points_ids.index(str(new_route_point.node_id))
                         time_difference = time_differences[info_idx]
                         
-                        new_route_point.distance_from_beginning = int(time_difference)
+                        new_route_point.time_from_beginning = int(time_difference)
                     
                     new_route_point.save()
                     
