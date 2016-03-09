@@ -89,7 +89,7 @@ class RouteManager(models.Manager):
             route.adapted = False  #Change to the good val from de DB
             
             if len(next_vehicles) > 0:
-                route.next_vehicles = [int(next_vehicle / 1000 / 60) for next_vehicle in next_vehicles] 
+                route.next_vehicles = [int(next_vehicle / 60) for next_vehicle in next_vehicles] 
             
             station.routes.append(route)
     
@@ -98,23 +98,24 @@ class RouteManager(models.Manager):
         
         routes = []
         for route_point in route_points:
-            stretch = route_point.stretch
-            
-            next_vehicles = []
-            if n_vehicles > 0:
-                next_vehicles = self._get_next_vehicles(station, route_point.time_from_beginning, stretch, n_vehicles)
-            
-            if n_vehicles == 0 or len(next_vehicles) > 0: 
-                route = route_point.stretch.route
-                if route not in routes:
-                    routes.append((route, next_vehicles))
+            if route_point.time_from_beginning is not None:
+                stretch = route_point.stretch
+                
+                next_vehicles = []
+                if n_vehicles > 0:
+                    next_vehicles = self._get_next_vehicles(station, route_point.time_from_beginning, stretch, n_vehicles)
+                
+                if n_vehicles == 0 or len(next_vehicles) > 0: 
+                    route = route_point.stretch.route
+                    if route not in routes:
+                        routes.append((route, next_vehicles))
         
         return routes
     
     def _get_next_vehicles(self, station, time_from_beginning, stretch, n_vehicles):
         now = datetime.now()
         harmonized = datetime(1970,1,1, now.hour + self._get_time_zone_offset(station) , now.minute, 0, 0)
-        harmonized_timestamp = harmonized.timestamp()
+        harmonized_timestamp = int(harmonized.timestamp())
         day_of_week = now.strftime('%A').lower()
         
         timetable = stretch.time_table.filter(**{day_of_week: True}).first()
