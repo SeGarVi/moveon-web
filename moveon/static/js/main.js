@@ -222,9 +222,12 @@ function send_timetableAcceptation(route_id, stretch_id) {
         $.ajax({
           type: "PUT",
           url: "/moveon/stretches/"+stretch_id,
-          data: JSON.stringify(timetable)//,
-          //success: console.log("success"),
-          //dataType: json
+          data: JSON.stringify(timetable),
+          statusCode: {
+            200: function() { alert( "It worked! 200 " ); },
+            201: function() { alert( "It worked! 201 " ); },
+            404: function() { alert( "Something was missing" ); }
+          }
         });
     }
 }
