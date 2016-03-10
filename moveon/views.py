@@ -298,19 +298,9 @@ def _save_times(timetable, default_stretch, station_points, classified_station_p
     
     stretch_info_list = timetable['stretch_info_list']
     default_route_points = list(default_stretch.routepoint_set.all())
-    
-    #classify by stretches
-    classified_stretches = dict()
-    for stretch_info in stretch_info_list:
-        key = stretch_info['stretch_signature'] + "-" + stretch_info['time_signature']
-        
-        if not key in classified_stretches:
-            classified_stretches[key] = []
-        
-        classified_stretches[key].append(stretch_info['classified_times'])
         
     #create stretches
-    for key in classified_stretches.keys():
+    for key in stretch_info_list.keys():
         if not key in new_stretches:
             new_stretch = Stretch()
             new_stretch.route = default_stretch.route
@@ -373,12 +363,11 @@ def _save_times(timetable, default_stretch, station_points, classified_station_p
                     order += 1
     
     # create and save schedule
-    for key in classified_stretches.keys():
+    for key in stretch_info_list.keys():
         stretch = new_stretches[key]
-        stretch_turns = classified_stretches[key]
         
         times = []
-        first_times = list([i[0]['time'] for i in stretch_turns])
+        first_times = stretch_info_list[key]
         for timestamp in first_times:
             try:
                 time = Time.objects.get_by_timestamp(timestamp)

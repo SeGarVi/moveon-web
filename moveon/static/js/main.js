@@ -158,61 +158,58 @@ function send_timetableAcceptation(route_id, stretch_id) {
         var mean_speed = $( "input[name='mean_speed']" ).val();
         /*Only for non empty values*/
         var timetable_form_empties = $('form').serializeArray();
-        stretch_info_list = []
+
+        var stationSignatureByCol=[]
+        var timeSignatureByCol=[]
+        var initialTimesPerCol=[]
         for (i=0; i<timetableColumn_counter; i++) {
-        	stretch_info_list.push(
-        			{
-        				"stretch_signature" : "",
-        				"time_signature" : "",
-        				"classified_times" : []
-        			}
-        		);
+        	stationSignatureByCol.push("");
+        	timeSignatureByCol.push("");
         }
         
-        stretch_signature = "";
+        var previousCol = -1;
+        var first
         for (i=0; i<timetable_form_empties.length;) {
             var obj = timetable_form_empties[i]
-            if(obj.value == "") {
-                timetable_form_empties.splice(i, 1);
-            } else {
-            	col = parseInt(obj.name.split("-")[1]);
-            	station_id = parseInt(obj.name.split("-")[2]);
+            if(obj.value != "") {
+            	var col = parseInt(obj.name.split("-")[1]);
+            	var station_id_str = parseInt(obj.name.split("-")[2]);
+            	var station_id = parseInt(station_id_str);
             	
-            	hour_str=obj.value.split(":")[0];
-            	min_str=obj.value.split(":")[1];
+            	var hour_str=obj.value.split(":")[0];
+            	var min_str=obj.value.split(":")[1];
             	
-            	hour = (parseInt(hour_str)%24) * 60 * 60; 
-            	min = parseInt(min_str) * 60;
+            	var hour = (parseInt(hour_str)%24) * 60 * 60; 
+            	var min = parseInt(min_str) * 60;
             	
-            	stretch_info_list[col]["classified_times"].push(
-            			{
-            				"station_id" : station_id,
-            				"time" : hour + min
-            			});
+            	var timestamp = hour + min;
             	
-            	stretch_info_list[col]["stretch_signature"] =
-            		stretch_info_list[col]["stretch_signature"]
-            			.concat(obj.name.split("-")[2].concat("."));
+            	if (col != previousCol) {
+            		initialTimesPerCol.push(timestamp)
+            	}
+            	var previousCol = col;
+            	
+            	var timeDifference = timestamp - initialTimesPerCol[col];
+            	
+            	stationSignatureByCol[col] = stationSignatureByCol[col].concat(station_id_str).concat(".");
+            	timeSignatureByCol[col] = timeSignatureByCol[col].concat(timeDifference.toString()).concat(".");
             	
                 i++;
             }
         }
         
-        for (i=0; i<stretch_info_list.length; i++) {
-        	time_signature = "";
-        	times = stretch_info_list[i]['classified_times']
-        	first_time = times[0]['time'];
+        var initialtimesPerStretch={};
+        for (i=0; i<timetableColumn_counter; i++) {
+        	var stretchSignature = stationSignatureByCol[i].concat("-").concat(timeSignatureByCol[i]);
         	
-        	for (j=0; j<times.length; j++) {
-        		increment = times[j]['time'] - first_time;
-        		time_signature =
-        			time_signature.concat(increment.toString().concat(".")); 
+        	if (!(stretchSignature in initialtimesPerStretch)) {
+        		initialtimesPerStretch[stretchSignature] = [];
         	}
-        	stretch_info_list[i]['time_signature'] = time_signature;
+        	initialtimesPerStretch[stretchSignature].push(initialTimesPerCol[i])
         }
-
+        
         var timetable = {
-            "stretch_info_list": stretch_info_list,
+            "stretch_info_list": initialtimesPerStretch,
             "route_id": route_id,
             "day": days,
             "start": start,
