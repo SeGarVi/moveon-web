@@ -169,7 +169,7 @@ function send_timetableAcceptation(route_id, stretch_id) {
         
         var previousCol = -1;
         var first
-        for (i=0; i<timetable_form_empties.length;) {
+        for (i=0; i<timetable_form_empties.length; i++) {
             var obj = timetable_form_empties[i]
             if(obj.value != "") {
             	var col = parseInt(obj.name.split("-")[1]);
@@ -193,8 +193,6 @@ function send_timetableAcceptation(route_id, stretch_id) {
             	
             	stationSignatureByCol[col] = stationSignatureByCol[col].concat(station_id_str).concat(".");
             	timeSignatureByCol[col] = timeSignatureByCol[col].concat(timeDifference.toString()).concat(".");
-            	
-                i++;
             }
         }
         
