@@ -133,7 +133,7 @@ def station(request, station_id):
               }
     return render(request, 'station.html', context)
 
-def map(request):
+def station_map(request):
     userpos = request.GET.get('userpos', '')
     lat = float(userpos.split(',')[0])
     lon = float(userpos.split(',')[1])
