@@ -123,8 +123,6 @@ def station(request, station_id):
     #station = get_object_or_404(Station, code=station_id)
     #Get distance between station and user
     userpos = request.GET.get('userpos', '').split(',')
-    #station_pos = [station.stop_node.latitude, station.stop_node.longitude]
-    #distance = int(vincenty(station_pos, bbox).meters)
     station = Station.objects.get_with_distance(station_id, userpos)
     #Get station times
     Route.objects.add_route_info_to_station(station)

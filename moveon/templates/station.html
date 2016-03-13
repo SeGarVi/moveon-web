@@ -16,53 +16,57 @@
 
     <script>
         mapboxgl.accessToken = 'pk.eyJ1Ijoiaml1Y2siLCJhIjoiY2lrcGJ6NWZkMDBiYXZxbHNjdGQzdGllaCJ9.bgTUEJPNl-T44l5t6sNv8g';
-        var map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v8',
-            center: [{{ station.stop_node.longitude }}, 
-                     {{ station.stop_node.latitude }}],
-            zoom: 15
-        });
+        if (!mapboxgl.supported()) {
+            alert('Your browser does not support Mapbox GL. Please, install or use Mozilla Firefox, Google Chrome or Opera. For more detail, here is a a list of the accepted browsers: https://en.wikipedia.org/wiki/WebGL#Support');
+        } else {
+            var map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v8',
+                center: [{{ station.stop_node.longitude }}, 
+                         {{ station.stop_node.latitude }}],
+                zoom: 15
+            });
 
-        var stations = {
-          "type": "FeatureCollection",
-          "features": [
+            var stations = {
+              "type": "FeatureCollection",
+              "features": [
 
-            {
-              "type": "Feature",
-              "geometry": {
-                "type": "Point",
-                "coordinates": [{{ station.stop_node.longitude }}, 
-                                {{ station.stop_node.latitude }}]
-              },
-              "properties": {
-                    "title": "{{ station.code }} - {{ station.name }}",
-                    "marker-symbol": "bus"
+                {
+                  "type": "Feature",
+                  "geometry": {
+                    "type": "Point",
+                    "coordinates": [{{ station.stop_node.longitude }}, 
+                                    {{ station.stop_node.latitude }}]
+                  },
+                  "properties": {
+                        "title": "{{ station.code }} - {{ station.name }}",
+                        "marker-symbol": "bus"
+                    }
                 }
+                
+              ]
             }
-            
-          ]
-        }
 
-map.on('style.load', function () {
-    map.addSource("markers", {
-        "type": "geojson",
-        "data": stations
-    });
+            map.on('style.load', function () {
+                map.addSource("markers", {
+                    "type": "geojson",
+                    "data": stations
+                });
 
-    map.addLayer({
-        "id": "markers",
-        "type": "symbol",
-        "source": "markers",
-        "layout": {
-            "icon-image": "{marker-symbol}-15",
-            "text-field": "{title}",
-            "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-            "text-offset": [0, 0.6],
-            "text-anchor": "top"
+                map.addLayer({
+                    "id": "markers",
+                    "type": "symbol",
+                    "source": "markers",
+                    "layout": {
+                        "icon-image": "{marker-symbol}-15",
+                        "text-field": "{title}",
+                        "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+                        "text-offset": [0, 0.6],
+                        "text-anchor": "top"
+                    }
+                });
+            });
         }
-    });
-});
 
     </script>
 
