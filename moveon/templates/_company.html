@@ -1,6 +1,6 @@
 <div class="columns">
     <div class="moveon-company moveon-company_company column is-flex is-half is-offset-quarter">
-        <a href="{% url 'company' company.code %}">
+        <a class="is-flex" href="{% url 'company' company.code %}">
             <img class="is-medium-image" src="{{ company.logo }}" alt="{{ company.name }} logo">
         </a>
         <a href="{% url 'company' company.code %}">
