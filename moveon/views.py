@@ -372,18 +372,6 @@ def _save_times(timetable, default_stretch, station_points, classified_station_p
     for key in stretch_info_list.keys():
         stretch = new_stretches[key]
         
-        times = []
-        first_times = stretch_info_list[key]
-        for timestamp in first_times:
-            try:
-                time = Time.objects.get_by_timestamp(timestamp)
-            except Time.DoesNotExist:
-                time = Time()
-                time.moment = timestamp
-                time.save()
-                
-                times.append(time)
-        
         new_timetable = TimeTable()
         new_timetable.monday = 'monday' in timetable['day'] 
         new_timetable.tuesday = 'tuesday' in timetable['day']
@@ -396,8 +384,13 @@ def _save_times(timetable, default_stretch, station_points, classified_station_p
         new_timetable.start = dateutil.parser.parse(timetable['start'], dayfirst=True, yearfirst=False)
         new_timetable.end = dateutil.parser.parse(timetable['start'], dayfirst=True, yearfirst=False)
         new_timetable.save()
-        new_timetable.time_table = times
-        new_timetable.save()
+        
+        first_times = stretch_info_list[key]
+        for timestamp in first_times:
+            time = Time()
+            time.moment = timestamp
+            time.time_table = new_timetable
+            time.save()
         
         stretch.time_table.add(new_timetable)
         stretch.save()

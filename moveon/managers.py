@@ -122,7 +122,7 @@ class RouteManager(models.Manager):
         
         next_vehicles = []
         if timetable:
-            next_vehicle_times = timetable.time_table.filter(moment__gt=harmonized_timestamp - time_from_beginning)
+            next_vehicle_times = timetable.times.filter(moment__gt=harmonized_timestamp - time_from_beginning)
             
             for next_time in next_vehicle_times[0:n_vehicles]:
                 next_vehicles.append(next_time.moment + time_from_beginning - harmonized_timestamp)
