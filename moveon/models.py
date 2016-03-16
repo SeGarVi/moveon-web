@@ -115,19 +115,6 @@ class Route(models.Model):
         
         return route
 
-class Time(models.Model):
-    moment = models.BigIntegerField(primary_key=True, unique=True)
-    
-    objects = managers.TimeManager()
-    
-    class Meta:
-        ordering = ['moment']
-    
-    def __str__(self):
-        hour = int(self.moment / 1000 / 60 / 60)
-        minutes = int((self.moment / 1000 / 60) % 60)
-        return "%02d:%02d" % (hour, minutes)
-
 class TimeTable(models.Model):
     monday = models.BooleanField()
     tuesday = models.BooleanField()
@@ -139,10 +126,23 @@ class TimeTable(models.Model):
     holiday = models.BooleanField()
     start = models.DateField()
     end = models.DateField()
-    time_table = models.ManyToManyField(Time)
     
     def __str__(self):
         return str(self.id)
+    
+class Time(models.Model):
+    moment = models.BigIntegerField(primary_key=True, unique=True)
+    time_table = models.ForeignKey(TimeTable, related_name='time_table', null=False)
+    
+    objects = managers.TimeManager()
+    
+    class Meta:
+        ordering = ['moment']
+    
+    def __str__(self):
+        hour = int(self.moment / 1000 / 60 / 60)
+        minutes = int((self.moment / 1000 / 60) % 60)
+        return "%02d:%02d" % (hour, minutes)
 
 class Stretch(models.Model):
     route = models.ForeignKey(Route)
