@@ -7,29 +7,29 @@
         <div class="station_info is-flex">
             {% if station.available %}
                 <span class="transports">
-                    CHANGE!<i class="demo-icon icon-bus-24"></i> 
+                    <i class="material-icons">directions_bus</i> 
                 </span>
                 <span class="extras">
                     {% if station.adapted %}
-                        <i class="demo-icon icon-disability-24"></i> 
+                        <i class="material-icons">accessible</i> 
                     {% endif %}
                     {% if station.shelter %}
-                        <i class="demo-icon icon-building-24"></i> 
+                        <i class="material-icons">beach_access</i> 
                     {% endif %}
                     {% if station.bench %}
-                        <i class="demo-icon icon-lodging-24"></i> 
+                        <i class="material-icons">airline_seat_legroom_extra</i> 
                     {% endif %}
                 </span>
             {% else %}
-                Sorry, but this station is not available in the moment. You can go to the nearest station <a href="">Here</a>
+                Sorry, but this station is not available in the moment. You can go to the nearest station <a href="#">Here</a>
             {% endif %}
         </div>
         <div class="station_routes">
             {% for route in station.routes %}
                 <div class="station_routes--info is-flex">
                     <span class="route-info">
+                        <i class="is-hidden-mobile material-icons">directions_bus</i>
                         <img class="is-hidden-mobile is-small-image" src="{{ route.company_icon }}"></img> 
-                        <i class="is-hidden-mobile demo-icon icon-{{ route.transport_type }}-24"></i>
                         <span class="route-color" style="background-color:{{ route.colour }}"> {{route.code}} </span> {{ route.name }}
                     </span>
                     <span class="next-vehicle">
