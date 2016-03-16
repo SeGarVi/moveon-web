@@ -4,7 +4,7 @@
     {% for company in companies %}
 
         {% include "_company.html" %}
-        
+
     {% empty %}
         <div class="columns">
             <div class="moveon-company column is-half is-offset-quarter">
@@ -12,4 +12,36 @@
             </div>
         </div>
     {% endfor %}
+
+    {% if user.is_authenticated %}
+        <div class="columns">
+            <div class="moveon-company column is-half is-offset-quarter is-flex is-flex-justify">
+                <form name="login" class="" method="POST" action="{% url 'companies' %}">{% csrf_token %}
+                    <fieldset>
+                        <legend>Add a new company</legend>
+                        <p><label for="company_name">Company Name
+                            <input class="input" name="company_name" id="company_name" type="text" placeholder="Ex.: Municipal Transport Company of Springfield" required>
+                        </label></p>
+
+                        <p><label for="company_code">Company Code. Needs to be only one word and unique
+                            <input class="input" name="company_code" id="company_code" type="text" placeholder="Ex.: mtc_springfield" required>
+                        </label></p>
+
+                        <p><label for="company_url">Company URL
+                            <input class="input" name="company_url" id="company_url" type="url" placeholder="Ex.: http://www.mtc-springfield.gov" required>
+                        </label></p>
+
+                        <p><label for="logo_url">As logo URL we accept jpg, png, gif and svg. We never save the logo into our servers. We only display it to prevent possible copyright issues.
+                            <input class="input" name="logo_url" id="logo_url" type="url" placeholder="Ex.: http://www.mtc-springfield.gov/logo.gif" required>
+                        </label></p>
+
+                        <p class="form-buttons">
+                            <input name="submit" class="button is-success" type="submit" value="Add it">
+                        </p>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
 {% endblock %}
