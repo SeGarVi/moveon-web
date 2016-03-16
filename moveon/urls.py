@@ -14,8 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include,url
-
-from . import views
+from .                import views
 
 urlpatterns = [
     url(r'^api/',                                                                                 include('moveon_rest_api.urls')),

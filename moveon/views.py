@@ -67,6 +67,15 @@ def moveon_logout(request):
     return redirect(reverse('index'))
 
 def companies(request):
+    #needs verification
+    if request.method == 'POST':
+        code = request.POST['company_code']
+        name = request.POST['company_name']
+        url  = request.POST['company_url']
+        logo = request.POST['logo_url']
+        new_company = Company(code=code, name=name, url=url, logo=logo)
+        new_company.save()
+        
     companies = Company.objects.order_by('name')
     return render(request, 'companies.html', {'companies': companies}) 
 
@@ -120,7 +129,6 @@ def timetable(request, company_id, line_id, route_id):
     return render(request, 'timetable.html', context) 
 
 def station(request, station_id):
-    #station = get_object_or_404(Station, code=station_id)
     #Get distance between station and user
     userpos = request.GET.get('userpos', '').split(',')
     station = Station.objects.get_with_distance(station_id, userpos)
