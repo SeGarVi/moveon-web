@@ -151,8 +151,8 @@ function send_timetableAcceptation(route_id, stretch_id) {
     var send = true;
 
     send = verify_last(days, '.moveon-company_day', 'Please, select at least one day in the week checkbox.');
-    send = verify_last(start, 'input[name="start"]', 'Please, select the start date for the timetable');
-    send = verify_last(end, 'input[name="end"]', 'Please, select the end date for the timetable');
+    send = send && verify_last(start, 'input[name="start"]', 'Please, select the start date for the timetable');
+    send = send && verify_last(end, 'input[name="end"]', 'Please, select the end date for the timetable');
 
     if (send) {
         var mean_speed = $( "input[name='mean_speed']" ).val();
