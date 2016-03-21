@@ -27,16 +27,16 @@
         <div class="station_routes">
             {% for route in station.routes %}
                 <div class="station_routes--info is-flex">
-                    <span class="route-info">
+                    <p class="route-info is-flex">
                         <i class="is-hidden-mobile material-icons">directions_bus</i>
                         <img class="is-hidden-mobile is-small-image" src="{{ route.company_icon }}"></img> 
-                        <span class="route-color" style="background-color:{{ route.colour }}"> {{route.code}} </span> {{ route.name }}
-                    </span>
-                    <span class="next-vehicle">
+                        <span class="line_code" style="background-color:{{ route.colour }}"> {{route.line.code}} </span> {{ route.name }}
+                    </p>
+                    <p class="next-vehicle">
                         {% for next_vehicle in route.next_vehicles %}
                             <span> {{ next_vehicle }}m</span>
                         {% endfor %}
-                    </span>
+                    </p>
                 </div>
             {% endfor %}
         </div>

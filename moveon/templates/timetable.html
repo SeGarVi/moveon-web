@@ -24,6 +24,23 @@
 
     {% include "_route.html" %}
 
+    {% if timetables %}
+        <div class="columns">
+            <div class="moveon-company column is-half is-offset-quarter is-flex is-flex-justify">
+                <p class="title is-5">If you need to Edit or erase a timetable, choose it and press the correspondant button:</p>
+                <div class="moveon-company_day">
+                    {% for timetable, ids in timetables %}
+                        <p>
+                            <input type="checkbox" name="timetable" value="{{ids}}"> {{timetable.start_date}} - {{timetable.end_date}} {{timetable.days}}
+                            <a class="button is-small is-success" href="#">Edit timetable</a>
+                        </p>
+                    {% endfor %}
+                    <input name="erase" type="submit" value="Erase" class="button is-warning" onclick="erase_timetables({{ route.osmid }});" />
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     <div class="columns">
         <div class="moveon-company column is-half is-offset-quarter is-flex is-column">
             <div class="is-flex moveon-company_calcdataform">

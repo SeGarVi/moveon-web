@@ -132,7 +132,7 @@ class TimeTable(models.Model):
     
 class Time(models.Model):
     moment = models.BigIntegerField()
-    time_table = models.ForeignKey(TimeTable, related_name='times', null=False)
+    time_table = models.ForeignKey(TimeTable, related_name='times', null=False, on_delete=models.CASCADE)
     
     objects = managers.TimeManager()
     
@@ -157,8 +157,8 @@ class Stretch(models.Model):
         return str(self.id)
 
 class RoutePoint(models.Model):
-    node = models.ForeignKey(Node)
-    stretch = models.ForeignKey(Stretch)
+    node = models.ForeignKey(Node, on_delete=models.CASCADE)
+    stretch = models.ForeignKey(Stretch, on_delete=models.CASCADE)
     order = models.IntegerField()
     distance_from_beginning = models.BigIntegerField()
     time_from_beginning = models.BigIntegerField(null=True)

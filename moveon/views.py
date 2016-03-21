@@ -7,6 +7,7 @@ from django.shortcuts               import get_object_or_404, render, redirect
 from geopy.distance                 import vincenty
 from moveon.models                  import Company, Line, Station, Route, Stretch,\
     RoutePoint, Time, TimeTable
+from django.views.decorators.http   import require_http_methods
 import json
 import logging
 import dateutil.parser
@@ -75,6 +76,7 @@ def companies(request):
         logo = request.POST['logo_url']
         new_company = Company(code=code, name=name, url=url, logo=logo)
         new_company.save()
+        return redirect(reverse('company', args=[code]))
         
     companies = Company.objects.order_by('name')
     return render(request, 'companies.html', {'companies': companies}) 
@@ -117,6 +119,8 @@ def timetable(request, company_id, line_id, route_id):
     times = []
     serialize_ids = [str(station.osmid) for station in stations]
     mean_speed = 0
+    timetables = _get_timetables_for_route(route_id)
+
     context = {     'company': comp,
                     'line': line,
                     'route': route,
@@ -124,9 +128,23 @@ def timetable(request, company_id, line_id, route_id):
                     'times': times,
                     'mean_speed': mean_speed,
                     'serialize_ids': serialize_ids,
-                    'stretch_id': route.stretch_set.first().id
+                    'stretch_id': route.stretch_set.first().id,
+                    'timetables': timetables
               }
     return render(request, 'timetable.html', context) 
+
+@require_http_methods(["POST"])
+def timetable_deletes(request):
+    try:
+        deletes = json.loads(request.body.decode("utf-8"))
+        _delete_timetable(deletes['timetable_ids'], deletes['route_id'])
+    except Exception:
+        print("Exception in user code:")    
+        print("-"*60)
+        traceback.print_exc(file=sys.stdout)
+        print("-"*60)
+
+    return HttpResponse()
 
 def station(request, station_id):
     #Get distance between station and user
@@ -159,7 +177,7 @@ def nearby(request):
     lon = float(userpos.split(',')[1])
     
     near_stations = Station.objects.get_nearby_stations([lat, lon])
-    Route.objects.add_route_info_to_station_list(near_stations)
+    Route.objects.add_route_info_to_station_list(near_stations, 2)
     context = { 'near_stations': near_stations,
                 'location': userpos
               }
@@ -472,5 +490,40 @@ def _calculate_times_by_checkpoints(times, station_points, classified_station_po
         
     return return_times
     
+def _get_timetables_for_route(route_id):
+    stretches = list(Stretch.objects.filter(route_id=route_id).exclude(signature=''))
+    timetables = []
+    timetables_ids = []
+    for stretch in stretches:
+        for timetable in stretch.time_table.all():
+            days = []
+            for attr in timetable.__dict__.keys():
+                if type(timetable.__dict__[attr]) is bool and timetable.__dict__[attr]:
+                    days.append(attr)
+            timetable_aux = {
+                'start_date': timetable.start,
+                'end_date': timetable.end,
+                'days': days
+            }
+
+            if timetable_aux not in timetables:
+                timetables.append(timetable_aux)
+                timetables_ids.append([])
+            pos = timetables.index(timetable_aux)
+            timetables_ids[pos].append(timetable.id)
+
+    result = []
+    for i in range(0,len(timetables)):
+        result.append( (timetables[i], timetables_ids[i]) )
+
+    return result
     
-    
+def _delete_timetable(timetable_ids, route_id):
+    timetables = TimeTable.objects.filter(id__in=timetable_ids)
+    for timetable in timetables:
+        stretchs = timetable.stretch_set.all()
+        for stretch in stretchs:
+            stretch.time_table.remove(timetable)
+    route = Route.objects.get(osmid=route_id)
+    route.stretch_set.filter(time_table=None).exclude(signature="").delete()
+    timetables.delete()  

@@ -284,3 +284,24 @@ function csv_json(serialize_ids) {
     });
 }
 
+function erase_timetables(route_id) {
+    var timetable_ids = $("input[name=timetable]:checked").map(function () {return this.value;}).get().join(",");
+    console.log(timetable_ids);
+
+    to_delete = {
+        'timetable_ids': timetable_ids.split('[')[1].split(']')[0].split(',').map(Number),
+        'route_id': route_id
+      }
+
+    $.ajax({
+      type: "POST",
+      url: "/moveon/timetables/deletes/",
+      data: JSON.stringify(to_delete),
+      statusCode: {
+        200: function() { alert( "The elements has been erased" ); },
+        201: function() { alert( "The elements has been erased 201 " ); },
+        404: function() { alert( "Something was incorrect" ); }
+      }
+    });
+
+}
