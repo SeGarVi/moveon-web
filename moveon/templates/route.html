@@ -1,6 +1,12 @@
 {% extends "index.html" %}
 {% load color_filters %}
 
+{% block head %}
+    <script>
+        var serialize_ids = {{ serialize_ids|safe }};
+    </script>
+{% endblock %}
+
 {% block content %}
     
     {% include "_company.html" %}
@@ -9,15 +15,40 @@
 
     {% include "_route.html" %}
 
+    {% if timetables %}
+        <div class="columns">
+            <div class="moveon-company column is-half is-offset-quarter is-flex is-flex-justify is-column">
+                <p class="title is-5">This are the available timetables:</p>
+                <div class="moveon-company_day">
+                    <select onchange="get_Timetable(serialize_ids, {{ route.osmid }})">
+                        <option value="[]">Choose a timetable to see it</option>
+                        {% for timetable, ids in timetables %}
+                            <option value="{{ids}}">{{timetable.start_date}} - {{timetable.end_date}} {{timetable.days}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     <div class="columns">
         <div class="moveon-company moveon-company--list column is-half is-offset-quarter">
-            {% for station in stations %}
-                <a class="moveon-company__route" onclick="getLocationRedirection('{% url "station" station.osmid %}')">
-                    <p>{{ forloop.counter|stringformat:"03d" }} --> {{ station.code}} - {{ station }}</p>
-                </a>
-            {% empty %}
-                <p>Sorry, this Route has no stations yet.</p>
-            {% endfor %}
+            <table id="route_timetable">
+                <tr id="titles">
+                    <th>CODE</th>
+                    <th>NAME</th>
+                </tr>
+                {% for station in stations %}
+                    <tr id="{{ station.osmid }}">
+                        <td>{{ station.code }}</td> 
+                        <td>
+                            <a class="moveon-company__route" onclick="getLocationRedirection('{% url "station" station.osmid %}')">{{ station }}</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <p>Sorry, this Route has no stations yet.</p>
+                {% endfor %}
+            </table>
         </div>
     </div>
 {% endblock %}

@@ -99,15 +99,34 @@ def line(request, company_id, line_id):
               }
     return render(request, 'line.html', context) 
 
+@require_http_methods(["POST"])
+def timetable_get(request, route_id):
+    timetables_ids = []
+    try:
+        timetable_ids = json.loads(request.body.decode("utf-8"))
+        eval(timetable_ids)
+    except Exception:
+        print("Exception in user code:")    
+        print("-"*60)
+        traceback.print_exc(file=sys.stdout)
+        print("-"*60)
+    timetable_available = _show_timetable(route_id, timetables_ids)
+    json_answer = json.dumps(timetable_available)
+    return HttpResponse(json_answer)
+
 def route(request, company_id, line_id, route_id):
     comp = get_object_or_404(Company, code=company_id)
     line = get_object_or_404(Line, code=line_id)
     route = get_object_or_404(Route, osmid=route_id)
     stations = _get_stations_for_route(route)
+    serialize_ids = [str(station.osmid) for station in stations]
+    timetables = _get_timetables_for_route(route_id)
     context = {     'company': comp,
                     'line': line,
                     'route': route,
-                    'stations': stations
+                    'stations': stations,
+                    'serialize_ids': serialize_ids,
+                    'timetables': timetables
               }
     return render(request, 'route.html', context) 
 
@@ -490,8 +509,8 @@ def _calculate_times_by_checkpoints(times, station_points, classified_station_po
         
     return return_times
     
-def _get_timetables_for_route(route_id):
-    stretches = list(Stretch.objects.filter(route_id=route_id).exclude(signature=''))
+def _get_timetables_for_route(route_id, get_timetable_ids=False):
+    stretches = Stretch.objects.filter(route_id=route_id).exclude(signature='')
     timetables = []
     timetables_ids = []
     for stretch in stretches:
@@ -513,8 +532,11 @@ def _get_timetables_for_route(route_id):
             timetables_ids[pos].append(timetable.id)
 
     result = []
-    for i in range(0,len(timetables)):
-        result.append( (timetables[i], timetables_ids[i]) )
+    if get_timetable_ids:
+        result = timetables_ids
+    else:
+        for i in range(0,len(timetables)):
+            result.append( (timetables[i], timetables_ids[i]) )
 
     return result
     
@@ -526,4 +548,26 @@ def _delete_timetable(timetable_ids, route_id):
             stretch.time_table.remove(timetable)
     route = Route.objects.get(osmid=route_id)
     route.stretch_set.filter(time_table=None).exclude(signature="").delete()
-    timetables.delete()  
+    timetables.delete()
+
+def _show_timetable(route_id, timetable_ids=[]):
+    #TO-DO: search only stretches of the timetable_ids given in timetable_ids
+    stretches = Stretch.objects.filter(route_id=route_id).exclude(signature='')
+    time_table = {}
+    for stretch in stretches:
+        time_table_aux = []
+        signature = stretch.signature
+
+        if timetables_ids==[]:
+            #TO-DO: get only a valid time_table of now
+            timetables = stretch.time_table.filter()
+        else:
+            timetables = stretch.time_table.all()
+
+        for timetable in timetables:
+            columns = timetable.times.all()
+            time_table_aux = [column.moment for column in columns]
+
+        time_table[signature] = time_table_aux
+    print(time_table)
+    return time_table

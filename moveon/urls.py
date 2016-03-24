@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^logtest/$',                                                                                     views.logtest),
     #url(r'^change_password/(?P<ch_code>.+)/(?P<email>.+)/$',                                               views.change_password, name='change_password'),
     url(r'^timetables/deletes/$',                                                                          views.timetable_deletes,name='timetable_deletes'),
+    url(r'^timetables/get/(?P<route_id>.+)/$',                                                             views.timetable_get,   name='timetable_get'),
     url(r'^companies/(?P<company_id>.+)/lines/(?P<line_id>.+)/route/(?P<route_id>.+)/timetables/$',        views.timetable,       name='timetable'),
     url(r'^companies/(?P<company_id>.+)/lines/(?P<line_id>.+)/route/(?P<route_id>.+)/$',                   views.route,           name='route'),
     url(r'^companies/(?P<company_id>.+)/lines/(?P<line_id>.+)/$',                                          views.line,            name='line'),

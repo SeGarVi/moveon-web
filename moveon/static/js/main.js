@@ -303,5 +303,42 @@ function erase_timetables(route_id) {
         404: function() { alert( "Something was incorrect" ); }
       }
     });
+}
+
+function get_Timetable(serialize_ids, route_id){
+
+    function onSuccess(data) {
+        timetable = JSON.parse(data);
+        for (stretch in timetable) {
+            aux = stretch.split('-');
+            stations = aux[0].split('.');
+            times = aux[1].split('.');
+            for (var i = 0; i < timetable[stretch].length; i++) {
+                $(' #titles ').append("<th>test?</th>");
+                for (var j = 0; j < serialize_ids.length; j++) {
+                    k = stations.indexOf(serialize_ids[j]);
+                    if (k>=0) {
+                        time = (parseInt(times[k]) + parseInt(timetable[stretch][i]));
+                        var myDate = (new Date(time * 1000)).toUTCString().match(/(\d\d:\d\d)/)[0];
+                    } else {
+                        var myDate = "- - - -";
+                    }
+
+                    $('#' + serialize_ids[j].toString()).append("<td>" + myDate.toString() + "</td>");
+                }
+            }
+        }
+    }
+
+    var ids = $("option:selected").val();
+    //console.log("Selected " + ids);
+    $.ajax({
+      type: "POST",
+      url: "/moveon/timetables/get/" + route_id + "/",
+      data: JSON.stringify(ids),
+      success: function(timetable){
+            onSuccess(timetable);
+        }
+    });
 
 }
