@@ -552,23 +552,28 @@ def _delete_timetable(timetable_ids, route_id):
     timetables.delete()
 
 def _show_timetable(route_id, timetable_ids=[]):
-    #First get the valid timetable ids for today
     if timetable_ids == []:
-        #TO-DO: get only a valid time_table of now filtering by date
+        #TO-DO: get only a valid time_table of the day of the week
         stretches = Stretch.objects.filter(route_id=route_id).exclude(signature='')
         timetable_ids = [stretch.time_table.get_today_valid() for stretch in stretches]
         timetable_ids = [level2 for level1 in timetable_ids for level2 in level1]
 
     timetables = [TimeTable.objects.get(id=tt_id) for tt_id in timetable_ids]
-
-    time_table = {}
-    for timetable in timetables:
+    signatures = []
+    times = []
+    for idx, timetable in enumerate(timetables):
         #Is there any case with more than one stretch?
-        stretch = timetable.stretch_set.all().first()
-        signature = stretch.signature
+        stretch = timetable.stretch_set.first()
+        signatures.append(stretch.signature)
         start_times = timetable.times.all()
-        time_table_aux = [start_time.moment for start_time in start_times]
-        time_table[signature] = time_table_aux
+        time_table_aux = [(start_time.moment, idx) for start_time in start_times]
+        times.extend(time_table_aux)
+
+    times.sort()
+    time_table = {
+        'signatures': signatures,
+        'times': times
+    }
 
     print(time_table)
     return time_table
