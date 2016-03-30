@@ -419,8 +419,8 @@ def _save_times(timetable, default_stretch, station_points, classified_station_p
         new_timetable.saturday = 'saturday' in timetable['day']
         new_timetable.sunday = 'sunday' in timetable['day']
         new_timetable.holiday = 'holiday' in timetable['day']
-        new_timetable.start = dateutil.parser.parse(timetable['start'], dayfirst=True, yearfirst=False)
-        new_timetable.end = dateutil.parser.parse(timetable['start'], dayfirst=True, yearfirst=False)
+        new_timetable.start = dateutil.parser.parse(timetable['start'], dayfirst=False, yearfirst=False)
+        new_timetable.end = dateutil.parser.parse(timetable['end'], dayfirst=False, yearfirst=False)
         new_timetable.save()
         
         first_times = stretch_info_list[key]
