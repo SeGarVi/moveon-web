@@ -259,7 +259,6 @@ fieldset p {
   }
 
 
-
 /******************************************************************************/
 /*                               Timetable                                      */
 /******************************************************************************/
@@ -275,7 +274,6 @@ fieldset p {
 .timetable--route {
   overflow-x: scroll;
   overflow: scroll;
-  float: left;
   overflow-y: hidden;
 }
 
@@ -293,8 +291,21 @@ fieldset p {
   display: flex;
 }
 
-#route_timetable, #route_timetable td, #route_timetable th {
-  border: 1px solid black;
+table td.new {
+  border: 1px solid gray;
+}
+
+table td:nth-of-type(2) {
+  min-width: 10em;
+}
+
+table td.new, table th.new, table th {
+    text-align: center;
+    min-width: 3em;
+}
+
+.moveon-company_day select {
+    max-width: 24em;
 }
 
 
@@ -326,4 +337,12 @@ fieldset p {
   }
   .moveon-company h1{
   }
+
+}
+
+@media all and (min-width: 769) {
+  .timetable--route {
+    float: left;
+  }
+
 }
