@@ -104,15 +104,16 @@ def timetable_get(request, route_id):
     timetables_ids = []
     try:
         timetable_ids = json.loads(request.body.decode("utf-8"))
-        eval(timetable_ids)
+        timetable_ids = eval(timetable_ids)
+        timetable_available = _show_timetable(route_id, timetable_ids)
+        json_answer = json.dumps(timetable_available)
+        return HttpResponse(json_answer)
     except Exception:
         print("Exception in user code:")    
         print("-"*60)
         traceback.print_exc(file=sys.stdout)
         print("-"*60)
-    timetable_available = _show_timetable(route_id, timetables_ids)
-    json_answer = json.dumps(timetable_available)
-    return HttpResponse(json_answer)
+        return HttpResponse()
 
 def route(request, company_id, line_id, route_id):
     comp = get_object_or_404(Company, code=company_id)
@@ -551,23 +552,23 @@ def _delete_timetable(timetable_ids, route_id):
     timetables.delete()
 
 def _show_timetable(route_id, timetable_ids=[]):
-    #TO-DO: search only stretches of the timetable_ids given in timetable_ids
-    stretches = Stretch.objects.filter(route_id=route_id).exclude(signature='')
+    #First get the valid timetable ids for today
+    if timetable_ids == []:
+        #TO-DO: get only a valid time_table of now filtering by date
+        stretches = Stretch.objects.filter(route_id=route_id).exclude(signature='')
+        timetable_ids = [stretch.time_table.get_today_valid() for stretch in stretches]
+        timetable_ids = [level2 for level1 in timetable_ids for level2 in level1]
+
+    timetables = [TimeTable.objects.get(id=tt_id) for tt_id in timetable_ids]
+
     time_table = {}
-    for stretch in stretches:
-        time_table_aux = []
+    for timetable in timetables:
+        #Is there any case with more than one stretch?
+        stretch = timetable.stretch_set.all().first()
         signature = stretch.signature
-
-        if timetables_ids==[]:
-            #TO-DO: get only a valid time_table of now
-            timetables = stretch.time_table.filter()
-        else:
-            timetables = stretch.time_table.all()
-
-        for timetable in timetables:
-            columns = timetable.times.all()
-            time_table_aux = [column.moment for column in columns]
-
+        start_times = timetable.times.all()
+        time_table_aux = [start_time.moment for start_time in start_times]
         time_table[signature] = time_table_aux
+
     print(time_table)
     return time_table

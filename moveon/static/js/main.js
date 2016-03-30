@@ -210,7 +210,7 @@ function send_timetableAcceptation(route_id, stretch_id) {
             "stretch_info_list": initialtimesPerStretch,
             "route_id": route_id,
             "day": days,
-            "start": start,
+            "start": start, //Math.round(Date.parse("Wed Jun 20 19:20:44 +0000 2012") / 1000),
             "end": end
         };
 

@@ -126,6 +126,8 @@ class TimeTable(models.Model):
     holiday = models.BooleanField()
     start = models.DateField()
     end = models.DateField()
+
+    objects = managers.TimeTableManager()
     
     def __str__(self):
         return str(self.id)

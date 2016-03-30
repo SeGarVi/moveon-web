@@ -272,6 +272,13 @@ fieldset p {
   overflow-y: hidden;
 }
 
+.timetable--route {
+  overflow-x: scroll;
+  overflow: scroll;
+  float: left;
+  overflow-y: hidden;
+}
+
 .timetable--entry {
     margin-bottom: 0.45em;
     width: 20em;
@@ -286,6 +293,9 @@ fieldset p {
   display: flex;
 }
 
+#route_timetable, #route_timetable td, #route_timetable th {
+  border: 1px solid black;
+}
 
 
 

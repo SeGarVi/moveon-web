@@ -1,4 +1,4 @@
-from datetime import datetime 
+from datetime import datetime, date
 
 from django.db import models
 from django.db.models import Q
@@ -136,3 +136,10 @@ class RouteManager(models.Manager):
 class TimeManager(models.Manager):
     def get_by_timestamp(self, timestamp):
         return self.get(moment=timestamp)
+
+class TimeTableManager(models.Manager):
+    def get_today_valid(self):
+        today = date.today() 
+        #still needs a filter to look for the day and don't return 
+        #all the timetables available between the dates.
+        return [tt.id for tt in self.filter(start__lte=today, end__gte=today)]
