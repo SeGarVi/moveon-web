@@ -182,10 +182,7 @@ def station_map(request):
     lat = float(userpos.split(',')[0])
     lon = float(userpos.split(',')[1])
     
-    near_stations = Station.objects.get_nearby_stations([lat, lon])
-    Route.objects.add_route_info_to_station_list(near_stations)
-    context = { 'near_stations': near_stations,
-                'location': { 'lon': lon,
+    context = { 'location': { 'lon': lon,
                               'lat': lat
                             }
               }

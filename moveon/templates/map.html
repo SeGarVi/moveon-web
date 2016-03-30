@@ -60,32 +60,9 @@
                          {{ location.lat }}],
                 zoom: 15
             });
-
-            var stations = {
-              "type": "FeatureCollection",
-              "features": [
-
-                {% for station in near_stations %}
-                    {
-                      "type": "Feature",
-                      "geometry": {
-                        "type": "Point",
-                        "coordinates": [{{ station.stop_node.longitude }}, 
-                                        {{ station.stop_node.latitude }}]
-                      },
-                      "properties": {
-                            "description": "<div class='marker-title'><a onclick='getLocationRedirection(\"{% url 'station' station.osmid %}\");'>{{ station.code }} - {{ station.name }}</a></div>",
-                            "marker-symbol": "bus",
-                            "marker-color": "#123456"
-                        }
-                    },
-                {% endfor %}
-                
-              ]
-            }
 			
             var stationsSource = new mapboxgl.GeoJSONSource({
-                data: stations
+                data: {}
             });
             
             map.on('style.load', function () {
