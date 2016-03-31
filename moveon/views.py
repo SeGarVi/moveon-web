@@ -131,6 +131,7 @@ def route(request, company_id, line_id, route_id):
               }
     return render(request, 'route.html', context) 
 
+@login_required(login_url='moveon_login')
 def timetable(request, company_id, line_id, route_id):
     comp = get_object_or_404(Company, code=company_id)
     line = get_object_or_404(Line, code=line_id)
@@ -153,6 +154,7 @@ def timetable(request, company_id, line_id, route_id):
               }
     return render(request, 'timetable.html', context) 
 
+@login_required(login_url='moveon_login')
 @require_http_methods(["POST"])
 def timetable_deletes(request):
     try:
@@ -200,16 +202,18 @@ def nearby(request):
               }
     return render(request, 'nearby.html', context) 
 
+@login_required(login_url='moveon_login')
+@require_http_methods(["PUT"])
 def stretches(request, stretch_id):
-    if request.method == 'PUT':
-        try:
-            stretch = Stretch.objects.get(id = stretch_id)
-        except Stretch.DoesNotExist:
-            return HttpResponse(status=404)
-        print(request.body.decode("utf-8"))
-        json_request = json.loads(request.body.decode("utf-8"))
-        route_points = _get_station_route_points_for_stretch(stretch)
-        classified_station_points = _classify_station_points(route_points)
+    try:
+        stretch = Stretch.objects.get(id = stretch_id)
+    except Stretch.DoesNotExist:
+        return HttpResponse(status=404)
+    print(request.body.decode("utf-8"))
+    json_request = json.loads(request.body.decode("utf-8"))
+    route_points = _get_station_route_points_for_stretch(stretch)
+    classified_station_points = _classify_station_points(route_points)
+    if not json_request['modified']:
         if 'stretch_info_list' in json_request:
             try:
                 _save_times(
@@ -234,10 +238,12 @@ def stretches(request, stretch_id):
                                             json_request['times'],
                                             route_points,
                                             classified_station_points)
-        
         json_ret = json.dumps(new_speeds)
-        
-        return HttpResponse(json_ret)
+    else:
+        print("The timetable has been modified")
+        json_ret = json.dumps("new_speeds")
+    
+    return HttpResponse(json_ret)
 
 def _getDistancesFromSchedule(stretch_id, times):
     stretch = Stretch.objects.get(id=stretch_id)
@@ -508,7 +514,7 @@ def _calculate_times_by_checkpoints(times, station_points, classified_station_po
     return return_times
     
 def _get_timetables_for_route(route_id, get_timetable_ids=False):
-    daysOrdered = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'holiday']
+    daysOrdered = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun', 'hol']
     stretches = Stretch.objects.filter(route_id=route_id).exclude(signature='')
     timetables = []
     timetables_ids = []
@@ -517,7 +523,7 @@ def _get_timetables_for_route(route_id, get_timetable_ids=False):
             days = []
             for attr in timetable.__dict__.keys():
                 if type(timetable.__dict__[attr]) is bool and timetable.__dict__[attr]:
-                    days.append(attr)
+                    days.append(attr[:3])
             timetable_aux = {
                 'start_date': timetable.start,
                 'end_date': timetable.end,
@@ -551,7 +557,6 @@ def _delete_timetable(timetable_ids, route_id):
 
 def _show_timetable(route_id, timetable_ids=[]):
     if timetable_ids == []:
-        #TO-DO: get only a valid time_table of the day of the week
         stretches = Stretch.objects.filter(route_id=route_id).exclude(signature='')
         timetable_ids = [stretch.time_table.get_today_valid_ids() for stretch in stretches]
         timetable_ids = [level2 for level1 in timetable_ids for level2 in level1]
@@ -561,6 +566,8 @@ def _show_timetable(route_id, timetable_ids=[]):
     times = []
     for idx, timetable in enumerate(timetables):
         #Is there any case with more than one stretch?
+        start_date = str(timetable.start).split('-')
+        end_date = str(timetable.end).split('-')
         stretch = timetable.stretch_set.first()
         signatures.append(stretch.signature)
         start_times = timetable.times.all()
@@ -570,7 +577,9 @@ def _show_timetable(route_id, timetable_ids=[]):
     times.sort()
     time_table = {
         'signatures': signatures,
-        'times': times
+        'times': times,
+        'start_date': start_date[2]+'/'+start_date[1]+'/'+start_date[0],
+        'end_date': end_date[2]+'/'+end_date[1]+'/'+end_date[0]
     }
 
     print(time_table)

@@ -73,7 +73,7 @@ function send_timetableCalculation(route_id, stretch_id) {
     
     classified_times = []
     for (i=0; i<timetableColumn_counter; i++) {
-    	classified_times.push([]);
+        classified_times.push([]);
     }
     
     for (i=0; i<timetable_form_empties.length;) {
@@ -81,21 +81,18 @@ function send_timetableCalculation(route_id, stretch_id) {
         if(obj.value == "") {
             timetable_form_empties.splice(i, 1);
         } else {
-        	col = parseInt(obj.name.split("-")[1]);
-        	station_id = parseInt(obj.name.split("-")[2]);
-        	
-        	hour_str=obj.value.split(":")[0];
-        	min_str=obj.value.split(":")[1];
-        	
-        	hour = (parseInt(hour_str)%24) * 60 * 60; 
-        	min = parseInt(min_str) * 60;
-        	
-        	classified_times[col].push(
-        			{
-        				"station_id" : station_id,
-        				"time" : hour + min
-        			});
-        	
+            col = parseInt(obj.name.split("-")[1]);
+            station_id = parseInt(obj.name.split("-")[2]);
+            
+            hour_str=obj.value.split(":")[0];
+            min_str=obj.value.split(":")[1];
+            
+            hour = (parseInt(hour_str)%24) * 60 * 60; 
+            min = parseInt(min_str) * 60;
+            
+            classified_times[col].push({"station_id" : station_id,
+                                        "time" : hour + min
+                                    });
             i++;
         }
     }
@@ -106,7 +103,8 @@ function send_timetableCalculation(route_id, stretch_id) {
     var timetable = {
         "mean_speed":parseFloat(mean_speed)/3.6,
         "times": data,
-        "route_id": route_id
+        "route_id": route_id,
+        "modified": false
     };
 
     $.ajax({
@@ -122,9 +120,9 @@ function send_timetableCalculation(route_id, stretch_id) {
             final_value = hours.toString() + ":";
             
             if (minutes < 10) {
-            	final_value += "0" + minutes.toString()
+                final_value += "0" + minutes.toString()
             } else {
-            	final_value += minutes.toString()
+                final_value += minutes.toString()
             }
             
             $("input[name="+time.name+"]").val(final_value);
@@ -148,6 +146,7 @@ function send_timetableAcceptation(route_id, stretch_id) {
     var days = $("input[name=day]:checked").map(function () {return this.value;}).get().join(",");
     var start = $( "input[name='start-date']" ).val();
     var end = $( "input[name='end-date']" ).val();
+    var modified = $( "input[name='modified-timetable']" ).val();
     var send = true;
 
     send = verify_last(days, '.moveon-company_day', 'Please, select at least one day in the week checkbox.');
@@ -163,8 +162,8 @@ function send_timetableAcceptation(route_id, stretch_id) {
         var timeSignatureByCol=[]
         var initialTimesPerCol=[]
         for (i=0; i<timetableColumn_counter; i++) {
-        	stationSignatureByCol.push("");
-        	timeSignatureByCol.push("");
+            stationSignatureByCol.push("");
+            timeSignatureByCol.push("");
         }
         
         var previousCol = -1;
@@ -172,38 +171,38 @@ function send_timetableAcceptation(route_id, stretch_id) {
         for (i=0; i<timetable_form_empties.length; i++) {
             var obj = timetable_form_empties[i]
             if(obj.value != "") {
-            	var col = parseInt(obj.name.split("-")[1]);
-            	var station_id_str = parseInt(obj.name.split("-")[2]);
-            	var station_id = parseInt(station_id_str);
-            	
-            	var hour_str=obj.value.split(":")[0];
-            	var min_str=obj.value.split(":")[1];
-            	
-            	var hour = (parseInt(hour_str)%24) * 60 * 60; 
-            	var min = parseInt(min_str) * 60;
-            	
-            	var timestamp = hour + min;
-            	
-            	if (col != previousCol) {
-            		initialTimesPerCol.push(timestamp)
-            	}
-            	var previousCol = col;
-            	
-            	var timeDifference = timestamp - initialTimesPerCol[col];
-            	
-            	stationSignatureByCol[col] = stationSignatureByCol[col].concat(station_id_str).concat(".");
-            	timeSignatureByCol[col] = timeSignatureByCol[col].concat(timeDifference.toString()).concat(".");
+                var col = parseInt(obj.name.split("-")[1]);
+                var station_id_str = parseInt(obj.name.split("-")[2]);
+                var station_id = parseInt(station_id_str);
+                
+                var hour_str=obj.value.split(":")[0];
+                var min_str=obj.value.split(":")[1];
+                
+                var hour = (parseInt(hour_str)%24) * 60 * 60; 
+                var min = parseInt(min_str) * 60;
+                
+                var timestamp = hour + min;
+                
+                if (col != previousCol) {
+                    initialTimesPerCol.push(timestamp)
+                }
+                var previousCol = col;
+                
+                var timeDifference = timestamp - initialTimesPerCol[col];
+                
+                stationSignatureByCol[col] = stationSignatureByCol[col].concat(station_id_str).concat(".");
+                timeSignatureByCol[col] = timeSignatureByCol[col].concat(timeDifference.toString()).concat(".");
             }
         }
         
         var initialtimesPerStretch={};
         for (i=0; i<timetableColumn_counter; i++) {
-        	var stretchSignature = stationSignatureByCol[i].concat("-").concat(timeSignatureByCol[i]);
-        	
-        	if (!(stretchSignature in initialtimesPerStretch)) {
-        		initialtimesPerStretch[stretchSignature] = [];
-        	}
-        	initialtimesPerStretch[stretchSignature].push(initialTimesPerCol[i])
+            var stretchSignature = stationSignatureByCol[i].concat("-").concat(timeSignatureByCol[i]);
+            
+            if (!(stretchSignature in initialtimesPerStretch)) {
+                initialtimesPerStretch[stretchSignature] = [];
+            }
+            initialtimesPerStretch[stretchSignature].push(initialTimesPerCol[i])
         }
         
         var timetable = {
@@ -211,7 +210,8 @@ function send_timetableAcceptation(route_id, stretch_id) {
             "route_id": route_id,
             "day": days,
             "start": start,
-            "end": end
+            "end": end,
+            "modified": Boolean(modified)
         };
 
         $.ajax({
@@ -336,6 +336,50 @@ function get_Timetable(serialize_ids, route_id){
       type: "POST",
       url: "/moveon/timetables/get/" + route_id + "/",
       data: JSON.stringify(ids),
+      success: function(timetable){
+            onSuccess(timetable);
+        }
+    });
+
+}
+
+function edit_Timetable(serialize_ids, route_id, tt_ids){
+
+    function onSuccess(data) {
+        //TO-DO: Erase every .new object to avoid concatenations
+
+        timetable = JSON.parse(data);
+        //Calculate total of cycles before to avoid inconsistent results
+        var total = timetable.times.length - timetableColumn_counter;
+        for (var i = 0; i < total; i++) {
+            add_timetableColumn(serialize_ids);
+        }
+        //Writing the data to the timetable
+        for (var i = 0; i < timetable.times.length; i++) {
+            aux = timetable.signatures[timetable.times[i][1]].split('-');
+            stations = aux[0].split('.');
+            times = aux[1].split('.');
+            for (var j = 0; j < serialize_ids.length; j++) {
+                k = stations.indexOf(serialize_ids[j]);
+                if (k>=0) {
+                    time = (parseInt(times[k]) + parseInt(timetable.times[i]));
+                    var myDate = (new Date(time * 1000)).toUTCString().match(/(\d\d:\d\d)/)[0];
+                } else {
+                    var myDate = "";
+                }
+
+                $("input[name=time-"+ i + "-" + serialize_ids[j] + "]").val(myDate.toString());
+            }
+        }
+        $("input[name=start-date]").val(timetable.start_date);
+        $("input[name=end-date]").val(timetable.end_date);
+        $("input[name=modified-timetable]").val('True');
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "/moveon/timetables/get/" + route_id + "/",
+      data: JSON.stringify(tt_ids),
       success: function(timetable){
             onSuccess(timetable);
         }
