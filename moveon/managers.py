@@ -138,8 +138,7 @@ class TimeManager(models.Manager):
         return self.get(moment=timestamp)
 
 class TimeTableManager(models.Manager):
-    def get_today_valid(self):
-        today = date.today() 
-        #still needs a filter to look for the day and don't return 
-        #all the timetables available between the dates.
-        return [tt.id for tt in self.filter(start__lte=today, end__gte=today)]
+    def get_today_valid_ids(self):
+        today = date.today()
+        day_of_week = today.strftime('%A').lower()
+        return [tt.id for tt in self.filter(start__lte=today, end__gte=today, **{day_of_week: True})]

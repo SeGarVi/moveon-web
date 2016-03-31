@@ -508,6 +508,7 @@ def _calculate_times_by_checkpoints(times, station_points, classified_station_po
     return return_times
     
 def _get_timetables_for_route(route_id, get_timetable_ids=False):
+    daysOrdered = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'holiday']
     stretches = Stretch.objects.filter(route_id=route_id).exclude(signature='')
     timetables = []
     timetables_ids = []
@@ -520,7 +521,7 @@ def _get_timetables_for_route(route_id, get_timetable_ids=False):
             timetable_aux = {
                 'start_date': timetable.start,
                 'end_date': timetable.end,
-                'days': days
+                'days': sorted(days, key=daysOrdered.index)
             }
 
             if timetable_aux not in timetables:
@@ -552,7 +553,7 @@ def _show_timetable(route_id, timetable_ids=[]):
     if timetable_ids == []:
         #TO-DO: get only a valid time_table of the day of the week
         stretches = Stretch.objects.filter(route_id=route_id).exclude(signature='')
-        timetable_ids = [stretch.time_table.get_today_valid() for stretch in stretches]
+        timetable_ids = [stretch.time_table.get_today_valid_ids() for stretch in stretches]
         timetable_ids = [level2 for level1 in timetable_ids for level2 in level1]
 
     timetables = [TimeTable.objects.get(id=tt_id) for tt_id in timetable_ids]

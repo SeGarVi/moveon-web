@@ -95,6 +95,10 @@ header.header {
   justify-content: space-around;
   align-items: baseline;
 }
+.is-flex-ends {
+  justify-content: space-between;
+  align-items: center;
+}
 .is-column {
   flex-direction: column;
 }

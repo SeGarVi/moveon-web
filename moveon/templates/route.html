@@ -4,6 +4,9 @@
 {% block head %}
     <script>
         var serialize_ids = {{ serialize_ids|safe }};
+        $( document ).ready(function() {
+            get_Timetable(serialize_ids, {{ route.osmid }});
+        });
     </script>
 {% endblock %}
 
@@ -18,10 +21,10 @@
     {% if timetables %}
         <div class="columns">
             <div class="moveon-company column is-half is-offset-quarter is-flex is-flex-justify is-column">
-                <p class="title is-5">This are the available timetables:</p>
+                <p class="title is-5">Available timetables:</p>
                 <div class="moveon-company_day">
                     <select onchange="get_Timetable(serialize_ids, {{ route.osmid }})">
-                        <option value="[]">Choose a timetable to see it</option>
+                        <option value="[]">Timetable for Today</option>
                         {% for timetable, ids in timetables %}
                             <option value="{{ids}}">{{timetable.start_date}} - {{timetable.end_date}} {{timetable.days}}</option>
                         {% endfor %}
