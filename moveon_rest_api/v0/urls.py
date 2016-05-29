@@ -24,5 +24,7 @@ urlpatterns = [
     url(r'^companies/(?P<company_id>.+)',                                                                                      views.get_company,         name='Get company information'),
     url(r'^companies',                                                                                                         views.get_companies,       name='Get company collection'),
     url(r'^lines/(?P<line_id>\d+)',                                                                                            views.get_line,            name='Get line information'),
-    url(r'^routes/(?P<route_id>\d+)',                                                                                          views.get_route,           name='Get route information')
+    url(r'^routes/(?P<route_id>\d+)',                                                                                          views.get_route,           name='Get route information'),
+    url(r'^tasks/$',                                                                                         views.get_tasks,           name='Get tasks information'),
+    url(r'^tasks/(?P<task_id>.+)',                                                                                         views.get_task,           name='Get task information')
 ]

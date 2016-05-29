@@ -6,9 +6,10 @@ function getOSMLine(key, value, url) {
     $( "button" ).addClass( "is-loading" );
     $.post( url, info, 
         function( data ) {
-            if (key === 'accept') { window.location = url; }
+            /*if (key === 'accept') { window.location = url; }
             else{ window.location = url + value; }
-            $( "button" ).removeClass( "is-loading" );
+            $( "button" ).removeClass( "is-loading" );*/
+    		alert(data);
         }
     ).fail(
         function(data){

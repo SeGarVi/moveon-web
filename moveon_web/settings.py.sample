@@ -133,3 +133,9 @@ LOGGING = {
 COMPRESS_PRECOMPILERS = (
     ('text/x-scss', 'django_libsass.SassCompiler'),
 )
+
+CELERY_RESULT_BACKEND='amqp://guest@localhost//'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT=['json']
+CELERY_TRACK_STARTED=True

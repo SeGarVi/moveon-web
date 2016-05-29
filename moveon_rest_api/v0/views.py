@@ -4,6 +4,12 @@ from rest_framework.response import Response
 from moveon.models import Station, Company, Line, Route
 from .serializers import CompanySerializer, StationSerializer, LineSerializer, RouteSerializer
 from django.http.response import HttpResponse
+from django.core.cache              import cache
+
+from moveon_web.celery import app
+from celery.result import AsyncResult
+
+import osmlineadapters.tasks
 
 @api_view(['GET'])
 def get_near_stations(request, lat, lon):
@@ -64,3 +70,20 @@ def get_route(request, route_id):
         return Response(serializer.data)
     except Route.DoesNotExist:
         return HttpResponse(status=404)
+
+@api_view(['GET'])
+def get_tasks(request):
+    print('Getting tasks')
+    tasks = app.tasks
+    return Response(str(tasks))
+
+@api_view(['GET'])
+def get_task(request, task_id):
+    #print('Getting task ' + task_id)
+    task = cache.get(task_id)
+    if task is None:
+        return HttpResponse(status=404) 
+    #serializer = RouteSerializer(route)
+    result = AsyncResult(task,app=app)
+    state = task.state
+    return Response(state)
