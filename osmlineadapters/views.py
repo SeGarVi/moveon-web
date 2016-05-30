@@ -15,10 +15,13 @@ def newline(request, company_id):
         osm_line_id = json_request['osmline']['id']
         
         task_id = 'osmlineadapters_newline_' + str(osm_line_id)
-        task_result = tasks.import_line_from_osm.delay(company_id, osm_line_id)
+        task_result = cache.get(task_id)
         
-        cache.set(task_id, task_result)
-        return HttpResponse(task_result)
+        if task_result is None:
+            task_result = tasks.import_line_from_osm.delay(company_id, osm_line_id)
+            cache.set(task_id, task_result)
+            
+        return HttpResponse(task_id)
 
 @login_required(login_url='moveon_login')
 def newlinedetail(request, company_id, osm_line_id):
@@ -51,13 +54,13 @@ def newlinedetail(request, company_id, osm_line_id):
         if agree:
             line = json.loads(cache.get(osm_line_id))
             task_id = 'osmlineadapters_saveline_' + str(osm_line_id)
-            task_result = tasks.save_line_from_osm.delay(line)
-        
-            cache.set(task_id, task_result)
+            task_result = cache.get(task_id)
             
-        status_code = 200
+            if task_result is None:
+                task_result = tasks.save_line_from_osm.delay(line)
+                cache.set(task_id, task_result)
         
         cache.delete(osm_line_id)
         cache.delete(cache_simplified_id)
         cache.delete('osmlineadapters_newline_' + str(osm_line_id))
-        return HttpResponse(status=status_code)
+        return HttpResponse(task_id)
