@@ -1,15 +1,36 @@
 ///Global variables
 
 // Function to retrieve information and send a 
-function getOSMLine(key, value, url) {
+function getOSMLine(key, value, url, taskEndpoint, companyCode) {
     var info = '{"osmline": {"'+ key +'": '+value+'}}';
-    $( "button" ).addClass( "is-loading" );
+    /*$( "button" ).addClass( "is-loading" );*/
     $.post( url, info, 
         function( data ) {
             /*if (key === 'accept') { window.location = url; }
             else{ window.location = url + value; }
             $( "button" ).removeClass( "is-loading" );*/
-    		alert(data);
+    		getLineTaskId=data;
+    		/*alert(data);*/
+    		
+    		try {
+    		    if (pendingTasks.length > 0) {
+    		    	if (pendingTasks.indexOf(data) < 0) {
+    		    		pendingTasks.push(data);
+        		    	$( ".tasks" ).append( '<div class="'+data+'">'+ data +' - PENDING</div>' );
+        		    	
+        		    	var i = taskEndpoint.indexOf(companyCode);
+        	    		taskEndpointNoArg = taskEndpoint.substring(0, i); 
+        	    		setTimeout(function(){getLineTask(value, taskEndpointNoArg, url, data);}, 1000);
+    		    	}
+    		    }
+    		} catch(e) {
+    			pendingTasks = [ data ];
+    			$( ".tasks" ).append( '<div class="'+data+'">'+ data +' - PENDING</div>' );
+    			
+    			var i = taskEndpoint.indexOf(companyCode);
+        		taskEndpointNoArg = taskEndpoint.substring(0, i); 
+        		setTimeout(function(){getLineTask(value, taskEndpointNoArg, url, data);}, 1000);
+    		}
         }
     ).fail(
         function(data){
@@ -17,6 +38,24 @@ function getOSMLine(key, value, url) {
             $( "button" ).removeClass( "is-loading" );
         }
     );
+}
+
+function getLineTask(osmid, taskEndpoint, url, taskId) {
+	var finalUrl = taskEndpoint + taskId;
+	$.get(finalUrl,
+		function( data ) {
+			if (data == "SUCCESS") {
+				$( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +
+						'<a href="' + url + osmid +'"> See </a></div>' );
+			} else {
+				$( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +'</div>' );
+			}
+		
+			if (data == "STARTED" || data == "PENDING") {
+				setTimeout(function(){getLineTask(osmid, taskEndpoint, url, taskId);}, 30000);
+			}
+		}
+	);
 }
 
 /*Get GPS coordinates of the user*/

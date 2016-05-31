@@ -23,9 +23,11 @@
                 <p class="code control">Write your OSM code
                     <input type="code" placeholder="OSM code" maxsize="8">
                 </p>
-                <button type="submit" class="button is-primary" onclick="getOSMLine('id', $('input').val(), '{% url 'newline' company.code %}')">Add the new line!!</button>
+                <button type="submit" class="button is-primary" onclick="getOSMLine('id', $('input').val(), '{% url 'newline' company.code %}', '{% url 'get_task' company.code %}', '{{ company.code }}')">Add the new line!!</button>
             </div>
         </div>
+        
+        {% include "_line_importation_tasks.html" %}
     {% endif %}
 
 {% endblock %}
