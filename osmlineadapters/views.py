@@ -19,8 +19,17 @@ def newline(request, company_id):
         
         if task_result is None:
             task_result = tasks.import_line_from_osm.delay(company_id, osm_line_id)
-            cache.set(task_id, task_result)
             
+            cache.set(task_id, task_result)
+        
+        #add task to user
+        user = request.user.username
+        user_tasks = cache.get(user+"_tasks")
+        if user_tasks is None:
+            user_tasks=[]
+        user_tasks.append(task_id)
+        cache.set(user+"_tasks", user_tasks)
+        
         return HttpResponse(task_id)
 
 @login_required(login_url='moveon_login')

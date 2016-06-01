@@ -3,8 +3,9 @@ from rest_framework.response import Response
 
 from moveon.models import Station, Company, Line, Route
 from .serializers import CompanySerializer, StationSerializer, LineSerializer, RouteSerializer
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseNotAllowed
 from django.core.cache              import cache
+from django.contrib.auth.decorators import login_required
 
 from moveon_web.celery import app
 from celery.result import AsyncResult
@@ -77,13 +78,25 @@ def get_tasks(request):
     tasks = app.tasks
     return Response(str(tasks))
 
+@login_required(login_url='moveon_login')
 @api_view(['GET'])
 def get_task(request, task_id):
     #print('Getting task ' + task_id)
+    if not task_belong_to_user(task_id, request.user.username):
+        print("User " + request.user.username + " not allowed to check task " + task_id)
+        return HttpResponseNotAllowed()
+    
+    print("User " + request.user.username + " allowed to check task " + task_id)
+    
     task = cache.get(task_id)
     if task is None:
         return HttpResponse(status=404) 
-    #serializer = RouteSerializer(route)
-    result = AsyncResult(task,app=app)
+
     state = task.state
     return Response(state)
+
+def task_belong_to_user(task_id, user):
+    user_tasks = cache.get(user+"_tasks")
+    if user_tasks is None:
+        return False
+    return task_id in user_tasks

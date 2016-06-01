@@ -87,6 +87,7 @@ def company(request, company_id):
     context = {     'company': comp,
                     'lines': lines
               }
+    user = request.user.username
     return render(request, 'company.html', context) 
 
 def line(request, company_id, line_id):
