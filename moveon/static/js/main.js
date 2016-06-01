@@ -3,7 +3,6 @@
 // Function to retrieve information and send a 
 function getOSMLine(key, value, url, taskEndpoint, companyCode) {
     var info = '{"osmline": {"'+ key +'": '+value+'}}';
-    /*$( "button" ).addClass( "is-loading" );*/
     $.post( url, info, 
         function( data ) {
     		getLineTaskId=data;

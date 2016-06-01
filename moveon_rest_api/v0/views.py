@@ -86,15 +86,11 @@ def get_task(request, task_id):
         print("User " + request.user.username + " not allowed to check task " + task_id)
         return HttpResponseNotAllowed()
     
-    print("User " + request.user.username + " allowed to check task " + task_id)
-    
     task = cache.get(task_id)
     if task is None:
         return HttpResponse(status=404) 
 
     state = task.state
-    
-    print("Task " + task_id + " is in state " + state)
     
     return Response(state)
 
