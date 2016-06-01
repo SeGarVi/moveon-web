@@ -6,11 +6,7 @@ function getOSMLine(key, value, url, taskEndpoint, companyCode) {
     /*$( "button" ).addClass( "is-loading" );*/
     $.post( url, info, 
         function( data ) {
-            /*if (key === 'accept') { window.location = url; }
-            else{ window.location = url + value; }
-            $( "button" ).removeClass( "is-loading" );*/
     		getLineTaskId=data;
-    		/*alert(data);*/
     		
     		try {
     		    if (pendingTasks.length > 0) {
@@ -20,7 +16,7 @@ function getOSMLine(key, value, url, taskEndpoint, companyCode) {
         		    	
         		    	var i = taskEndpoint.indexOf(companyCode);
         	    		taskEndpointNoArg = taskEndpoint.substring(0, i); 
-        	    		setTimeout(function(){getLineTask(value, taskEndpointNoArg, url, data);}, 1000);
+        	    		setTimeout(function(){getLineTask(value, taskEndpointNoArg, url, data, "PENDING");}, 1000);
     		    	}
     		    }
     		} catch(e) {
@@ -29,7 +25,7 @@ function getOSMLine(key, value, url, taskEndpoint, companyCode) {
     			
     			var i = taskEndpoint.indexOf(companyCode);
         		taskEndpointNoArg = taskEndpoint.substring(0, i); 
-        		setTimeout(function(){getLineTask(value, taskEndpointNoArg, url, data);}, 1000);
+        		setTimeout(function(){getLineTask(value, taskEndpointNoArg, url, data, "PENDING");}, 1000);
     		}
         }
     ).fail(
@@ -40,7 +36,7 @@ function getOSMLine(key, value, url, taskEndpoint, companyCode) {
     );
 }
 
-function getLineTask(osmid, taskEndpoint, url, taskId) {
+function getLineTask(osmid, taskEndpoint, url, taskId, previousStatus) {
 	var finalUrl = taskEndpoint + taskId;
 	$.get(finalUrl,
 		function( data ) {
@@ -48,11 +44,13 @@ function getLineTask(osmid, taskEndpoint, url, taskId) {
 				$( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +
 						'<a href="' + url + osmid +'"> See </a></div>' );
 			} else {
-				$( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +'</div>' );
+				if (data != previousStatus) {
+					$( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +'</div>' );
+				}
 			}
 		
 			if (data == "STARTED" || data == "PENDING") {
-				setTimeout(function(){getLineTask(osmid, taskEndpoint, url, taskId);}, 30000);
+				setTimeout(function(){getLineTask(osmid, taskEndpoint, url, taskId, data);}, 30000);
 			}
 		}
 	);
