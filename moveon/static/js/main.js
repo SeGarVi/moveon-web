@@ -8,25 +8,11 @@ function getOSMLine(key, value, url, taskEndpoint, companyCode) {
         function( data ) {
     		getLineTaskId=data;
     		
-    		try {
-    		    if (pendingTasks.length > 0) {
-    		    	if (pendingTasks.indexOf(data) < 0) {
-    		    		pendingTasks.push(data);
-        		    	$( ".tasks" ).append( '<div class="'+data+'">'+ data +' - PENDING</div>' );
-        		    	
-        		    	var i = taskEndpoint.indexOf(companyCode);
-        	    		taskEndpointNoArg = taskEndpoint.substring(0, i); 
-        	    		setTimeout(function(){getLineTask(value, taskEndpointNoArg, url, data, "PENDING");}, 1000);
-    		    	}
-    		    }
-    		} catch(e) {
-    			pendingTasks = [ data ];
-    			$( ".tasks" ).append( '<div class="'+data+'">'+ data +' - PENDING</div>' );
-    			
-    			var i = taskEndpoint.indexOf(companyCode);
-        		taskEndpointNoArg = taskEndpoint.substring(0, i); 
-        		setTimeout(function(){getLineTask(value, taskEndpointNoArg, url, data, "PENDING");}, 1000);
-    		}
+    		$( ".tasks" ).append( '<div class="'+data+'">'+ data +' - PENDING</div>' );
+			
+			var i = taskEndpoint.indexOf(companyCode);
+    		var taskEndpointNoArg = taskEndpoint.substring(0, i);
+    		getLineTask(value, taskEndpointNoArg, url, data, "PENDING");
         }
     ).fail(
         function(data){
@@ -36,8 +22,23 @@ function getOSMLine(key, value, url, taskEndpoint, companyCode) {
     );
 }
 
+function runImportationTasks(tasks, taskEndpoint, url, companyCode) {
+	var i = taskEndpoint.indexOf(companyCode);
+	var taskEndpointNoArg = taskEndpoint.substring(0, i);
+	
+	for (i=0; i<tasks.length; i++) {
+		var taskId = tasks[i];
+		var j = taskId.lastIndexOf('_');
+		var osmid = taskId.substring(j+1);
+		
+		$( ".tasks" ).append( '<div class="'+taskId+'">'+ taskId +' - PENDING</div>' );
+		getLineTask(osmid, taskEndpointNoArg, url, taskId, "PENDING");
+	} 
+}
+
 function getLineTask(osmid, taskEndpoint, url, taskId, previousStatus) {
 	var finalUrl = taskEndpoint + taskId;
+	/*alert(finalUrl);*/
 	$.get(finalUrl,
 		function( data ) {
 			if (data == "SUCCESS") {

@@ -2,6 +2,7 @@ from django.contrib.auth            import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models     import User
 from django.core.urlresolvers       import reverse
+from django.core.cache              import cache
 from django.http                    import HttpResponse
 from django.shortcuts               import get_object_or_404, render, redirect
 from geopy.distance                 import vincenty
@@ -84,10 +85,18 @@ def companies(request):
 def company(request, company_id):
     comp = get_object_or_404(Company, code=company_id)
     lines = Line.objects.filter(company=comp).order_by('code')
-    context = {     'company': comp,
-                    'lines': lines
-              }
+    
+    user_tasks = []
     user = request.user.username
+    if user is not None:
+        user_tasks = cache.get(user+"_tasks")
+        if user_tasks is None:
+            user_tasks = []
+    
+    context = {     'company': comp,
+                    'lines': lines,
+                    'tasks': user_tasks
+              }
     return render(request, 'company.html', context) 
 
 def line(request, company_id, line_id):

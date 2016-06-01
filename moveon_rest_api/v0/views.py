@@ -78,7 +78,7 @@ def get_tasks(request):
     tasks = app.tasks
     return Response(str(tasks))
 
-@login_required(login_url='moveon_login')
+@login_required
 @api_view(['GET'])
 def get_task(request, task_id):
     #print('Getting task ' + task_id)
@@ -93,6 +93,9 @@ def get_task(request, task_id):
         return HttpResponse(status=404) 
 
     state = task.state
+    
+    print("Task " + task_id + " is in state " + state)
+    
     return Response(state)
 
 def task_belong_to_user(task_id, user):

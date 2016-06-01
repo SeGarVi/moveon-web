@@ -28,6 +28,16 @@
         </div>
         
         {% include "_line_importation_tasks.html" %}
+        {% if tasks|length > 0 %}
+		<script type="text/javascript">
+			var tasklist=[
+			    {% for task in tasks %}
+			    	'{{task}}',
+			    {% endfor %}
+			];
+        	window.onload = runImportationTasks(tasklist, '{% url 'get_task' company.code %}', '{% url 'newline' company.code %}', '{{ company.code }}');
+        </script>
+		{% endif %}
     {% endif %}
 
 {% endblock %}
