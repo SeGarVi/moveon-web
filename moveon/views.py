@@ -2,12 +2,12 @@ from django.contrib.auth            import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models     import User
 from django.core.urlresolvers       import reverse
-from django.core.cache              import cache
 from django.http                    import HttpResponse
 from django.shortcuts               import get_object_or_404, render, redirect
 from geopy.distance                 import vincenty
 from moveon.models                  import Company, Line, Station, Route, Stretch,\
     RoutePoint, Time, TimeTable
+import moveon_tasks.views as taskmanager
 from django.views.decorators.http   import require_http_methods
 import json
 import logging
@@ -86,12 +86,14 @@ def company(request, company_id):
     comp = get_object_or_404(Company, code=company_id)
     lines = Line.objects.filter(company=comp).order_by('code')
     
+    excludes = []
+    for line in lines:
+        excludes.append(line.osmid)
+    
     user_tasks = []
     user = request.user.username
     if user is not None:
-        user_tasks = cache.get(user+"_tasks")
-        if user_tasks is None:
-            user_tasks = []
+        user_tasks = taskmanager.get_import_line_from_osm_tasks(user, excludes)
     
     context = {     'company': comp,
                     'lines': lines,

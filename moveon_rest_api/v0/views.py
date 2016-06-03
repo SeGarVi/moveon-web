@@ -3,14 +3,14 @@ from rest_framework.response import Response
 
 from moveon.models import Station, Company, Line, Route
 from .serializers import CompanySerializer, StationSerializer, LineSerializer, RouteSerializer
-from django.http.response import HttpResponse, HttpResponseNotAllowed
+from django.http.response import HttpResponse, HttpResponseNotAllowed,\
+    HttpResponseNotFound
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.cache              import cache
 from django.contrib.auth.decorators import login_required
 
-from moveon_web.celery import app
-from celery.result import AsyncResult
+import moveon_tasks.views as tasks
 
-import osmlineadapters.tasks
 
 @api_view(['GET'])
 def get_near_stations(request, lat, lon):
@@ -72,30 +72,17 @@ def get_route(request, route_id):
     except Route.DoesNotExist:
         return HttpResponse(status=404)
 
-@api_view(['GET'])
-def get_tasks(request):
-    print('Getting tasks')
-    tasks = app.tasks
-    return Response(str(tasks))
 
 @login_required
 @api_view(['GET'])
 def get_task(request, task_id):
-    #print('Getting task ' + task_id)
-    if not task_belong_to_user(task_id, request.user.username):
-        print("User " + request.user.username + " not allowed to check task " + task_id)
+    user = request.user.username
+    
+    try:
+        state = tasks.get_task_status(user, task_id)
+    except PermissionDenied:
         return HttpResponseNotAllowed()
-    
-    task = cache.get(task_id)
-    if task is None:
-        return HttpResponse(status=404) 
+    except ObjectDoesNotExist:
+        return HttpResponseNotFound()
 
-    state = task.state
-    
     return Response(state)
-
-def task_belong_to_user(task_id, user):
-    user_tasks = cache.get(user+"_tasks")
-    if user_tasks is None:
-        return False
-    return task_id in user_tasks

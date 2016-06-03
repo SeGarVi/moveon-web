@@ -4,7 +4,8 @@ from django.http                    import HttpResponse
 from django.shortcuts               import render
 from django.views.decorators.csrf   import csrf_exempt
 import json
-import osmlineadapters.tasks as tasks
+from moveon.models import Line
+import moveon_tasks.views as tasks
 
 @csrf_exempt
 @login_required(login_url='moveon_login')
@@ -14,21 +15,8 @@ def newline(request, company_id):
         json_request = json.loads(request.body.decode("utf-8"))
         osm_line_id = json_request['osmline']['id']
         
-        task_id = 'osmlineadapters_newline_' + str(osm_line_id)
-        task_result = cache.get(task_id)
-        
-        if task_result is None:
-            task_result = tasks.import_line_from_osm.delay(company_id, osm_line_id)
-            
-            cache.set(task_id, task_result)
-        
-        #add task to user
         user = request.user.username
-        user_tasks = cache.get(user+"_tasks")
-        if user_tasks is None:
-            user_tasks=[]
-        user_tasks.append(task_id)
-        cache.set(user+"_tasks", user_tasks)
+        task_id = tasks.start_import_line_from_osm_task(user, company_id, osm_line_id)
         
         return HttpResponse(task_id)
 
@@ -42,34 +30,47 @@ def newlinedetail(request, company_id, osm_line_id):
         
         if task_result is not None:
             result = task_result.get()
+            val = result[0]
+            simplified_val = result[1]
+            db_value = {'val' : val, 'simplified_val' : simplified_val}
+            tasks.save_task_value(task_cache_id, json.dumps(db_value))
+        else:
+            db_value = tasks.get_task_value(task_cache_id)
+            decoded_value = json.loads(db_value)
+            val = decoded_value['val']
+            simplified_val = decoded_value['simplified_val']
             
-            cache.set(osm_line_id, result[0])
-            cache.set(cache_simplified_id, result[1])
+        cache.set(osm_line_id, val)
+        cache.set(cache_simplified_id, simplified_val)
     
     if request.method == "GET":
-        result = cache.get(cache_simplified_id)
-        
-        if result is not None:
-            line = json.loads(result)
-            context = { 'line': line,
-                         'company_id': company_id
-                       }
-            return render(request, 'new_line_detail.html', context)
-        else:
-            return HttpResponse("Line not retrieved yet")
+        try:
+            line = Line.objects.get(osmid=osm_line_id)
+            task_name = 'osmlineadapters_saveline_' + str(osm_line_id)
+            tasks.save_task_value(task_name, '')
+            return HttpResponse("Line already in database")
+        except Line.DoesNotExist:
+            result = cache.get(cache_simplified_id)
+            
+            if result is not None:
+                line = json.loads(result)
+                context = { 'line': line,
+                             'company_id': company_id
+                           }
+                return render(request, 'new_line_detail.html', context)
+            else:
+                return HttpResponse("Line not retrieved yet")
+            
     elif request.method == "POST":
         json_request = json.loads(request.body.decode("utf-8"))
         agree = bool(json_request['osmline']['accept'])
+        task_id = -1
         if agree:
             line = json.loads(cache.get(osm_line_id))
-            task_id = 'osmlineadapters_saveline_' + str(osm_line_id)
-            task_result = cache.get(task_id)
-            
-            if task_result is None:
-                task_result = tasks.save_line_from_osm.delay(line)
-                cache.set(task_id, task_result)
+            user = request.user.username
+            task_id = tasks.start_save_line_from_osm_task(user, osm_line_id, line) 
         
         cache.delete(osm_line_id)
         cache.delete(cache_simplified_id)
-        cache.delete('osmlineadapters_newline_' + str(osm_line_id))
+        
         return HttpResponse(task_id)
