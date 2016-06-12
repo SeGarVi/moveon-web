@@ -7,11 +7,11 @@ function getOSMLine(key, value, url, taskEndpoint, companyCode) {
         function( data ) {
     		getLineTaskId=data;
     		
-    		$( ".tasks" ).append( '<div class="'+data+'">'+ data +' - PENDING</div>' );
+    		$( ".tasks" ).append( '<div class="'+getLineTaskId+'">'+ getLineTaskId +' - PENDING</div>' );
 			
 			var i = taskEndpoint.indexOf(companyCode);
     		var taskEndpointNoArg = taskEndpoint.substring(0, i);
-    		getLineTask(value, taskEndpointNoArg, url, data, "PENDING");
+    		updateTaskStatus(taskEndpointNoArg, getLineTaskId, url, value, 'See', 'PENDING');
         }
     ).fail(
         function(data){
@@ -31,18 +31,18 @@ function runImportationTasks(tasks, taskEndpoint, url, companyCode) {
 		var osmid = taskId.substring(j+1);
 		
 		$( ".tasks" ).append( '<div class="'+taskId+'">'+ taskId +' - PENDING</div>' );
-		getLineTask(osmid, taskEndpointNoArg, url, taskId, "PENDING");
+		updateTaskStatus(taskEndpointNoArg, taskId, url, osmid, 'See', 'PENDING');
 	} 
 }
 
-function getLineTask(osmid, taskEndpoint, url, taskId, previousStatus) {
+function updateTaskStatus(taskEndpoint, taskId, postExecutionURL, postExecutionParams, postExecutionText, previousStatus) {
 	var finalUrl = taskEndpoint + taskId;
-	/*alert(finalUrl);*/
 	$.get(finalUrl,
 		function( data ) {
 			if (data == "SUCCESS") {
 				$( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +
-						'<a href="' + url + osmid +'"> See </a></div>' );
+						'<a href="' + postExecutionURL + postExecutionParams +'"> '+
+						postExecutionText +'</a></div>' );
 			} else {
 				if (data != previousStatus) {
 					$( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +'</div>' );
@@ -50,7 +50,7 @@ function getLineTask(osmid, taskEndpoint, url, taskId, previousStatus) {
 			}
 		
 			if (data == "STARTED" || data == "PENDING") {
-				setTimeout(function(){getLineTask(osmid, taskEndpoint, url, taskId, data);}, 30000);
+				setTimeout(function(){updateTaskStatus(taskEndpoint, taskId, postExecutionURL, postExecutionParams, postExecutionText, previousStatus);}, 30000);
 			}
 		}
 	);

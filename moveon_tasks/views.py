@@ -119,9 +119,9 @@ def _get_tasks_for_user(user, prefix, exclude_osmids=[]):
             excludes.append(str(prefix)+str(exclude_osmid))
     
     tasks = []
-    tasks = cache.get(user+"_tasks")
-    if tasks is not None:
-        for task in tasks:
+    cached_tasks = cache.get(user+"_tasks")
+    if cached_tasks is not None:
+        for task in cached_tasks:
             if task not in excludes and task.startswith(prefix):
                 tasks.append(task)
     else:
