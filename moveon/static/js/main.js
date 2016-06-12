@@ -1,7 +1,7 @@
 ///Global variables
 
 // Function to retrieve information and send a 
-function getOSMLine(key, value, url, taskEndpoint, companyCode) {
+function getOSMLine(key, value, url, taskEndpoint, companyCode, postExecutionURL, postExecutionText) {
     var info = '{"osmline": {"'+ key +'": '+value+'}}';
     $.post( url, info, 
         function( data ) {
@@ -11,7 +11,7 @@ function getOSMLine(key, value, url, taskEndpoint, companyCode) {
 			
 			var i = taskEndpoint.indexOf(companyCode);
     		var taskEndpointNoArg = taskEndpoint.substring(0, i);
-    		updateTaskStatus(taskEndpointNoArg, getLineTaskId, url, value, 'See', 'PENDING');
+    		updateTaskStatus(taskEndpointNoArg, getLineTaskId, postExecutionURL, value, postExecutionText, 'PENDING');
         }
     ).fail(
         function(data){
@@ -21,7 +21,31 @@ function getOSMLine(key, value, url, taskEndpoint, companyCode) {
     );
 }
 
-function runImportationTasks(tasks, taskEndpoint, url, companyCode) {
+function saveOSMLine(key, value, url, taskEndpoint, companyCode, postExecutionURL, postExecutionText) {
+    var info = '{"osmline": {"'+ key +'": '+value+'}}';
+    $.post( url, info, 
+        function( data ) {
+    		if (value) {
+    			getLineTaskId=data;
+        		
+        		$( ".tasks" ).append( '<div class="'+getLineTaskId+'">'+ getLineTaskId +' - PENDING</div>' );
+    			
+    			var i = taskEndpoint.indexOf(companyCode);
+        		var taskEndpointNoArg = taskEndpoint.substring(0, i);
+        		updateTaskStatus(taskEndpointNoArg, getLineTaskId, postExecutionURL, '', postExecutionText, 'PENDING');
+    		} else {
+    			window.location=data;
+    		}
+        }
+    ).fail(
+        function(data){
+            alert("Error " + data.status + " " + url + " " + info);
+            $( "button" ).removeClass( "is-loading" );
+        }
+    );
+}
+
+function runImportationTasks(tasks, taskEndpoint, postExecutionURL, companyCode, postExecutionText) {
 	var i = taskEndpoint.indexOf(companyCode);
 	var taskEndpointNoArg = taskEndpoint.substring(0, i);
 	
@@ -31,7 +55,7 @@ function runImportationTasks(tasks, taskEndpoint, url, companyCode) {
 		var osmid = taskId.substring(j+1);
 		
 		$( ".tasks" ).append( '<div class="'+taskId+'">'+ taskId +' - PENDING</div>' );
-		updateTaskStatus(taskEndpointNoArg, taskId, url, osmid, 'See', 'PENDING');
+		updateTaskStatus(taskEndpointNoArg, taskId, postExecutionURL, osmid, postExecutionText, 'PENDING');
 	} 
 }
 

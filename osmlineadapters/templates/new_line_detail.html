@@ -36,8 +36,8 @@
                     </p>
                     ---------------------------------------------------<br>
             {% endfor %}
-            <button class="button" onclick="getOSMLine('accept', true,  '{% url 'newlinedetail' company_id line.osmid %}', '{% url 'get_task' company_id %}', '{{ company_id }}')">I agree</button>
-            <button class="button" onclick="getOSMLine('accept', false, '{% url 'company' company_id %}', '{% url 'get_task' company_id %}', '{{ company_id }}')">I don't agree</button>
+            <button class="button" onclick="saveOSMLine('accept', true,  '{% url 'newlinedetail' company_id line.osmid %}', '{% url 'get_task' company_id %}', '{{ company_id }}', '{% url 'company' company_id %}', 'Ok')">I agree</button>
+            <button class="button" onclick="saveOSMLine('accept', false, '{% url 'newlinedetail' company_id line.osmid %}', '{% url 'get_task' company_id %}', '{{ company_id }}', '{% url 'company' company_id %}', 'Ok')">I don't agree</button>
             
             <div style="display: block;" class="columns tasks" />
         </div>

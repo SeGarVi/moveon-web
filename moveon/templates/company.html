@@ -23,7 +23,7 @@
                 <p class="code control">Write your OSM code
                     <input type="code" placeholder="OSM code" maxsize="8">
                 </p>
-                <button type="submit" class="button is-primary" onclick="getOSMLine('id', $('input').val(), '{% url 'newline' company.code %}', '{% url 'get_task' company.code %}', '{{ company.code }}')">Add the new line!!</button>
+                <button type="submit" class="button is-primary" onclick="getOSMLine('id', $('input').val(), '{% url 'newline' company.code %}', '{% url 'get_task' company.code %}', '{{ company.code }}', '{% url 'newline' company.code %}', 'Check it out!')">Add the new line!!</button>
             </div>
         </div>
         
@@ -35,7 +35,7 @@
 			    	'{{task}}',
 			    {% endfor %}
 			];
-        	window.onload = runImportationTasks(tasklist, '{% url 'get_task' company.code %}', '{% url 'newline' company.code %}', '{{ company.code }}');
+        	window.onload = runImportationTasks(tasklist, '{% url 'get_task' company.code %}', '{% url 'newline' company.code %}', '{{ company.code }}', 'Check it out!');
         </script>
 		{% endif %}
     {% endif %}

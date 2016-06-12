@@ -40,9 +40,16 @@ def start_import_line_from_osm_task(user, company_id, osm_line_id):
     #add task to user
     user_tasks = cache.get(user+"_tasks")
     if user_tasks is None:
-        user_tasks=[]
+        user_tasks = []
     user_tasks.append(task_name)
     cache.set(user+"_tasks", user_tasks)
+    
+    #add user to task
+    task_users = cache.get(task_name+"_users")
+    if task_users is None:
+        task_users = []
+    task_users.append(user)
+    cache.set(task_name+"_users", task_users)
     
     _save_in_db(user, task_result, task_name)
     
@@ -51,6 +58,26 @@ def start_import_line_from_osm_task(user, company_id, osm_line_id):
 def get_import_line_from_osm_tasks(user, excludes=[]):
     return _get_tasks_for_user(user, 'osmlineadapters_newline_', excludes)
 
+def delete_failed_import_line_from_osm_task(osm_line_id):
+    task_name = 'osmlineadapters_newline_' + str(osm_line_id)
+    
+    task_users = cache.get(task_name+"_users")
+    if task_users is not None:
+        for user in task_users:
+            user_tasks = cache.get(user+"_tasks")
+            if user_tasks is not None:
+                new_user_tasks = []
+                for task in user_tasks:
+                    if task_name not in task:
+                        new_user_tasks.append(task)
+                if not new_user_tasks:
+                    cache.delete(user+"_tasks")
+                else:
+                    cache.set(user+"_tasks", new_user_tasks)
+    
+    cache.delete(task_name+"_users")
+    
+    Task.objects.filter(name=task_name).delete()
 
 def start_save_line_from_osm_task(user, osm_line_id, line):
     task_name = 'osmlineadapters_saveline_' + str(osm_line_id)
@@ -133,6 +160,17 @@ def _get_tasks_for_user(user, prefix, exclude_osmids=[]):
             if not task.finished:
                 task_proxy = AsyncResult(task.id,app=app)
                 cache.set(task.name, task_proxy)
+            
+            users = task.users.all()
+            task_users = cache.get(task.name+"_users")
+            if task_users is None:
+                task_users = []
+                
+            for db_user in users:
+                #add user to task
+                task_users.append(db_user.name)
+                
+            cache.set(task.name+"_users", task_users)
         
         cache.set(user+"_tasks", tasks)
     

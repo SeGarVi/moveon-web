@@ -1,11 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache              import cache
 from django.http                    import HttpResponse
-from django.shortcuts               import render
+from django.shortcuts               import render, redirect
 from django.views.decorators.csrf   import csrf_exempt
 import json
 from moveon.models import Line
 import moveon_tasks.views as tasks
+from django.core.urlresolvers import reverse
+import traceback
+import sys
 
 @csrf_exempt
 @login_required(login_url='moveon_login')
@@ -70,7 +73,14 @@ def newlinedetail(request, company_id, osm_line_id):
             user = request.user.username
             task_id = tasks.start_save_line_from_osm_task(user, osm_line_id, line) 
         
-        cache.delete(osm_line_id)
-        cache.delete(cache_simplified_id)
-        
-        return HttpResponse(task_id)
+            cache.delete(osm_line_id)
+            cache.delete(cache_simplified_id)
+            
+            return HttpResponse(task_id)
+        else:
+            cache.delete(osm_line_id)
+            cache.delete(cache_simplified_id)
+            
+            tasks.delete_failed_import_line_from_osm_task(osm_line_id)
+            
+            return HttpResponse(reverse('company', args=[company_id]))
