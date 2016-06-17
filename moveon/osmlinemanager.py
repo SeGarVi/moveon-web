@@ -1,8 +1,13 @@
 import logging
 
+from django.db import IntegrityError, transaction
+import traceback
+import sys
+
 from moveon.models import Company, Transport, Line, Station, Node, Route, Stretch, RoutePoint
 
 logger = logging.getLogger(__name__)
+
 
 class OSMLineManager():
     def __init__(self, osmline):
@@ -13,13 +18,20 @@ class OSMLineManager():
         self.stretches = dict()
     
     def save(self):
-        self._save_line()
-        self._save_nodes()
-        self._save_stations()
-        self._assign_stations_to_line()
-        self._save_routes()
-        self._create_default_stretches()
-        self._save_route_points()
+        try:
+            with transaction.atomic():
+                self._save_line()
+                self._save_nodes()
+                self._save_stations()
+                self._assign_stations_to_line()
+                self._save_routes()
+                self._create_default_stretches()
+                self._save_route_points()
+        except IntegrityError:
+            print("Exception in user code:")    
+            print("-"*60)
+            traceback.print_exc(file=sys.stdout)
+            print("-"*60)
     
     def _save_line(self):
         logger.debug('Saving line')
