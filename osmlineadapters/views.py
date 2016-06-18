@@ -1,14 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache              import cache
 from django.http                    import HttpResponse
-from django.shortcuts               import render, redirect
+from django.shortcuts               import render
 from django.views.decorators.csrf   import csrf_exempt
 import json
 from moveon.models import Line
 import moveon_tasks.views as tasks
 from django.core.urlresolvers import reverse
-import traceback
-import sys
 
 @csrf_exempt
 @login_required(login_url='moveon_login')

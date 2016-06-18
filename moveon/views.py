@@ -113,7 +113,6 @@ def line(request, company_id, line_id):
 
 @require_http_methods(["POST"])
 def timetable_get(request, route_id):
-    timetables_ids = []
     try:
         timetable_ids = json.loads(request.body.decode("utf-8"))
         timetable_ids = eval(timetable_ids)
