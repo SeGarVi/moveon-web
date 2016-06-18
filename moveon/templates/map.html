@@ -49,7 +49,7 @@
 	            	currentDataLimits = swne;
 		            $.ajax({
 		              type: "GET",
-		              url: '{% url 'index' %}api/v0/stations/fenced'+'/'+swne._sw.lat+'/'+swne._sw.lng+'/'+swne._ne.lat+'/'+swne._ne.lng+'/',
+		              url: '{% url 'index' %}api/v0/stations/fenced/tiled'+'/'+swne._sw.lat+'/'+swne._sw.lng+'/'+swne._ne.lat+'/'+swne._ne.lng+'/',
 		              headers: {
 		                Accept: 'application/json'
 		              }

@@ -36,6 +36,7 @@ def newlinedetail(request, company_id, osm_line_id):
             db_value = {'val' : val, 'simplified_val' : simplified_val}
             tasks.save_task_value(task_cache_id, json.dumps(db_value))
         else:
+            #TODO no esta en cache, esta acabada y en BD not finished
             db_value = tasks.get_task_value(task_cache_id)
             decoded_value = json.loads(db_value)
             val = decoded_value['val']
