@@ -78,22 +78,25 @@ def _get_fenced_stations_from_cache(bottom, left, top, right):
     stations = []
     not_cached = []
     
-    current_left = left
-    current_right = right
+    current_bottom = bottom
+    current_top = top
     
-    while current_left <= current_right:
-        current_bottom = bottom
-        current_top = top
-        while current_bottom <= current_top:
+    while current_bottom <= current_top:
+        current_left = left
+        current_right = right
+        while current_left <= current_right:
             current_stations = cache.get('fenced_stations_'+str(current_bottom)+'-'+str(current_left))
             if current_stations is not None:
                 stations = stations + current_stations
             else:
-                not_cached.append((current_bottom, current_left, round(current_bottom+0.01, 2), round(current_left+0.01, 2)))
-            current_bottom += 0.01
-            current_bottom=round(current_bottom, 2)
-        current_left += 0.01
-        current_left=round(current_left, 2)
+                if not_cached and not_cached[-1][0] == current_bottom and not_cached[-1][3] == current_left:
+                    not_cached[-1][3] = round(current_left+0.01, 2)
+                else:
+                    not_cached.append([current_bottom, current_left, round(current_bottom+0.01, 2), round(current_left+0.01, 2)])
+            current_left += 0.01
+            current_left=round(current_left, 2)
+        current_bottom += 0.01
+        current_bottom=round(current_bottom, 2)
     return (stations, not_cached)
 
 @api_view(['GET'])
