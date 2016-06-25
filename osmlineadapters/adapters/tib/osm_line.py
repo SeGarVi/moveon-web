@@ -51,12 +51,17 @@ class OSMLine(AbstractOSMLine):
                     route_point = self._get_route_point_info(
                                     member['ref'], route_point_order,
                                     distance_from_beginning, True)
-                    route['route_points'][member['ref']] = route_point
+                    
+                    if not member['ref'] in route['route_points']:
+                        route['route_points'][member['ref']] = []
+                    route['route_points'][member['ref']].append(route_point)
+                    
                     route_point_order += 1
                 elif self._is_stop(member):
                     logger.debug('Getting stop {0} info'.format(member['ref']))
                     
-                    if not self._stop_already_in_route(member['ref'], route):
+                    if not self._stop_already_in_route(member['ref'], route) or \
+                        self._stop_in_route_but_not_consecutive(member['ref'], previous_point):
                         if not self._stop_already_in_line(member['ref']):
                             logger.debug("\t Not present, retrieving info...")
                             
@@ -75,7 +80,10 @@ class OSMLine(AbstractOSMLine):
                         route_point = self._get_route_point_info(
                                     member['ref'], route_point_order,
                                     distance_from_beginning, False)
-                        route['route_points'][member['ref']] = route_point
+                        
+                        if not member['ref'] in route['route_points']:
+                            route['route_points'][member['ref']] = []
+                        route['route_points'][member['ref']].append(route_point)
                         route_point_order += 1
                         
                         previous_point = current_point
@@ -91,7 +99,8 @@ class OSMLine(AbstractOSMLine):
                     for node_id in way['nd']:
                         logger.debug('\tGetting node {0} info'.format(node_id))
                         
-                        if not self._node_already_in_route(node_id, route):
+                        if not self._node_already_in_route(node_id, route) or \
+                            self._node_in_route_but_not_consecutive(node_id, previous_point):
                             if not self._node_already_in_line(node_id):
                                 logger.debug("\t\t Not present, retrieving info...")
                                 
@@ -109,7 +118,10 @@ class OSMLine(AbstractOSMLine):
                             route_point = self._get_route_point_info(
                                     node_id, route_point_order,
                                     distance_from_beginning, False)
-                            route['route_points'][node_id] = route_point
+                            
+                            if not node_id in route['route_points']:
+                                route['route_points'][node_id] = []
+                            route['route_points'][node_id].append(route_point)
                             route_point_order += 1
                             
                             previous_point = current_point
@@ -228,6 +240,12 @@ class OSMLine(AbstractOSMLine):
     
     def _is_stop(self, member):
         return 'stop' in member['role']
+    
+    def _stop_in_route_but_not_consecutive(self, stop_id, previous_point):
+        return self._node_in_route_but_not_consecutive(stop_id, previous_point)
+    
+    def _node_in_route_but_not_consecutive(self, node_id, previous_point):
+        return previous_point is not None and previous_point['osmid'] != node_id
     
     def _stop_already_in_route(self, stop_id, route):
         return self._node_already_in_route(stop_id, route)
