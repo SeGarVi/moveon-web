@@ -1,57 +1,42 @@
-from django.core.cache              import cache
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 import moveon_tasks.tasks as tasks
 from moveon_tasks.models import User, Task
 
 from moveon_web.celery import app 
 from celery.result import AsyncResult
-
-import traceback
-import sys
+import json
 
 def get_task_status(user, task_name):
     if not _task_belongs_to_user(task_name, user):
         raise PermissionDenied
     
-    task = cache.get(task_name)
+    task = Task.objects.get(name=task_name)
     if task is None:
-        persisted_task = Task.objects.get(name=task_name)
-        if persisted_task is None:
-            raise ObjectDoesNotExist
-        elif persisted_task.finished:
-            return "SUCCESS" 
-        else:
-            task = AsyncResult(persisted_task.id,app=app)
-    elif task.state == "PENDING":
-        persisted_task = Task.objects.get(name=task_name)
-        if persisted_task.finished:
-            return "SUCCESS"
-        
-    return task.state
+        raise ObjectDoesNotExist
+
+    if task.status in ['SUCCESS', 'FAILED']:
+        return task.status
+    else:
+        celery_task = AsyncResult(task.id,app=app)
+        if celery_task.state in ['SUCCESS', 'FAILED']:
+            _save_task_value(task.id, celery_task.get(), celery_task.state)
+        return celery_task.state
+
+def get_import_line_from_osm_task(osm_line_id):
+    task_name = 'osmlineadapters_newline_' + str(osm_line_id)
+    return Task.objects.get(name=task_name)
 
 def start_import_line_from_osm_task(user, company_id, osm_line_id):
     task_name = 'osmlineadapters_newline_' + str(osm_line_id)
-    task_result = cache.get(task_name)
     
-    if task_result is None:
+    try:
+        task = Task.objects.get(name=task_name)
+        task_result = task.id
+    except Task.DoesNotExist:
         task_result = tasks.import_line_from_osm.delay(company_id, osm_line_id)
-        cache.set(task_name, task_result)
-        
-    #add task to user
-    user_tasks = cache.get(user+"_tasks")
-    if user_tasks is None:
-        user_tasks = []
-    user_tasks.append(task_name)
-    cache.set(user+"_tasks", user_tasks)
+        _save_task_in_db(task_result, task_name, task_result.state)
     
-    #add user to task
-    task_users = cache.get(task_name+"_users")
-    if task_users is None:
-        task_users = []
-    task_users.append(user)
-    cache.set(task_name+"_users", task_users)
-    
-    _save_in_db(user, task_result, task_name)
+    _associate_task_to_user(user, task_result)
     
     return task_name
 
@@ -60,54 +45,40 @@ def get_import_line_from_osm_tasks(user, excludes=[]):
 
 def delete_failed_import_line_from_osm_task(osm_line_id):
     task_name = 'osmlineadapters_newline_' + str(osm_line_id)
-    
-    task_users = cache.get(task_name+"_users")
-    if task_users is not None:
-        for user in task_users:
-            user_tasks = cache.get(user+"_tasks")
-            if user_tasks is not None:
-                new_user_tasks = []
-                for task in user_tasks:
-                    if task_name not in task:
-                        new_user_tasks.append(task)
-                if not new_user_tasks:
-                    cache.delete(user+"_tasks")
-                else:
-                    cache.set(user+"_tasks", new_user_tasks)
-    
-    cache.delete(task_name+"_users")
-    
     Task.objects.filter(name=task_name).delete()
 
 def start_save_line_from_osm_task(user, osm_line_id, line):
     task_name = 'osmlineadapters_saveline_' + str(osm_line_id)
-    task_result = cache.get(task_name)
-            
-    if task_result is None:
+    
+    try:
+        task = Task.objects.get(name=task_name)
+        task_result = task.id
+    except Task.DoesNotExist:
         task_result = tasks.save_line_from_osm.delay(line)
-        cache.set(task_name, task_result)
+        _save_task_in_db(task_result, task_name, task_result.state)
     
-    #add task to user
-    user_tasks = cache.get(user+"_tasks")
-    if user_tasks is None:
-        user_tasks=[]
-    user_tasks.append(task_name)
-    cache.set(user+"_tasks", user_tasks)
-    
-    _save_in_db(user, str(task_result), task_name)
+    _associate_task_to_user(user, task_result)
     
     return task_name
 
-def save_task_value(task_id, value):
-    task = Task.objects.get(name=task_id)
+def _save_task_value(task_id, value, status):
+    task = Task.objects.get(id=task_id)
     task.finished = True
-    task.value = value
+    task.status = status
+    task.value = json.dumps(value)
     task.save()
 
-def get_task_value(task_id):
-    return Task.objects.get(name=task_id).value 
+def _save_task_in_db(task_id, task_name, task_status):
+    try:
+        Task.objects.get(name=task_name)
+    except Task.DoesNotExist:
+        task = Task()
+        task.id = task_id
+        task.name = task_name
+        task.status = task_status
+        task.save()
 
-def _save_in_db(username, task_id, task_name):
+def _associate_task_to_user(username, task_id):
     try:
         user = User.objects.get(name=username)
     except User.DoesNotExist:
@@ -115,29 +86,13 @@ def _save_in_db(username, task_id, task_name):
         user.name = username
         user.save()
     
-    try:
-        task = Task.objects.get(id=task_id)
-    except Task.DoesNotExist:
-        task = Task()
-        task.id = task_id
-        task.name = task_name
-        task.save()
-    
-    try:
-        task.users.add(user)
-    except Exception:
-        print("Exception in user code:")    
-        print("-"*60)
-        traceback.print_exc(file=sys.stdout)
-        print("-"*60)
+    task = Task.objects.get(id=task_id)
+    task.users.add(user)
         
     task.save()
     
-def _task_belongs_to_user(task_id, user):
-    user_tasks = cache.get(user+"_tasks")
-    if user_tasks is None:
-        return False
-    return task_id in user_tasks
+def _task_belongs_to_user(task_name, user):
+    return Task.objects.filter(name=task_name).filter(users__in=[user]).count() == 1
 
 def _get_tasks_for_user(user, prefix, exclude_osmids=[]):
     excludes = []
@@ -145,41 +100,14 @@ def _get_tasks_for_user(user, prefix, exclude_osmids=[]):
         for exclude_osmid in exclude_osmids:
             excludes.append(str(prefix)+str(exclude_osmid))
     
-    tasks = []
-    cached_tasks = cache.get(user+"_tasks")
-    if cached_tasks is not None:
-        for task in cached_tasks:
-            if task not in excludes and task.startswith(prefix):
-                tasks.append(task)
-    else:
-        db_tasks = _get_tasks_for_user_from_db(user, prefix, excludes)
-        tasks = []
-        for task in db_tasks:
-            tasks.append(task.name)
-            
-            if not task.finished:
-                task_proxy = AsyncResult(task.id,app=app)
-                cache.set(task.name, task_proxy)
-            
-            users = task.users.all()
-            task_users = cache.get(task.name+"_users")
-            if task_users is None:
-                task_users = []
-                
-            for db_user in users:
-                #add user to task
-                task_users.append(db_user.name)
-                
-            cache.set(task.name+"_users", task_users)
-        
-        cache.set(user+"_tasks", tasks)
+    tasks = _get_tasks_for_user_from_db(user, prefix, excludes)
     
     return tasks
 
 def _get_tasks_for_user_from_db(user, prefix, exclude_names=[]):
     if len(exclude_names):
-        tasks = Task.objects.filter(users=user).exclude(name__in=exclude_names).extra(where=["name LIKE '" + prefix + "'||'%%'"])
+        tasks = Task.objects.filter(users=user).exclude(name__in=exclude_names).extra(where=["name LIKE '" + prefix + "'||'%%'"]).values_list('name', flat=True)
     else:
-        tasks = Task.objects.filter(users=user).extra(where=["name LIKE '" + prefix + "'||'%%'"])
+        tasks = Task.objects.filter(users=user).extra(where=["name LIKE '" + prefix + "'||'%%'"]).values_list('name', flat=True)
     return tasks
     

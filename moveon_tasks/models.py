@@ -8,6 +8,7 @@ class Task(models.Model):
     id = models.TextField(primary_key=True, unique=True)
     name = models.TextField(db_index=True)
     finished = models.BooleanField(default=False)
+    status = models.TextField()
     value = models.TextField(null=True)
     users = ManyToManyField(User)
     
