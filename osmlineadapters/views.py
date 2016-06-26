@@ -32,7 +32,7 @@ def newlinedetail(request, company_id, osm_line_id):
             user = request.user.username
             
             try:
-                task = tasks.get_import_line_from_osm_task(osm_line_id)
+                task = tasks.get_import_line_from_osm_task(company_id, osm_line_id)
                 if 'SUCCESS' in task.status:
                     decoded_value = json.loads(task.value)
                     val = decoded_value[0]
@@ -58,19 +58,19 @@ def newlinedetail(request, company_id, osm_line_id):
         if agree:
             val = cache.get(osm_line_id)
             if val is None:
-                task = tasks.get_import_line_from_osm_task(osm_line_id)
+                task = tasks.get_import_line_from_osm_task(company_id, osm_line_id)
                 decoded_value = json.loads(task.value)
                 val = decoded_value['val']
             
             line = json.loads(val)
             
             user = request.user.username
-            task_id = tasks.start_save_line_from_osm_task(user, osm_line_id, line) 
+            task_id = tasks.start_save_line_from_osm_task(user, company_id, osm_line_id, line) 
         
             cache.delete(osm_line_id)
             
             return HttpResponse(task_id)
         else:
-            tasks.delete_failed_import_line_from_osm_task(osm_line_id)
+            tasks.delete_failed_import_line_from_osm_task(company_id, osm_line_id)
             
             return HttpResponse(reverse('company', args=[company_id]))

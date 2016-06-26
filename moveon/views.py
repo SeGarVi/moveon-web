@@ -82,24 +82,25 @@ def companies(request):
     companies = Company.objects.order_by('name')
     return render(request, 'companies.html', {'companies': companies}) 
 
+
 def company(request, company_id):
     comp = get_object_or_404(Company, code=company_id)
     lines = Line.objects.filter(company=comp).order_by('code')
-    
+
     excludes = []
     for line in lines:
         excludes.append(line.osmid)
-    
+
     user_tasks = []
     user = request.user.username
     if user is not None:
-        user_tasks = taskmanager.get_import_line_from_osm_tasks(user, excludes)
-    
-    context = {     'company': comp,
-                    'lines': lines,
-                    'tasks': user_tasks
-              }
-    return render(request, 'company.html', context) 
+        user_tasks = taskmanager.get_import_line_from_osm_tasks(
+                                                    user, company_id, excludes)
+
+    context = {'company': comp,
+               'lines': lines,
+               'tasks': user_tasks}
+    return render(request, 'company.html', context)
 
 def line(request, company_id, line_id):
     comp = get_object_or_404(Company, code=company_id)

@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 import moveon_tasks.tasks as tasks
 from moveon_tasks.models import User, Task
 
-from moveon_web.celery import app 
+from moveon_web.celery import app
 from celery.result import AsyncResult
 import json
 
@@ -22,12 +22,12 @@ def get_task_status(user, task_name):
             _save_task_value(task.id, celery_task.get(), celery_task.state)
         return celery_task.state
 
-def get_import_line_from_osm_task(osm_line_id):
-    task_name = 'osmlineadapters_newline_' + str(osm_line_id)
+def get_import_line_from_osm_task(company_id, osm_line_id):
+    task_name = 'osmlineadapters_newline_' + company_id + "_" + str(osm_line_id)
     return Task.objects.get(name=task_name)
 
 def start_import_line_from_osm_task(user, company_id, osm_line_id):
-    task_name = 'osmlineadapters_newline_' + str(osm_line_id)
+    task_name = 'osmlineadapters_newline_' + company_id + "_" + str(osm_line_id)
     
     try:
         task = Task.objects.get(name=task_name)
@@ -40,15 +40,20 @@ def start_import_line_from_osm_task(user, company_id, osm_line_id):
     
     return task_name
 
-def get_import_line_from_osm_tasks(user, excludes=[]):
-    return _get_tasks_for_user(user, 'osmlineadapters_newline_', excludes)
 
-def delete_failed_import_line_from_osm_task(osm_line_id):
-    task_name = 'osmlineadapters_newline_' + str(osm_line_id)
+def get_import_line_from_osm_tasks(user, company_id, excludes=[]):
+    return _get_tasks_for_user(user,
+                               'osmlineadapters_newline_' + company_id + '_',
+                               excludes)
+
+
+def delete_failed_import_line_from_osm_task(company_id, osm_line_id):
+    task_name = \
+        'osmlineadapters_newline_' + company_id + "_" + str(osm_line_id)
     Task.objects.filter(name=task_name).delete()
 
-def start_save_line_from_osm_task(user, osm_line_id, line):
-    task_name = 'osmlineadapters_saveline_' + str(osm_line_id)
+def start_save_line_from_osm_task(user, company_id, osm_line_id, line):
+    task_name = 'osmlineadapters_saveline_' + company_id + str(osm_line_id)
     
     try:
         task = Task.objects.get(name=task_name)
