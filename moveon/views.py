@@ -314,8 +314,7 @@ def _calculate_time_from_beginning(route_points, speed):
 
 
 def _get_stations_for_route(route):
-    stations = RouteStation.objects.filter(route_id=route.osmid)
-    return stations
+    return RouteStation.objects.filter(route_id=route.osmid)
 
 def _get_station_route_points_for_stretch(stretch):
     node_ids = stretch.routepoint_set.all().values_list('node_id', flat=True)
