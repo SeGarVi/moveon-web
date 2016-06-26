@@ -183,3 +183,27 @@ class RoutePoint(models.Model):
     
     def __str__(self):
         return str(self.id)
+
+# DB Views
+
+
+class RouteStation(Node):
+    stop_node = models.ForeignKey(Node, related_name='routestop_node', null=True)
+    code = models.TextField()
+    name = models.TextField()
+    available = models.BooleanField()
+    adapted = models.NullBooleanField(null=True)
+    shelter = models.NullBooleanField(null=True)
+    bench = models.NullBooleanField(null=True)
+    route_id = models.BigIntegerField()
+    order = models.IntegerField()
+
+    objects = managers.StationManager()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        managed = False
+        db_table = 'moveon_routestation'
+        ordering = ['order']

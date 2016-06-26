@@ -6,7 +6,7 @@ from django.http                    import HttpResponse
 from django.shortcuts               import get_object_or_404, render, redirect
 from geopy.distance                 import vincenty
 from moveon.models                  import Company, Line, Station, Route, Stretch,\
-    RoutePoint, Time, TimeTable
+    RoutePoint, Time, TimeTable, RouteStation
 import moveon_tasks.views as taskmanager
 from django.views.decorators.http   import require_http_methods
 import json
@@ -312,10 +312,9 @@ def _calculate_time_from_beginning(route_points, speed):
         route_point.time_from_beginning = previous.time_from_beginning + time
         previous = route_point
 
+
 def _get_stations_for_route(route):
-    node_ids = list(route.stretch_set.first().routepoint_set.all().values_list('node_id', flat=True))
-    stations = list(Station.objects.filter(osmid__in=node_ids))
-    stations.sort(key=lambda t: node_ids.index(t.osmid))
+    stations = RouteStation.objects.filter(route_id=route.osmid)
     return stations
 
 def _get_station_route_points_for_stretch(stretch):
