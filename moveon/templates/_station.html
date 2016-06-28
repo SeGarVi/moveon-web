@@ -24,21 +24,10 @@
                 Sorry, but this station is not available in the moment. You can go to the nearest station <a href="#">Here</a>
             {% endif %}
         </div>
-        <div class="station_routes">
-            {% for route in station.routes %}
-                <div class="station_routes--info is-flex">
-                    <p class="route-info is-flex">
-                        <i class="is-hidden-mobile material-icons">directions_bus</i>
-                        <img class="is-hidden-mobile is-small-image" src="{{ route.company_icon }}"></img> 
-                        <span class="line_code" style="background-color:{{ route.colour }}"> {{route.line.code}} </span> {{ route.name }}
-                    </p>
-                    <p class="next-vehicle">
-                        {% for next_vehicle in route.next_vehicles %}
-                            <span> {{ next_vehicle }}m</span>
-                        {% endfor %}
-                    </p>
-                </div>
-            {% endfor %}
+        <div class="station_{{ station.osmid }}_routes">
         </div>
+        <script type="text/javascript">
+            window.onload = getStationRoutes({{ station.osmid }}, '{% url 'api_v0_get_routes_for_station' station.osmid %}');
+        </script>
     </div>
 </div>

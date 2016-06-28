@@ -1,4 +1,42 @@
 ///Global variables
+function getStationRoutes(stationId, routesEndpoint) {
+    $.get(routesEndpoint,
+        function( data ) {
+            for (i=0; i<data.length; i++) {
+                var route = data[i];
+                var routeInfo =
+                   '<div class="station_routes--info is-flex">' +
+                        '<p class="route-info is-flex">' +
+                            '<i class="is-hidden-mobile material-icons">directions_bus</i>' +
+                            '<img class="is-hidden-mobile is-small-image" src="'+ route.company_icon +'"></img>' + 
+                            '<span class="line_code" style="background-color:'+route.colour+'"> '+route.line_code+' </span> '+route.name+
+                        '</p>';
+                if ('next_vehicles' in route) {
+                    routeInfo += '<p class="next-vehicle-'+stationId+'-'+route.pk+'">';
+                    for (j=0; j<route.next_vehicles.length; j++) {
+                        routeInfo += '<span>'+ route.next_vehicles[j] + 'm </span>';
+                    }
+                    routeInfo +='</p>';
+                }
+                routeInfo += '</div>';
+                $( "div.station_" + stationId + "_routes").append(routeInfo);
+            }
+            /*if (data == "SUCCESS") {
+                $( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +
+                        '<a href="' + postExecutionURL + postExecutionParams +'"> '+
+                        postExecutionText +'</a></div>' );
+            } else {
+                if (data != previousStatus) {
+                    $( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +'</div>' );
+                }
+            }
+        
+            if (data == "STARTED" || data == "PENDING") {
+                setTimeout(function(){updateTaskStatus(taskEndpoint, taskId, postExecutionURL, postExecutionParams, postExecutionText, previousStatus);}, 30000);
+            }*/
+        }
+    );
+}
 
 // Function to retrieve information and send a 
 function getOSMLine(key, value, url, taskEndpoint, companyCode, postExecutionURL, postExecutionText) {

@@ -185,7 +185,7 @@ def station(request, station_id):
     userpos = request.GET.get('userpos', '').split(',')
     station = Station.objects.get_with_distance(station_id, userpos)
     #Get station times
-    Route.objects.add_route_info_to_station(station)
+    Route.objects.get_route_info_for_station(station)
 
     context = { 'station':  station
               }
@@ -202,7 +202,7 @@ def station_map(request):
               }
     return render(request, 'map.html', context) 
     
-def nearby(request):
+def nearby_with_times(request):
     userpos = request.GET.get('userpos', '')
     lat = float(userpos.split(',')[0])
     lon = float(userpos.split(',')[1])
@@ -212,7 +212,21 @@ def nearby(request):
     context = { 'near_stations': near_stations,
                 'location': userpos
               }
-    return render(request, 'nearby.html', context) 
+    return render(request, 'nearby.html', context)
+
+
+def nearby(request):
+    userpos = request.GET.get('userpos', '')
+    lat = float(userpos.split(',')[0])
+    lon = float(userpos.split(',')[1])
+    
+    near_stations = Station.objects.get_nearby_stations([lat, lon])
+    
+    context = { 'near_stations': near_stations,
+                'location': userpos
+              }
+    return render(request, 'nearby.html', context)
+
 
 @login_required(login_url='moveon_login')
 @require_http_methods(["PUT"])

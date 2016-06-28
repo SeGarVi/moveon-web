@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from moveon.models import Station, Company, Line, Route
+from moveon.models import Station, Company, Line, Route, RouteStation
 from .serializers import CompanySerializer, StationSerializer, LineSerializer, RouteSerializer
 from django.http.response import HttpResponse, HttpResponseNotAllowed,\
     HttpResponseNotFound
@@ -19,6 +19,14 @@ def get_near_stations(request, lat, lon):
                                             [float(lat), float(lon)], limit)
     Route.objects.add_route_info_to_station_list(stations)
     serializer = StationSerializer(stations, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_routes_for_station(request, station_id):
+    station = Station.objects.get(osmid=station_id)
+    routes = Route.objects.get_route_info_for_station(station)
+    serializer = RouteSerializer(routes, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -104,7 +112,7 @@ def get_station(request, station_id, nvehicles=2):
     try:
         nvehicles = int(request.GET.get('nvehicles', 2))
         station = Station.objects.get_by_id(station_id)
-        Route.objects.add_route_info_to_station(station, nvehicles)
+        Route.objects.get_route_info_for_station(station, nvehicles)
         serializer = StationSerializer(station)
         return Response(serializer.data)
     except Station.DoesNotExist:

@@ -41,6 +41,7 @@ class StationManager(models.Manager):
             right  = right  + limit_increment
             bottom = bottom - limit_increment
             top    = top    + limit_increment
+            limit_increment *= 5
             n_stations = self.get_number_fenced_stations(bottom, left, top, right)
         
         stations = self.get_fenced_stations(bottom, left, top, right)
@@ -75,14 +76,16 @@ class NodeManager(models.Manager):
 class RouteManager(models.Manager):
     def add_route_info_to_station_list(self, stations, n_vehicles = 1):
         for station in stations:
-            self.add_route_info_to_station(station, n_vehicles)
+            routes = self.get_route_info_for_station(station, n_vehicles)
+            if not hasattr(station, 'routes'):
+                station.routes=routes
     
-    def add_route_info_to_station(self, station, n_vehicles = 1):
-        if not hasattr(station, 'routes'):
-            station.routes=[]
-            
+    def get_route_info_for_station(self, station, n_vehicles = 1):
+        routes = []
         for route, next_vehicles in self.get_station_routes(station, n_vehicles):
             route.colour = route.line.colour
+            route.line_code = route.line.code
+            route.line_name = route.line.name
             route.company_icon = route.line.company.logo
             route.transport = route.line.transport.name
             route.transport_type = "bus"
@@ -91,24 +94,26 @@ class RouteManager(models.Manager):
             if len(next_vehicles) > 0:
                 route.next_vehicles = [int(next_vehicle / 60) for next_vehicle in next_vehicles] 
             
-            station.routes.append(route)
+            routes.append(route)
+        return routes
     
     def get_station_routes(self, station, n_vehicles):
         route_points = station.routepoint_set.all()
-        
+
         routes = []
         for route_point in route_points:
+            next_vehicles = []
             if route_point.time_from_beginning is not None:
                 stretch = route_point.stretch
-                
-                next_vehicles = []
+
                 if n_vehicles > 0:
-                    next_vehicles = self._get_next_vehicles(station, route_point.time_from_beginning, stretch, n_vehicles)
-                
-                if n_vehicles == 0 or len(next_vehicles) > 0: 
-                    route = route_point.stretch.route
-                    if route not in routes:
-                        routes.append((route, next_vehicles))
+                    next_vehicles = self._get_next_vehicles(
+                                    station, route_point.time_from_beginning,
+                                    stretch, n_vehicles)
+
+            route = route_point.stretch.route
+            if route not in routes:
+                routes.append((route, next_vehicles))
         
         return routes
     
