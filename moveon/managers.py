@@ -97,6 +97,20 @@ class RouteManager(models.Manager):
             routes.append(route)
         return routes
     
+    def get_route_info(self, routes):
+        retroutes = []
+        for route in routes:
+            route.colour = route.line.colour
+            route.line_code = route.line.code
+            route.line_name = route.line.name
+            route.company_icon = route.line.company.logo
+            route.transport = route.line.transport.name
+            route.transport_type = "bus"
+            route.adapted = False  #Change to the good val from de DB
+            
+            retroutes.append(route)
+        return retroutes
+    
     def get_station_routes(self, station, n_vehicles):
         route_points = station.routepoint_set.all()
 
@@ -116,6 +130,23 @@ class RouteManager(models.Manager):
                 routes.append((route, next_vehicles))
         
         return routes
+
+
+    def get_station_route_times(self, station, route_id, n_vehicles):
+        route_points = station.routepoint_set.all()
+
+        next_vehicles = []
+        for route_point in route_points:
+            if route_point.stretch.route.osmid == route_id:
+                if route_point.time_from_beginning is not None:
+                    stretch = route_point.stretch
+
+                    if n_vehicles > 0:
+                        next_vehicles = self._get_next_vehicles(
+                                    station, route_point.time_from_beginning,
+                                    stretch, n_vehicles)
+        nvehicles=[int(next_vehicle / 60) for next_vehicle in next_vehicles]
+        return nvehicles[0:n_vehicles]
     
     def _get_next_vehicles(self, station, time_from_beginning, stretch, n_vehicles):
         now = datetime.now()

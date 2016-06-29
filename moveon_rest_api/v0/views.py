@@ -24,10 +24,21 @@ def get_near_stations(request, lat, lon):
 
 @api_view(['GET'])
 def get_routes_for_station(request, station_id):
-    station = Station.objects.get(osmid=station_id)
-    routes = Route.objects.get_route_info_for_station(station)
+    route_ids = RouteStation.objects.filter(osmid=station_id).values_list('route_id', flat=True)
+    db_routes = Route.objects.filter(osmid__in=route_ids)
+    routes = Route.objects.get_route_info(db_routes)
     serializer = RouteSerializer(routes, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_times_for_station(request, station_id, route_id, n_vehicles):
+    if '' == n_vehicles:
+        n_vehicles = 1
+    station = Station.objects.get(osmid=station_id)
+    times = Route.objects.get_station_route_times(
+                                            station, route_id, int(n_vehicles))
+    return Response(times)
 
 @api_view(['GET'])
 def get_fenced_stations(request, bottom, left, top, right):

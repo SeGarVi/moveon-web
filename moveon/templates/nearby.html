@@ -1,7 +1,10 @@
 {% extends "index.html" %}
 
 {% block head %}
-<script type="text/javascript">console.log("{{ location }}");</script>
+<script type="text/javascript">
+    console.log("{{ location }}");
+    var automaticUpdate = true;
+</script>
 {% endblock %}
 
 {% block content %}
