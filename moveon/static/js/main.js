@@ -21,19 +21,6 @@ function getStationRoutes(stationId, routesEndpoint) {
                 routeInfo += '</div>';
                 $( "div.station_" + stationId + "_routes").append(routeInfo);
             }
-            /*if (data == "SUCCESS") {
-                $( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +
-                        '<a href="' + postExecutionURL + postExecutionParams +'"> '+
-                        postExecutionText +'</a></div>' );
-            } else {
-                if (data != previousStatus) {
-                    $( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +'</div>' );
-                }
-            }
-        
-            if (data == "STARTED" || data == "PENDING") {
-                setTimeout(function(){updateTaskStatus(taskEndpoint, taskId, postExecutionURL, postExecutionParams, postExecutionText, previousStatus);}, 30000);
-            }*/
         }
     );
 }
