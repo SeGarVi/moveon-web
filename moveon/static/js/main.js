@@ -1,7 +1,8 @@
 ///Global variables
-function getStationRoutes(stationId, routesEndpoint) {
+function getStationRoutes(stationId, routesEndpoint, updateTime) {
     $.get(routesEndpoint,
         function( data ) {
+            $( "div.station_" + stationId + "_routes").empty();
             for (i=0; i<data.length; i++) {
                 var route = data[i];
                 var routeInfo =
@@ -11,7 +12,7 @@ function getStationRoutes(stationId, routesEndpoint) {
                             '<img class="is-hidden-mobile is-small-image" src="'+ route.company_icon +'"></img>' + 
                             '<span class="line_code" style="background-color:'+route.colour+'"> '+route.line_code+' </span> '+route.name+
                         '</p>';
-                routeInfo += '<p class="next-vehicle-'+stationId+'-'+route.pk+'">';
+                routeInfo += '<p>';
                 if ('next_vehicles' in route) {
                     for (j=0; j<route.next_vehicles.length; j++) {
                         routeInfo += '<span>'+ route.next_vehicles[j] + 'm </span>';
@@ -20,29 +21,10 @@ function getStationRoutes(stationId, routesEndpoint) {
                 routeInfo +='</p>';
                 routeInfo += '</div>';
                 $( "div.station_" + stationId + "_routes").append(routeInfo);
-                
-                var routeId = route.pk;
-                timesEndpoint = routesEndpoint + '/' + routeId + '/next/3';
-                updateStationTimes(stationId, routeId, timesEndpoint);
             }
+            setTimeout(function(){getStationRoutes(stationId, routesEndpoint, updateTime);}, updateTime);
         }
     );
-}
-
-function updateStationTimes(stationId, routeId, timesEndpoint) {
-    if (automaticUpdate) {
-        $.get(timesEndpoint,
-            function( data ) {
-                var timesInfo = '<p class="next-vehicle-'+stationId+'-'+routeId+'">';
-                for (j=0; j<data.length; j++) {
-                   timesInfo += '<span>'+ data[j] + 'm </span>';
-                }
-                timesInfo +='</p>';
-                $( "p.next-vehicle-"+stationId+"-"+routeId).replaceWith(timesInfo);
-                setTimeout(function(){updateStationTimes(stationId, routeId, timesEndpoint);}, 45000);
-            }
-        );
-    }
 }
 
 // Function to retrieve information and send a 

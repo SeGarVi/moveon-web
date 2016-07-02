@@ -27,7 +27,7 @@
         <div class="station_{{ station.osmid }}_routes">
         </div>
         <script type="text/javascript">
-            window.onload = getStationRoutes({{ station.osmid }}, '{% url 'api_v0_get_routes_for_station' station.osmid %}');
+            window.onload = getStationRoutes({{ station.osmid }}, '{% url 'api_v0_get_routes_for_station' station.osmid %}', 45000);
         </script>
     </div>
 </div>

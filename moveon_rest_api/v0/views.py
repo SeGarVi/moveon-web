@@ -24,9 +24,8 @@ def get_near_stations(request, lat, lon):
 
 @api_view(['GET'])
 def get_routes_for_station(request, station_id):
-    route_ids = RouteStation.objects.filter(osmid=station_id).values_list('route_id', flat=True)
-    db_routes = Route.objects.filter(osmid__in=route_ids)
-    routes = Route.objects.get_route_info(db_routes)
+    station = Station.objects.get(osmid=station_id)
+    routes = Route.objects.get_route_info_for_station(station, 3);
     serializer = RouteSerializer(routes, many=True)
     return Response(serializer.data)
 
