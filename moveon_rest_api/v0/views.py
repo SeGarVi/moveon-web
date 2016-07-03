@@ -42,7 +42,6 @@ def get_times_for_station(request, station_id, route_id, n_vehicles):
 @api_view(['GET'])
 def get_fenced_stations(request, bottom, left, top, right):
     stations = Station.objects.get_fenced_stations(bottom, left, top, right)
-    Route.objects.add_route_info_to_station_list(stations)
     serializer = StationSerializer(stations, many=True)
     return Response(serializer.data)
 
@@ -57,7 +56,6 @@ def get_tiled_fenced_stations(request, bottom, left, top, right):
     if to_be_retrieved:
         for (b, l, t, r) in to_be_retrieved:
             new_stations = list(Station.objects.get_fenced_stations(b, l, t, r))
-            Route.objects.add_route_info_to_station_list(new_stations)
             _set_fenced_stations_to_cache(b, l, new_stations)
             stations = stations + new_stations
         
