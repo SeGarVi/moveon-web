@@ -130,18 +130,24 @@ class RouteManager(models.Manager):
         routes = {}
         for route_point in route_points:
             next_vehicles = []
-            if route_point.time_from_beginning is not None:
-                stretch = route_point.stretch
+#             if route_point.time_from_beginning is not None:
+            stretch = route_point.stretch
 
-                if n_vehicles > 0:
+            if not self._is_last_station(route_point, stretch):
+                now = datetime.now()
+                day_of_week = now.strftime('%A').lower()
+                timetables = stretch.time_table.filter(
+                                                **{day_of_week: True})
+
+                if len(timetables) > 0 and n_vehicles > 0:
                     next_vehicles = self._get_next_vehicles(
-                                    station, route_point.time_from_beginning,
-                                    stretch, n_vehicles)
+                                station, route_point.time_from_beginning,
+                                stretch, timetables.first(), n_vehicles)
 
-            route = route_point.stretch.route
-            if route not in routes:
-                routes[route] = []
-            routes[route] = routes[route] + next_vehicles
+                route = route_point.stretch.route
+                if route not in routes:
+                    routes[route] = []
+                routes[route] = routes[route] + next_vehicles
 
         return routes
 
@@ -153,21 +159,28 @@ class RouteManager(models.Manager):
             if route_point.stretch.route.osmid == route_id:
                 if route_point.time_from_beginning is not None:
                     stretch = route_point.stretch
-                    
-                    now = datetime.now()
-                    day_of_week = now.strftime('%A').lower()
-                    has_timetables = len(stretch.time_table.filter(**{day_of_week: True})) > 0
 
-                    if has_timetables and n_vehicles > 0:
-                        next_vehicles = self._get_next_vehicles(
+                    if not self._is_last_station(route_point, stretch):
+                        now = datetime.now()
+                        day_of_week = now.strftime('%A').lower()
+                        timetables = stretch.time_table.filter(
+                                                    **{day_of_week: True})
+    
+                        if len(timetables) > 0 and n_vehicles > 0:
+                            next_vehicles = self._get_next_vehicles(
                                     station, route_point.time_from_beginning,
-                                    stretch, n_vehicles)
+                                    stretch, timetables.first(), n_vehicles)
         nvehicles = [
             int(next_vehicle / 60) for next_vehicle in next_vehicles]
         return nvehicles[0:n_vehicles]
 
+    def _is_last_station(self, route_point, stretch):
+        return route_point.order == stretch.routepoint_set.count() - 1 \
+            or route_point.order == stretch.routepoint_set.count()
+
     def _get_next_vehicles(
-                self, station, time_from_beginning, stretch, n_vehicles):
+                self, station, time_from_beginning,
+                stretch, timetable, n_vehicles):
         now = datetime.now()
         harmonized = \
             datetime(
@@ -176,8 +189,6 @@ class RouteManager(models.Manager):
                 now.minute, 0, 0)
         harmonized_timestamp = int(harmonized.timestamp())
         day_of_week = now.strftime('%A').lower()
-
-        timetable = stretch.time_table.filter(**{day_of_week: True}).first()
 
         next_vehicles = []
         if timetable:

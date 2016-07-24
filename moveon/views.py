@@ -400,7 +400,7 @@ def _save_times(timetable, default_stretch, station_points, classified_station_p
             final_idx = \
                 default_route_points.index(final_station_route_point) + 1
             
-            order = 0
+            order = 1
             initial_distance = \
                 default_route_points[initial_idx].distance_from_beginning
             for i in range(initial_idx, final_idx):
