@@ -15,7 +15,16 @@ function getStationRoutes(stationId, routesEndpoint, updateTime) {
                 routeInfo += '<p>';
                 if ('next_vehicles' in route) {
                     for (j=0; j<route.next_vehicles.length; j++) {
-                        routeInfo += '<span>'+ route.next_vehicles[j] + 'm </span>';
+                        var time = route.next_vehicles[j];
+                        if (time > 60) {
+                            var hours = Math.floor(time/60);
+                            var mins = time % 60;
+                            time = hours + "h " + mins + "m";
+                        } else {
+                            time = time + "m";
+                        }
+                        
+                        routeInfo += '<span>'+ time + '  </span>';
                     }
                 }
                 routeInfo +='</p>';
