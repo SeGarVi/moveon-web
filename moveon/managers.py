@@ -91,8 +91,8 @@ class RouteManager(models.Manager):
 
     def get_route_info_for_station(self, station, n_vehicles=1):
         routes = []
-        for route, next_vehicles in \
-                self.get_station_routes(station, n_vehicles):
+        route_times = self.get_station_routes(station, n_vehicles)
+        for route in route_times:
             route.colour = route.line.colour
             route.line_code = route.line.code
             route.line_name = route.line.name
@@ -102,7 +102,7 @@ class RouteManager(models.Manager):
             route.adapted = False  #Change to the good val from de DB
 
             route.next_vehicles = [
-                int(next_vehicle / 60) for next_vehicle in next_vehicles]
+                int(next_vehicle / 60) for next_vehicle in route_times[route]]
 
             routes.append(route)
 
@@ -127,7 +127,7 @@ class RouteManager(models.Manager):
     def get_station_routes(self, station, n_vehicles):
         route_points = station.routepoint_set.all()
 
-        routes = []
+        routes = {}
         for route_point in route_points:
             next_vehicles = []
             if route_point.time_from_beginning is not None:
@@ -140,7 +140,8 @@ class RouteManager(models.Manager):
 
             route = route_point.stretch.route
             if route not in routes:
-                routes.append((route, next_vehicles))
+                routes[route] = []
+            routes[route] = routes[route] + next_vehicles
 
         return routes
 
@@ -152,8 +153,12 @@ class RouteManager(models.Manager):
             if route_point.stretch.route.osmid == route_id:
                 if route_point.time_from_beginning is not None:
                     stretch = route_point.stretch
+                    
+                    now = datetime.now()
+                    day_of_week = now.strftime('%A').lower()
+                    has_timetables = len(stretch.time_table.filter(**{day_of_week: True})) > 0
 
-                    if n_vehicles > 0:
+                    if has_timetables and n_vehicles > 0:
                         next_vehicles = self._get_next_vehicles(
                                     station, route_point.time_from_beginning,
                                     stretch, n_vehicles)
@@ -189,7 +194,7 @@ class RouteManager(models.Manager):
         return next_vehicles
 
     def _get_time_zone_offset(self, station):
-        return 1
+        return 2
 
 
 class TimeManager(models.Manager):
