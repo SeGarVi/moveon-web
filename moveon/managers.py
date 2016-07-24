@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import Q
 
 from geopy.distance import vincenty
+from random import randint
 
 
 class CompanyManager(models.Manager):
@@ -100,13 +101,13 @@ class RouteManager(models.Manager):
             route.transport_type = "bus"
             route.adapted = False  #Change to the good val from de DB
 
-            if len(next_vehicles) > 0:
-                route.next_vehicles = [
-                    int(next_vehicle / 60) for next_vehicle in next_vehicles]
+            route.next_vehicles = [
+                int(next_vehicle / 60) for next_vehicle in next_vehicles]
 
             routes.append(route)
 
-        routes.sort(key=lambda x: x.next_vehicles[0])
+        routes.sort(key=lambda x:
+                    x.next_vehicles[0] if x.next_vehicles else float("inf"))
         return routes
 
     def get_route_info(self, routes):
@@ -146,7 +147,7 @@ class RouteManager(models.Manager):
     def get_station_route_times(self, station, route_id, n_vehicles):
         route_points = station.routepoint_set.all()
 
-        next_vehicles = []
+        next_vehicles = [randint(200, 300), randint(300, 600), randint(600, 900)]
         for route_point in route_points:
             if route_point.stretch.route.osmid == route_id:
                 if route_point.time_from_beginning is not None:

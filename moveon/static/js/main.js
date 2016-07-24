@@ -235,7 +235,8 @@ function send_timetableAcceptation(route_id, stretch_id) {
     var days = $("input[name=day]:checked").map(function () {return this.value;}).get().join(",");
     var start = $( "input[name='start-date']" ).val();
     var end = $( "input[name='end-date']" ).val();
-    var modified = $( "input[name='modified-timetable']" ).val();
+    /* var modified = $( "input[name='modified-timetable']" ).val(); */
+    var modified = false;
     var send = true;
 
     send = verify_last(days, '.moveon-company_day', 'Please, select at least one day in the week checkbox.');

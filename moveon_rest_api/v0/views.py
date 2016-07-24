@@ -9,6 +9,9 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.cache              import cache
 from django.contrib.auth.decorators import login_required
 
+import traceback
+import sys
+
 import moveon_tasks.views as tasks
 
 
@@ -24,9 +27,16 @@ def get_near_stations(request, lat, lon):
 
 @api_view(['GET'])
 def get_routes_for_station(request, station_id):
-    station = Station.objects.get(osmid=station_id)
-    routes = Route.objects.get_route_info_for_station(station, 3);
-    serializer = RouteSerializer(routes, many=True)
+    try:
+        station = Station.objects.get(osmid=station_id)
+        routes = Route.objects.get_route_info_for_station(station, 3);
+        serializer = RouteSerializer(routes, many=True)
+    except Exception:
+        print("Exception in user code:")    
+        print("-"*60)
+        traceback.print_exc(file=sys.stdout)
+        print("-"*60)
+
     return Response(serializer.data)
 
 
