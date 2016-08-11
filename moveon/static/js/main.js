@@ -142,11 +142,11 @@ function verify_last(var1, selector, alert_text){
     }
 }
 
-function send_timetableAcceptation(route_id, stretch_id) {
+function send_timetableAcceptation(route_id, stretch_id, tt_ids=[]) {
     var days = $("input[name=day]:checked").map(function () {return this.value;}).get().join(",");
     var start = $( "input[name='start-date']" ).val();
     var end = $( "input[name='end-date']" ).val();
-    var modified = $( "input[name='modified-timetable']" ).val();
+    var modified = $( "input[name='modified-timetable-ids']" ).val();
     var send = true;
 
     send = verify_last(days, '.moveon-company_day', 'Please, select at least one day in the week checkbox.');
@@ -197,33 +197,39 @@ function send_timetableAcceptation(route_id, stretch_id) {
         
         var initialtimesPerStretch={};
         for (i=0; i<timetableColumn_counter; i++) {
-            var stretchSignature = stationSignatureByCol[i].concat("-").concat(timeSignatureByCol[i]);
+            if (stationSignatureByCol[i]!="") {
+                var stretchSignature = stationSignatureByCol[i].concat("-").concat(timeSignatureByCol[i]);
             
-            if (!(stretchSignature in initialtimesPerStretch)) {
-                initialtimesPerStretch[stretchSignature] = [];
+                if (!(stretchSignature in initialtimesPerStretch)) {
+                    initialtimesPerStretch[stretchSignature] = [];
+                }
+                initialtimesPerStretch[stretchSignature].push(initialTimesPerCol[i])
             }
-            initialtimesPerStretch[stretchSignature].push(initialTimesPerCol[i])
         }
-        
-        var timetable = {
-            "stretch_info_list": initialtimesPerStretch,
-            "route_id": route_id,
-            "day": days,
-            "start": start,
-            "end": end,
-            "modified": Boolean(modified)
-        };
-
-        $.ajax({
-          type: "PUT",
-          url: "/moveon/stretches/"+stretch_id,
-          data: JSON.stringify(timetable),
-          statusCode: {
-            200: function() { alert( "It worked! 200 " ); },
-            201: function() { alert( "It worked! 201 " ); },
-            404: function() { alert( "Something was missing" ); }
-          }
-        });
+        console.log(initialtimesPerStretch);
+        if (Object.keys(initialtimesPerStretch).length>0){
+	        var timetable = {
+	            "stretch_info_list": initialtimesPerStretch,
+	            "route_id": route_id,
+	            "day": days,
+	            "start": start,
+	            "end": end,
+	            "timetable-ids": modified
+	        };
+	
+	        $.ajax({
+	          type: "PUT",
+	          url: "/moveon/stretches/"+stretch_id,
+	          data: JSON.stringify(timetable),
+	          statusCode: {
+	            200: function() { alert( "It worked! 200 " ); },
+	            201: function() { alert( "It worked! 201 " ); },
+	            404: function() { alert( "Something was missing" ); }
+	          }
+	        });
+	    }else{
+	    	window.alert("Neng, que te has dejado algún horario sin poner!");
+	    }
     }
 }
 
@@ -288,8 +294,8 @@ function erase_timetables(route_id) {
     var timetable_ids = $("input[name=timetable]:checked").map(function () {return this.value;}).get().join(",");
     console.log(timetable_ids);
 
-    to_delete = {
-        'timetable_ids': timetable_ids.split('[')[1].split(']')[0].split(',').map(Number),
+    var to_delete = {
+        'timetable_ids': timetable_ids.replace(/[\[\]]/g , "").split(',').map(Number),
         'route_id': route_id
       }
 
@@ -373,7 +379,22 @@ function edit_Timetable(serialize_ids, route_id, tt_ids){
         }
         $("input[name=start-date]").val(timetable.start_date);
         $("input[name=end-date]").val(timetable.end_date);
-        $("input[name=modified-timetable]").val('True');
+        $("input[name=modified-timetable-ids]").val(tt_ids);
+        for (var i = 0; i < timetable.days.length; i++) {
+            switch(timetable.days[i]) {
+                case "mon": name = "monday"; break;
+                case "tue": name = "tuesday"; break;
+                case "wed": name = "wednesday"; break;
+                case "thu": name = "thursday"; break;
+                case "fri": name = "friday"; break;
+                case "sat": name = "saturday"; break;
+                case "sun": name = "sunday"; break;
+                case "hol": name = "holiday"; break;
+                default: name = "";
+            }
+            $("input[value=" + name + "]").attr( 'checked', 'checked' );
+        }
+
     }
 
     $.ajax({

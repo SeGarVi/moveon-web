@@ -308,7 +308,7 @@ table td.new, table th.new, table th {
     min-width: 3em;
 }
 
-.moveon-company_day select {
+.moveon-company_day select, .moveon-company_edit select {
     max-width: 24em;
 }
 

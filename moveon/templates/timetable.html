@@ -9,8 +9,8 @@
     <script src="/static/js/papaparse.min.js"></script>
     <script>
         $(function() {
-          $( "#datepicker" ).datepicker();
-          $( "#datepicker2" ).datepicker();
+          $( "#datepicker" ).datepicker({ dateFormat: 'dd/mm/yy' });
+          $( "#datepicker2" ).datepicker({ dateFormat: 'dd/mm/yy' });
         });
         var serialize_ids = {{ serialize_ids|safe }};
     </script>
@@ -28,7 +28,7 @@
         <div class="columns">
             <div class="moveon-company column is-half is-offset-quarter is-flex is-flex-justify is-column">
                 <p class="title is-5">If you need to Edit or erase a timetable, choose it and press the correspondant button:</p>
-                <div class="moveon-company_day">
+                <div class="moveon-company_edit">
                     {% for timetable, ids in timetables %}
                         <p>
                             <input type="checkbox" name="timetable" value="{{ids}}"> {{timetable.start_date}} - {{timetable.end_date}} {{timetable.days}}
@@ -58,7 +58,7 @@
                     Mean Speed (km/h): <input class="input" name="mean_speed" type="number" max="100.0" min="0.0" step="0.01" onchange="verify_speed('mean_speed')" />
                     Start date: <input id="datepicker"  class="input" name="start-date" type="text" onchange="verify_date('start-date')" />
                     End Date:   <input id="datepicker2" class="input" name="end-date"   type="text" onchange="verify_date('end-date')"/>
-                    <input name="modified-timetable" type="hidden" value="False"/>
+                    <input name="modified-timetable-ids" type="hidden" value=""/>
                 </div>
             </div>
             <div class="is-flex moveon-company_buttons">
