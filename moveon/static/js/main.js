@@ -1,14 +1,53 @@
 ///Global variables
+function getStationRoutes(stationId, routesEndpoint, updateTime) {
+    $.get(routesEndpoint,
+        function( data ) {
+            $( "div.station_" + stationId + "_routes").empty();
+            for (i=0; i<data.length; i++) {
+                var route = data[i];
+                var routeInfo =
+                   '<div class="station_routes--info is-flex">' +
+                        '<p class="route-info is-flex">' +
+                            '<i class="is-hidden-mobile material-icons">directions_bus</i>' +
+                            '<img class="is-hidden-mobile is-small-image" src="'+ route.company_icon +'"></img>' + 
+                            '<span class="line_code" style="background-color:'+route.colour+'"> '+route.line_code+' </span> '+route.name+
+                        '</p>';
+                routeInfo += '<p>';
+                if ('next_vehicles' in route) {
+                    for (j=0; j<route.next_vehicles.length; j++) {
+                        var time = route.next_vehicles[j];
+                        if (time > 60) {
+                            var hours = Math.floor(time/60);
+                            var mins = time % 60;
+                            time = hours + "h " + mins + "m";
+                        } else {
+                            time = time + "m";
+                        }
+                        
+                        routeInfo += '<span>'+ time + '  </span>';
+                    }
+                }
+                routeInfo +='</p>';
+                routeInfo += '</div>';
+                $( "div.station_" + stationId + "_routes").append(routeInfo);
+            }
+            setTimeout(function(){getStationRoutes(stationId, routesEndpoint, updateTime);}, updateTime);
+        }
+    );
+}
 
 // Function to retrieve information and send a 
-function getOSMLine(key, value, url) {
+function getOSMLine(key, value, url, taskEndpoint, companyCode, postExecutionURL, postExecutionText) {
     var info = '{"osmline": {"'+ key +'": '+value+'}}';
-    $( "button" ).addClass( "is-loading" );
     $.post( url, info, 
         function( data ) {
-            if (key === 'accept') { window.location = url; }
-            else{ window.location = url + value; }
-            $( "button" ).removeClass( "is-loading" );
+    		getLineTaskId=data;
+    		
+    		$( ".tasks" ).append( '<div class="'+getLineTaskId+'">'+ getLineTaskId +' - PENDING</div>' );
+			
+			var i = taskEndpoint.indexOf(companyCode);
+    		var taskEndpointNoArg = taskEndpoint.substring(0, i);
+    		updateTaskStatus(taskEndpointNoArg, getLineTaskId, postExecutionURL, value, postExecutionText, 'PENDING');
         }
     ).fail(
         function(data){
@@ -16,6 +55,65 @@ function getOSMLine(key, value, url) {
             $( "button" ).removeClass( "is-loading" );
         }
     );
+}
+
+function saveOSMLine(key, value, url, taskEndpoint, companyCode, postExecutionURL, postExecutionText) {
+    var info = '{"osmline": {"'+ key +'": '+value+'}}';
+    $.post( url, info, 
+        function( data ) {
+    		if (value) {
+    			getLineTaskId=data;
+        		
+        		$( ".tasks" ).append( '<div class="'+getLineTaskId+'">'+ getLineTaskId +' - PENDING</div>' );
+    			
+    			var i = taskEndpoint.indexOf(companyCode);
+        		var taskEndpointNoArg = taskEndpoint.substring(0, i);
+        		updateTaskStatus(taskEndpointNoArg, getLineTaskId, postExecutionURL, '', postExecutionText, 'PENDING');
+    		} else {
+    			window.location=data;
+    		}
+        }
+    ).fail(
+        function(data){
+            alert("Error " + data.status + " " + url + " " + info);
+            $( "button" ).removeClass( "is-loading" );
+        }
+    );
+}
+
+function runImportationTasks(tasks, taskEndpoint, postExecutionURL, companyCode, postExecutionText) {
+	var i = taskEndpoint.indexOf(companyCode);
+	var taskEndpointNoArg = taskEndpoint.substring(0, i);
+	
+	for (i=0; i<tasks.length; i++) {
+		var taskId = tasks[i];
+		var j = taskId.lastIndexOf('_');
+		var osmid = taskId.substring(j+1);
+		
+		$( ".tasks" ).append( '<div class="'+taskId+'">'+ taskId +' - PENDING</div>' );
+		updateTaskStatus(taskEndpointNoArg, taskId, postExecutionURL, osmid, postExecutionText, 'PENDING');
+	} 
+}
+
+function updateTaskStatus(taskEndpoint, taskId, postExecutionURL, postExecutionParams, postExecutionText, previousStatus) {
+	var finalUrl = taskEndpoint + taskId;
+	$.get(finalUrl,
+		function( data ) {
+			if (data == "SUCCESS") {
+				$( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +
+						'<a href="' + postExecutionURL + postExecutionParams +'"> '+
+						postExecutionText +'</a></div>' );
+			} else {
+				if (data != previousStatus) {
+					$( "div."+taskId ).replaceWith( '<div class="'+taskId+'">'+ taskId +' - '+ data +'</div>' );
+				}
+			}
+		
+			if (data == "STARTED" || data == "PENDING") {
+				setTimeout(function(){updateTaskStatus(taskEndpoint, taskId, postExecutionURL, postExecutionParams, postExecutionText, previousStatus);}, 30000);
+			}
+		}
+	);
 }
 
 /*Get GPS coordinates of the user*/
@@ -146,7 +244,8 @@ function send_timetableAcceptation(route_id, stretch_id, tt_ids=[]) {
     var days = $("input[name=day]:checked").map(function () {return this.value;}).get().join(",");
     var start = $( "input[name='start-date']" ).val();
     var end = $( "input[name='end-date']" ).val();
-    var modified = $( "input[name='modified-timetable-ids']" ).val();
+    /* var modified = $( "input[name='modified-timetable']" ).val(); */
+    var modified = false;
     var send = true;
 
     send = verify_last(days, '.moveon-company_day', 'Please, select at least one day in the week checkbox.');

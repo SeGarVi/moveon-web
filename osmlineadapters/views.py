@@ -1,83 +1,76 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache              import cache
 from django.http                    import HttpResponse
-from django.shortcuts               import render, redirect
+from django.shortcuts               import render
 from django.views.decorators.csrf   import csrf_exempt
 import json
-import osmlineadapters.settings as settings
+from moveon.models import Line
+import moveon_tasks.views as tasks
+from moveon_tasks.models import Task 
 from django.core.urlresolvers import reverse
-import traceback
-import sys
+from django.http.response import HttpResponseNotFound
 
 @csrf_exempt
 @login_required(login_url='moveon_login')
 def newline(request, company_id):
-    #Looking for the 
     if request.method == 'POST':
         json_request = json.loads(request.body.decode("utf-8"))
         osm_line_id = json_request['osmline']['id']
         
-        adapter_path = "osmlineadapters.adapters.{0}.osm_line".format(company_id)
-        mod = __import__(adapter_path, fromlist=['OSMLine'])
-        class_ = getattr(mod, 'OSMLine')
+        user = request.user.username
+        task_id = tasks.start_import_line_from_osm_task(user, company_id, osm_line_id)
         
-        try:
-            instance = class_(osm_line_id)
-        except Exception:
-            print("Exception in user code:")    
-            print("-"*60)
-            traceback.print_exc(file=sys.stdout)
-            print("-"*60)
-        
-        cache_id = osm_line_id
-        cache_simplified_id = str(osm_line_id) + "_simple"
-        cache.set(cache_id, instance.to_json(), 600)
-        cache.set(cache_simplified_id, instance.to_simplified_json(), 600)
-        return HttpResponse(request.body)
-
-    return redirect('company', company_id=company_id) 
+        return HttpResponse(task_id)
 
 @login_required(login_url='moveon_login')
-def newlinedetail(request, company_id, osm_line_id):
-       
-    cache_simplified_id = str(osm_line_id) + "_simple"
+def newlinedetail(request, company_id, osm_line_id):    
     if request.method == "GET":
-        line = json.loads(cache.get(cache_simplified_id))
-        if line:
-            context = { 'line': line,
-                        'company_id': company_id
-                      }
-            return render(request, 'new_line_detail.html', context)
-        else:
-            return HttpResponse("Line not retrieved yet")
+        try:
+            line = Line.objects.get(osmid=osm_line_id)
+            return HttpResponse("Line already in database")
+        except Line.DoesNotExist:
+            user = request.user.username
+            
+            try:
+                task = tasks.get_import_line_from_osm_task(company_id, osm_line_id)
+                if 'SUCCESS' in task.status:
+                    decoded_value = json.loads(task.value)
+                    val = decoded_value[0]
+                    simplified_val = decoded_value[1]
+                    
+                    cache.set(osm_line_id, val)
+                    
+                    if simplified_val is not None:
+                        line = json.loads(simplified_val)
+                        context = { 'line': line,
+                                     'company_id': company_id
+                                   }
+                        return render(request, 'new_line_detail.html', context)
+                else:
+                    return HttpResponse("Line not retrieved yet")
+            except Task.DoesNotExist:
+                return HttpResponseNotFound('<h1>Line not being imported</h1>')
+            
     elif request.method == "POST":
         json_request = json.loads(request.body.decode("utf-8"))
         agree = bool(json_request['osmline']['accept'])
+        task_id = -1
         if agree:
-            line = json.loads(cache.get(osm_line_id))
-            osmlinemanager = _get_osmlinemanager(line)
+            val = cache.get(osm_line_id)
+            if val is None:
+                task = tasks.get_import_line_from_osm_task(company_id, osm_line_id)
+                decoded_value = json.loads(task.value)
+                val = decoded_value['val']
             
-            try:
-                osmlinemanager.save()
-            except Exception:
-                print("Exception in user code:")    
-                print("-"*60)
-                traceback.print_exc(file=sys.stdout)
-                print("-"*60)
+            line = json.loads(val)
             
-            status_code = 201
-        else:
-            status_code = 200
+            user = request.user.username
+            task_id = tasks.start_save_line_from_osm_task(user, company_id, osm_line_id, line) 
         
-        cache.delete(osm_line_id)
-        cache.delete(cache_simplified_id)
-        return HttpResponse(status=status_code)
-
-def _get_osmlinemanager(line):
-    manager_module = settings.OSMLINEMANAGERMODULE
-    manager_class_name = settings.OSMLINEMANAGERCLASS
-    mod = __import__(manager_module, fromlist=[manager_class_name])
-    class_ = getattr(mod, manager_class_name)
-    
-    instance = class_(line)
-    return instance
+            cache.delete(osm_line_id)
+            
+            return HttpResponse(task_id)
+        else:
+            tasks.delete_failed_import_line_from_osm_task(company_id, osm_line_id)
+            
+            return HttpResponse(reverse('company', args=[company_id]))

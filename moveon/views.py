@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+<<<<<<< HEAD
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -9,6 +10,17 @@ from moveon.models import Company, Line, Station, Route, Stretch,\
                             RoutePoint, Time, TimeTable
 from django.views.decorators.http import require_http_methods
 from django.db.models import Q
+=======
+from django.contrib.auth.models     import User
+from django.core.urlresolvers       import reverse
+from django.http                    import HttpResponse
+from django.shortcuts               import get_object_or_404, render, redirect
+from geopy.distance                 import vincenty
+from moveon.models                  import Company, Line, Station, Route, Stretch,\
+    RoutePoint, Time, TimeTable, RouteStation
+import moveon_tasks.views as taskmanager
+from django.views.decorators.http   import require_http_methods
+>>>>>>> 46ff0c5e47b24e57694ebf60bf3e0777191e1a17
 import json
 import logging
 import dateutil.parser
@@ -81,13 +93,32 @@ def companies(request):
     return render(request, 'companies.html', {'companies': companies})
 
 
+
 def company(request, company_id):
     comp = get_object_or_404(Company, code=company_id)
     lines = Line.objects.filter(company=comp).order_by('code')
+<<<<<<< HEAD
     context = {'company': comp,
                'lines': lines}
     return render(request, 'company.html', context)
 
+=======
+
+    excludes = []
+    for line in lines:
+        excludes.append(line.osmid)
+
+    user_tasks = []
+    user = request.user.username
+    if user is not None:
+        user_tasks = taskmanager.get_import_line_from_osm_tasks(
+                                                    user, company_id, excludes)
+
+    context = {'company': comp,
+               'lines': lines,
+               'tasks': user_tasks}
+    return render(request, 'company.html', context)
+>>>>>>> 46ff0c5e47b24e57694ebf60bf3e0777191e1a17
 
 def line(request, company_id, line_id):
     comp = get_object_or_404(Company, code=company_id)
@@ -175,8 +206,13 @@ def station(request, station_id):
     # Get distance between station and user
     userpos = request.GET.get('userpos', '').split(',')
     station = Station.objects.get_with_distance(station_id, userpos)
+<<<<<<< HEAD
     # Get station times
     Route.objects.add_route_info_to_station(station)
+=======
+    #Get station times
+    Route.objects.get_route_info_for_station(station)
+>>>>>>> 46ff0c5e47b24e57694ebf60bf3e0777191e1a17
 
     context = {'station': station}
     return render(request, 'station.html', context)
@@ -186,20 +222,50 @@ def station_map(request):
     userpos = request.GET.get('userpos', '')
     lat = float(userpos.split(',')[0])
     lon = float(userpos.split(',')[1])
+<<<<<<< HEAD
 
     context = {'location': {'lon': lon, 'lat': lat}}
     return render(request, 'map.html', context)
 
 
 def nearby(request):
+=======
+    
+    context = { 'location': { 'lon': lon,
+                              'lat': lat
+                            }
+              }
+    return render(request, 'map.html', context) 
+    
+def nearby_with_times(request):
+>>>>>>> 46ff0c5e47b24e57694ebf60bf3e0777191e1a17
     userpos = request.GET.get('userpos', '')
     lat = float(userpos.split(',')[0])
     lon = float(userpos.split(',')[1])
 
     near_stations = Station.objects.get_nearby_stations([lat, lon])
     Route.objects.add_route_info_to_station_list(near_stations, 2)
+<<<<<<< HEAD
     context = {'near_stations': near_stations,
                'location': userpos}
+=======
+    context = { 'near_stations': near_stations,
+                'location': userpos
+              }
+    return render(request, 'nearby.html', context)
+
+
+def nearby(request):
+    userpos = request.GET.get('userpos', '')
+    lat = float(userpos.split(',')[0])
+    lon = float(userpos.split(',')[1])
+    
+    near_stations = Station.objects.get_nearby_stations([lat, lon])
+    
+    context = { 'near_stations': near_stations,
+                'location': userpos
+              }
+>>>>>>> 46ff0c5e47b24e57694ebf60bf3e0777191e1a17
     return render(request, 'nearby.html', context)
 
 
@@ -327,10 +393,7 @@ def _calculate_time_from_beginning(route_points, speed):
 
 
 def _get_stations_for_route(route):
-    node_ids = list(route.stretch_set.first().routepoint_set.all().values_list('node_id', flat=True))
-    stations = list(Station.objects.filter(osmid__in=node_ids))
-    stations.sort(key=lambda t: node_ids.index(t.osmid))
-    return stations
+    return RouteStation.objects.filter(route_id=route.osmid)
 
 
 def _get_station_route_points_for_stretch(stretch):
@@ -404,7 +467,7 @@ def _save_times(timetable, default_stretch, station_points, classified_station_p
             final_idx = \
                 default_route_points.index(final_station_route_point) + 1
             
-            order = 0
+            order = 1
             initial_distance = \
                 default_route_points[initial_idx].distance_from_beginning
             for i in range(initial_idx, final_idx):

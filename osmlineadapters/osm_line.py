@@ -26,7 +26,11 @@ class AbstractOSMLine():
             simplified_route['station_to'] = route['station_to']
             simplified_route['stations'] = []
             
-            for route_point in sorted(route['route_points'].values(), key=lambda x: x['order']):
+            route_points = []
+            for route_point_collection in route['route_points'].values():
+                route_points = route_points + route_point_collection
+            
+            for route_point in sorted(route_points, key=lambda x: x['order']):
                 if route_point['node_id'] in self.line['stations']: 
                     station = self.line['stations'][route_point['node_id']]
                     

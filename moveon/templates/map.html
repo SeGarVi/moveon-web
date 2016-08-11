@@ -18,40 +18,65 @@
     				newBounds._ne.lng < currentDataLimits._ne.lng;
     	}
     	
+    	function getTiledBounds() {
+    		var swne = map.getBounds();
+    		swne._sw.lat = ((parseInt(swne._sw.lat*100))/100);
+    		swne._sw.lng = ((parseInt(swne._sw.lng*100))/100);
+    		swne._ne.lat = ((parseInt(swne._ne.lat*100)+1)/100);
+    		swne._ne.lng = ((parseInt(swne._ne.lng*100)+1)/100);
+    		return swne;
+    	}
+    	
         function getBoundsMoveon(){
-            var swne = map.getBounds();
+            var swne = getTiledBounds();
             //call get_fenced_stations(bottom, left, top, right)
-            if (!newBoundsInsideBiggest(swne)) {
-            	currentDataLimits = swne;
-	            $.ajax({
-	              type: "GET",
-	              url: '{% url 'index' %}api/v0/stations/fenced'+'/'+swne._sw.lat+'/'+swne._sw.lng+'/'+swne._ne.lat+'/'+swne._ne.lng+'/',
-	              headers: {
-	                Accept: 'application/json'
-	              }
-	            }).done(function( data ) {
-	            	var features = [];
-	                for (var i = 0; i < data.length; i++) {
-	                    features.push(
-	                            {
-	                              "type": "Feature",
-	                              "geometry": {
-	                                "type": "Point",
-	                                "coordinates": [data[i].longitude , 
-	                                                data[i].latitude ]
-	                              },
-	                              "properties": {
-	                                    "description": "<div class='marker-title'><a onclick='getLocationRedirection(\"/moveon/stations/" + data[i].pk + "/\");'>"+data[i].code + " - " + data[i].name + "</a></div>",
-	                                    "marker-symbol": "bus",
-	                                    "marker-color": "#123456"
-	                                }
-	                            }
-	                        );
-	                }
-	                stationsSource.setData({
+            if (map.getZoom() < 12) {
+            	if (old_features.length == 0) {
+            		old_features = stationsSource._data.features;	
+            		stationsSource.setData({
 	                    "type": "FeatureCollection",
-	                    "features": features });
-	            });
+	                    "features": [] });
+            	}
+            } else {
+            	if (old_features.length > 0) {
+            		stationsSource.setData({
+	                    "type": "FeatureCollection",
+	                    "features": old_features });
+            		old_features = [];
+            	}
+            	
+	            if (!newBoundsInsideBiggest(swne)) {
+	            	currentDataLimits = swne;
+		            $.ajax({
+		              type: "GET",
+		              url: '{% url 'index' %}api/v0/stations/fenced'+'/'+swne._sw.lat+'/'+swne._sw.lng+'/'+swne._ne.lat+'/'+swne._ne.lng+'/',
+		              headers: {
+		                Accept: 'application/json'
+		              }
+		            }).done(function( data ) {
+		            	var features = [];
+		                for (var i = 0; i < data.length; i++) {
+		                    features.push(
+		                            {
+		                              "type": "Feature",
+		                              "geometry": {
+		                                "type": "Point",
+		                                "coordinates": [data[i].longitude , 
+		                                                data[i].latitude ]
+		                              },
+		                              "properties": {
+		                                    "description": "<div class='marker-title'><a onclick='getLocationRedirection(\"/moveon/stations/" + data[i].pk + "/\");'>"+data[i].code + " - " + data[i].name + "</a></div>",
+		                                    "marker-symbol": "bus",
+		                                    "marker-color": "#123456"
+		                                }
+		                            }
+		                        );
+		                }
+		                stationsSource.setData({
+		                    "type": "FeatureCollection",
+		                    "features": features });
+		            });
+	            }
             }
         }
 
@@ -74,6 +99,7 @@
             var currentDataLimits = map.getBounds();
 			
             var stationsSource = new mapboxgl.GeoJSONSource();
+            var old_features = [];
             
             map.on('style.load', function () {
 

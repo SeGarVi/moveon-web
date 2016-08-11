@@ -19,10 +19,16 @@ from . import views
 
 urlpatterns = [
     url(r'^stations/near/(?P<lat>-?\d+(\.\d+)?)/(?P<lon>-?\d+(\.\d+)?)',                                                       views.get_near_stations,   name='Get near stations'),
+    
+    url(r'^stations/fenced/tiled/(?P<bottom>-?\d+(\.\d+)?)/(?P<left>-?\d+(\.\d+)?)/(?P<top>-?\d+(\.\d+)?)/(?P<right>-?\d+(\.\d+)?)', views.get_tiled_fenced_stations, name='api_v0_get_tiled_fenced_stations'),
     url(r'^stations/fenced/(?P<bottom>-?\d+(\.\d+)?)/(?P<left>-?\d+(\.\d+)?)/(?P<top>-?\d+(\.\d+)?)/(?P<right>-?\d+(\.\d+)?)', views.get_fenced_stations, name='api_v0_get_fenced_stations'),
+    url(r'^stations/(?P<station_id>\d+)/routes/(?P<route_id>\d+)/next/(?P<n_vehicles>\d*)',                              views.get_times_for_station,         name='api_v0_get_times_for_station'),
+    url(r'^stations/(?P<station_id>\d+)/routes',                                                                               views.get_routes_for_station,         name='api_v0_get_routes_for_station'),
     url(r'^stations/(?P<station_id>\d+)',                                                                                      views.get_station,         name='Get station information'),
     url(r'^companies/(?P<company_id>.+)',                                                                                      views.get_company,         name='Get company information'),
     url(r'^companies',                                                                                                         views.get_companies,       name='Get company collection'),
     url(r'^lines/(?P<line_id>\d+)',                                                                                            views.get_line,            name='Get line information'),
-    url(r'^routes/(?P<route_id>\d+)',                                                                                          views.get_route,           name='Get route information')
+    url(r'^routes/(?P<route_id>\d+)',                                                                                          views.get_route,           name='Get route information'),
+    #url(r'^tasks/$',                                                                                         views.get_tasks,           name='Get tasks information'),
+    url(r'^tasks/(?P<task_id>.+)',                                                                                         views.get_task,           name='get_task')
 ]

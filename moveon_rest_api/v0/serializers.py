@@ -7,6 +7,8 @@ class RouteSerializer(serializers.Serializer):
     station_from = serializers.CharField()
     station_to = serializers.CharField()
     colour = serializers.CharField(required=False)
+    line_code = serializers.CharField(required=False)
+    line_name = serializers.CharField(required=False)
     company_icon = serializers.URLField(required=False)
     transport = serializers.CharField(required=False)
     adapted = serializers.BooleanField(required=False)
